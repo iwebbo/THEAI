@@ -1,0 +1,35 @@
+# Core FastAPI dependencies
+fastapi==0.110.0
+uvicorn==0.27.1
+python-multipart==0.0.6
+
+# Database
+sqlalchemy==2.0.27
+psycopg2-binary==2.9.9
+alembic==1.13.1
+
+# Configuration
+pydantic==2.5.3
+pydantic-settings==2.1.0
+python-dotenv==1.0.0
+
+# Authentication (if needed later)
+python-jose==3.3.0
+passlib==1.7.4
+
+# Monitoring dependencies
+icmplib==3.0.3
+paramiko==3.3.1
+
+# Security scanning dependencies
+httpx==0.26.0           # Pour les tests HTTP/HTTPS
+dnspython==2.4.2        # Pour les vérifications DNS
+python-nmap==0.7.1      # Wrapper Python pour nmap
+cryptography==41.0.7    # Pour l'analyse SSL/TLS
+
+# Note: Removed safety and bandit to avoid conflicts
+# They can be run separately in CI/CD if needed
+
+# Utilities
+aiofiles==23.2.1        # Pour les opérations fichiers asynchrones
+python-dateutil==2.8.2  # Pour la manipulation des dates
