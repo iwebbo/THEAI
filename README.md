@@ -2,10 +2,10 @@
 
 A modern, professional server monitoring application built with React frontend and FastAPI backend. Monitor your servers in real-time using multiple protocols (ICMP, HTTP, SSH) with an intuitive dashboard interface.
 
-![License](https://img.shields.io/badge/MIT-FCC624?style=for-the-badge&logo=MIT&logoColor=black)
-![Python](https://img.shields.io/badge/Python-FCC624?style=for-the-badge&logo=Python&logoColor=black)
-![React](https://img.shields.io/badge/React-FCC624?style=for-the-badge&logo=React&logoColor=black)
-![Docker](https://img.shields.io/badge/Docker-FCC624?style=for-the-badge&logo=Docker&logoColor=black)
+![License](https://img.shields.io/badge/MIT-00599C?style=for-the-badge&logo=MIT&logoColor=black)
+![Python](https://img.shields.io/badge/Python-4EAA25?style=for-the-badge&logo=Python&logoColor=black)
+![React](https://img.shields.io/badge/React-4EAA25?style=for-the-badge&logo=React&logoColor=black)
+![Docker](https://img.shields.io/badge/Docker-0078D6?style=for-the-badge&logo=Docker&logoColor=black)
 
 ## Features
 
