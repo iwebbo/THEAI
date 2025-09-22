@@ -7,6 +7,13 @@ A modern, professional server monitoring application built with React frontend a
 ![React](https://img.shields.io/badge/React-4EAA25?style=for-the-badge&logo=React&logoColor=black)
 ![Docker](https://img.shields.io/badge/Docker-0078D6?style=for-the-badge&logo=Docker&logoColor=black)
 
+## Demo
+
+### Dashboard
+<img width="1909" height="692" alt="Capture d’écran 2025-09-22 233135" src="https://github.com/user-attachments/assets/e2c85b0e-e3b1-40ca-97c6-f893922954b7" />
+### Security & Vulnerability reporting
+<img width="1884" height="906" alt="Capture d’écran 2025-09-22 233214" src="https://github.com/user-attachments/assets/a1358c56-4f9a-4b9a-ae9d-13db11650794" />
+
 ## Features
 
 ### Current Features
