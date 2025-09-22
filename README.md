@@ -9,6 +9,9 @@ A modern, professional server monitoring application built with React frontend a
 
 ## Demo
 
+### Login page
+<img width="1911" height="913" alt="Capture d’écran 2025-09-22 233449" src="https://github.com/user-attachments/assets/a8eee6bf-0319-4ab2-bbc6-76626ed22dc2" />
+
 ### Dashboard
 <img width="1909" height="692" alt="Capture d’écran 2025-09-22 233135" src="https://github.com/user-attachments/assets/e2c85b0e-e3b1-40ca-97c6-f893922954b7" />
 
