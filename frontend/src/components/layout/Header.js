@@ -16,16 +16,17 @@ const Header = ({ user, onLogout }) => {
       top: 0,
       left: 0,
       right: 0,
-      zIndex: 1000
+      zIndex: 1000,
+      width: '100%' // Force la largeur complète
     }}>
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
         height: '64px',
-        maxWidth: '1200px',
-        margin: '0 auto',
+        width: '100%', // Largeur complète au lieu de maxWidth
         padding: '0 1.5rem'
+        // Suppression de margin: '0 auto' et maxWidth: '1200px'
       }}>
         {/* Logo THEAI */}
         <Link to="/" style={{ 
