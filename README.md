@@ -33,6 +33,7 @@ A modern, professional server monitoring application built with React frontend a
 
 ### Monitoring Capabilities
 - **ICMP Ping**: Basic connectivity testing with response time measurement
+- **TCP**: TCP availability with custom ports
 - **HTTP/HTTPS Monitoring**: Web service availability with custom ports and paths
 - **SSH Connectivity**: SSH service monitoring with authentication support
 - **Response Time Tracking**: Monitor and track server response times
