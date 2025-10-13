@@ -8,6 +8,7 @@ class MonitoringProtocol(enum.Enum):
     ICMP = "icmp"  # Ping
     HTTP = "http"  # HTTP/HTTPS
     SSH = "ssh"    # SSH
+    TCP = "tcp"    # TCP Port
 
 class ServerStatus(enum.Enum):
     ONLINE = "online"
@@ -37,6 +38,10 @@ class Server(Base):
     ssh_username = Column(String(255), nullable=True)
     ssh_password = Column(String(255), nullable=True)
     ssh_key_path = Column(String(255), nullable=True)
+    
+    # For TCP monitoring
+    tcp_port = Column(Integer, nullable=True)
+    tcp_timeout = Column(Integer, nullable=True, default=5)  # Timeout in seconds
     
     # Status information
     status = Column(String(20), default=ServerStatus.UNKNOWN.value)

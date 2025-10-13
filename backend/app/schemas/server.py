@@ -7,6 +7,7 @@ class MonitoringProtocol(str, Enum):
     ICMP = "icmp"
     HTTP = "http"
     SSH = "ssh"
+    TCP = "tcp"
 
 class ServerStatus(str, Enum):
     ONLINE = "online"
@@ -31,6 +32,10 @@ class ServerBase(BaseModel):
     ssh_username: Optional[str] = None
     ssh_password: Optional[str] = None
     ssh_key_path: Optional[str] = None
+    
+    # TCP specific settings
+    tcp_port: Optional[int] = None
+    tcp_timeout: Optional[int] = 5
     
     @validator('protocols')
     def validate_protocols(cls, v):

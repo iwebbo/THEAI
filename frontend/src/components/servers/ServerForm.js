@@ -25,6 +25,10 @@ const ServerForm = ({ serverId }) => {
     ssh_username: '',
     ssh_password: '',
     ssh_key_path: '',
+    
+    // TCP settings
+    tcp_port: 3306,
+    tcp_timeout: 5,
   });
   
   const [loading, setLoading] = useState(false);
@@ -32,7 +36,8 @@ const ServerForm = ({ serverId }) => {
   const [protocolOptions, setProtocolOptions] = useState({
     icmp: true,
     http: false,
-    ssh: false
+    ssh: false,
+    tcp: false
   });
 
   // Charger les données du serveur en mode édition
@@ -66,6 +71,9 @@ const ServerForm = ({ serverId }) => {
         ssh_username: serverData.ssh_username || '',
         ssh_password: serverData.ssh_password || '',
         ssh_key_path: serverData.ssh_key_path || '',
+        
+        tcp_port: serverData.tcp_port || 3306,
+        tcp_timeout: serverData.tcp_timeout || 5,
       });
       
       // Mettre à jour les options de protocole
@@ -73,7 +81,8 @@ const ServerForm = ({ serverId }) => {
       setProtocolOptions({
         icmp: protocols.includes('icmp'),
         http: protocols.includes('http'),
-        ssh: protocols.includes('ssh')
+        ssh: protocols.includes('ssh'),
+        tcp: protocols.includes('tcp')
       });
       
     } catch (err) {
@@ -322,13 +331,24 @@ const ServerForm = ({ serverId }) => {
               />
               SSH
             </label>
+            
+            <label style={styles.checkboxLabel}>
+              <input
+                type="checkbox"
+                name="tcp"
+                checked={protocolOptions.tcp}
+                onChange={handleProtocolChange}
+                style={styles.checkbox}
+              />
+              TCP Port
+            </label>
           </div>
         </div>
         
         {/* Paramètres HTTP */}
         {protocolOptions.http && (
           <>
-            <h2 style={styles.sectionTitle}>Paramètres HTTP</h2>
+            <h2 style={styles.sectionTitle}>HTTP Settings</h2>
             
             <div style={styles.formGroup}>
               <label style={styles.checkboxLabel}>
@@ -339,12 +359,12 @@ const ServerForm = ({ serverId }) => {
                   onChange={handleInputChange}
                   style={styles.checkbox}
                 />
-                Utiliser HTTPS
+                Use HTTPS
               </label>
             </div>
             
             <div style={styles.formGroup}>
-              <label style={styles.label} htmlFor="http_port">Port HTTP</label>
+              <label style={styles.label} htmlFor="http_port">HTTP Port</label>
               <input
                 type="number"
                 id="http_port"
@@ -372,10 +392,10 @@ const ServerForm = ({ serverId }) => {
         {/* Paramètres SSH */}
         {protocolOptions.ssh && (
           <>
-            <h2 style={styles.sectionTitle}>Parameters SSH</h2>
+            <h2 style={styles.sectionTitle}>SSH Settings</h2>
             
             <div style={styles.formGroup}>
-              <label style={styles.label} htmlFor="ssh_port">Port SSH</label>
+              <label style={styles.label} htmlFor="ssh_port">SSH Port</label>
               <input
                 type="number"
                 id="ssh_port"
@@ -387,7 +407,7 @@ const ServerForm = ({ serverId }) => {
             </div>
             
             <div style={styles.formGroup}>
-              <label style={styles.label} htmlFor="ssh_username">Username SSH</label>
+              <label style={styles.label} htmlFor="ssh_username">SSH Username</label>
               <input
                 type="text"
                 id="ssh_username"
@@ -399,7 +419,7 @@ const ServerForm = ({ serverId }) => {
             </div>
             
             <div style={styles.formGroup}>
-              <label style={styles.label} htmlFor="ssh_password">Password SSH</label>
+              <label style={styles.label} htmlFor="ssh_password">SSH Password</label>
               <input
                 type="password"
                 id="ssh_password"
@@ -411,7 +431,7 @@ const ServerForm = ({ serverId }) => {
             </div>
             
             <div style={styles.formGroup}>
-              <label style={styles.label} htmlFor="ssh_key_path">Path of private key SSH (optionnal)</label>
+              <label style={styles.label} htmlFor="ssh_key_path">Path of private key SSH (optional)</label>
               <input
                 type="text"
                 id="ssh_key_path"
@@ -424,13 +444,56 @@ const ServerForm = ({ serverId }) => {
           </>
         )}
         
+        {/* Paramètres TCP */}
+        {protocolOptions.tcp && (
+          <>
+            <h2 style={styles.sectionTitle}>TCP Port Settings</h2>
+            
+            <div style={styles.formGroup}>
+              <label style={styles.label} htmlFor="tcp_port">TCP Port to monitor</label>
+              <input
+                type="number"
+                id="tcp_port"
+                name="tcp_port"
+                value={formData.tcp_port}
+                onChange={handleInputChange}
+                required={protocolOptions.tcp}
+                min="1"
+                max="65535"
+                style={styles.input}
+                placeholder="e.g., 3306 (MySQL), 5432 (PostgreSQL), 27017 (MongoDB)"
+              />
+              <small style={{ color: '#757575', fontSize: '14px', marginTop: '5px', display: 'block' }}>
+                Common ports: MySQL (3306), PostgreSQL (5432), MongoDB (27017), Redis (6379), Elasticsearch (9200)
+              </small>
+            </div>
+            
+            <div style={styles.formGroup}>
+              <label style={styles.label} htmlFor="tcp_timeout">Connection Timeout (seconds)</label>
+              <input
+                type="number"
+                id="tcp_timeout"
+                name="tcp_timeout"
+                value={formData.tcp_timeout}
+                onChange={handleInputChange}
+                min="1"
+                max="30"
+                style={styles.input}
+              />
+              <small style={{ color: '#757575', fontSize: '14px', marginTop: '5px', display: 'block' }}>
+                Time to wait before considering the port as unreachable (1-30 seconds)
+              </small>
+            </div>
+          </>
+        )}
+        
         <div style={styles.buttonGroup}>
           <button
             type="button"
             onClick={() => navigate('/servers')}
             style={styles.cancelButton}
           >
-            Annuler
+            Cancel
           </button>
           
           <button
