@@ -74,8 +74,8 @@ This application is designed for internal network monitoring. For production dep
 
 1. **Clone the repository**:
    ```bash
-   git clone <repository-url>
-   cd theai
+   git clone [<repository-url>](https://github.com/iwebbo/THEAI)
+   cd THEAI
    ```
 
 2. **Configure authentication** (optional):
