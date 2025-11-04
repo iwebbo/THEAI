@@ -1,6 +1,6 @@
 # THEAI Monitoring & Vulnerability Platform
 
-A modern, professional server monitoring application built with React frontend and FastAPI backend. Monitor your servers in real-time using multiple protocols (ICMP, HTTP, SSH) with an intuitive dashboard interface.
+A modern, professional server monitoring & vulnerability application built with React frontend and FastAPI backend. Monitor your servers in real-time using multiple protocols (ICMP, HTTP, SSH, TCP) with an intuitive dashboard interface.
 
 ![License](https://img.shields.io/badge/MIT-00599C?style=for-the-badge&logo=MIT&logoColor=black)
 ![Python](https://img.shields.io/badge/Python-4EAA25?style=for-the-badge&logo=Python&logoColor=black)
