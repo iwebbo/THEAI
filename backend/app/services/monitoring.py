@@ -181,6 +181,67 @@ class MonitoringService:
                 pass
 
     @staticmethod
+    async def check_tcp(hostname: str, port: int, timeout: int = 5) -> Dict[str, Any]:
+        """
+        Vérifie la connectivité TCP sur un port spécifique
+        
+        Args:
+            hostname: Hostname ou IP du serveur
+            port: Port TCP à vérifier
+            timeout: Timeout en secondes
+            
+        Returns:
+            Dict avec status, response_time et message
+        """
+        try:
+            start_time = time.time()
+            
+            # Créer une socket TCP
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(timeout)
+            
+            # Tenter de se connecter
+            result = sock.connect_ex((hostname, port))
+            
+            response_time = int((time.time() - start_time) * 1000)  # ms
+            
+            # Fermer la socket
+            sock.close()
+            
+            if result == 0:
+                return {
+                    "status": ServerStatus.ONLINE.value,
+                    "response_time": response_time,
+                    "message": f"TCP port {port} is open, response time: {response_time}ms"
+                }
+            else:
+                return {
+                    "status": ServerStatus.OFFLINE.value,
+                    "response_time": None,
+                    "message": f"TCP port {port} is closed or filtered"
+                }
+                
+        except socket.timeout:
+            return {
+                "status": ServerStatus.OFFLINE.value,
+                "response_time": None,
+                "message": f"TCP connection to port {port} timed out after {timeout}s"
+            }
+        except socket.gaierror as e:
+            return {
+                "status": ServerStatus.OFFLINE.value,
+                "response_time": None,
+                "message": f"TCP check error - hostname resolution failed: {str(e)}"
+            }
+        except Exception as e:
+            return {
+                "status": ServerStatus.OFFLINE.value,
+                "response_time": None,
+                "message": f"TCP check error: {str(e)}"
+            }
+
+
+    @staticmethod
     async def check_server(server: Server) -> ServerCheck:
         """
         Vérifie l'état d'un serveur selon les protocoles configurés
@@ -209,6 +270,12 @@ class MonitoringService:
                     username=server.ssh_username,
                     password=server.ssh_password,
                     key_path=server.ssh_key_path
+                )
+            elif protocol == MonitoringProtocol.TCP.value:
+                result = await MonitoringService.check_tcp(
+                server.hostname,
+                port=server.tcp_port,
+                timeout=server.tcp_timeout
                 )
                 results.append(result)
         
