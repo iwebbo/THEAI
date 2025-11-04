@@ -30,6 +30,8 @@ async def create_server(server_in: ServerCreate, db: Session = Depends(get_db)):
         ssh_username=server_in.ssh_username,
         ssh_password=server_in.ssh_password,
         ssh_key_path=server_in.ssh_key_path,
+        tcp_port=server_in.tcp_port,
+        tcp_timeout=server_in.tcp_timeout,
         status=ServerStatus.UNKNOWN.value
     )
     
