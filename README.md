@@ -39,7 +39,159 @@ A modern, professional server monitoring application built with React frontend a
 - **Response Time Tracking**: Monitor and track server response times
 - **Status History**: Track server status changes over time
 
-## Security & Vulnerability Management
+## Vulnerability Scanning & Security Assessment
+
+### Overview
+The platform now includes comprehensive vulnerability scanning capabilities to detect and report security issues across your monitored servers. The system provides two scanning approaches: **Quick Scan** for rapid security assessments and **Full Security Scan** for detailed vulnerability analysis.
+
+### Quick Scan Features
+Quick scans provide immediate security checks with minimal overhead:
+
+- **Critical Ports Detection**: Identifies dangerous open ports that pose security risks
+  - Detects: Telnet (23), NetBIOS (139), SMB (445), RDP (3389), VNC (5900), Redis (6379), Elasticsearch (9200), MongoDB (27017)
+  - Categorizes risks by severity level (Critical, High, Medium, Low)
+  
+- **SSL/TLS Security Check**: Validates HTTPS protocol configuration
+  - Detects outdated SSL/TLS versions (SSLv2, SSLv3, TLSv1, TLSv1.1)
+  - Recommends upgrade to TLS 1.2 or higher
+  - Provides certificate validation information
+  
+- **Real-time Results**: Synchronous execution with immediate feedback
+  - Response time: Typically 5-15 seconds per server
+  - Ideal for periodic monitoring and quick security audits
+
+### Full Security Scan Features
+Comprehensive vulnerability assessments for in-depth security analysis:
+
+- **Advanced Port Scanning**: Extended port analysis and service detection
+- **Protocol Vulnerability Detection**: Identifies protocol-specific weaknesses
+- **Technology Stack Assessment**: Detects and analyzes installed services and versions
+- **Detailed Vulnerability Reporting**: Complete vulnerability descriptions with severity ratings
+  - Critical: Immediate action required
+  - High: Must be addressed shortly
+  - Medium: Should be resolved in planned maintenance
+  - Low: Informational, address when possible
+- **Background Execution**: Asynchronous scanning for large-scale deployments
+- **Comprehensive Recommendations**: Actionable remediation steps for each vulnerability
+
+### Vulnerability Severity Levels
+
+| Severity | Impact | Example |
+|----------|--------|---------|
+| **Critical** | Immediate compromise risk | Unencrypted dangerous services |
+| **High** | Significant security exposure | Weak SSL/TLS, exposed database ports |
+| **Medium** | Moderate security concern | Outdated services, unnecessary open ports |
+| **Low** | Minor security issue | Informational findings |
+
+### API Endpoints
+
+#### Quick Security Check (Synchronous)
+```
+POST /api/v1/security/scan/quick/{server_id}
+```
+**Response**: Immediate vulnerability report with risk assessment
+
+#### Start Full Security Scan (Asynchronous)
+```
+POST /api/v1/security/{server_id}/scan
+```
+**Response**: Scan ID for tracking progress
+
+#### Get Scan Results
+```
+GET /api/v1/security/scan/{scan_id}
+```
+**Response**: Detailed scan results with vulnerabilities and recommendations
+
+#### Get Security Recommendations
+```
+GET /api/v1/security/recommendations/{server_id}
+```
+**Response**: Latest recommendations based on most recent scan
+
+#### Get Vulnerability Summary (All Servers)
+```
+GET /api/v1/security/vulnerabilities/summary
+```
+**Response**: Aggregated vulnerability report across all monitored servers
+
+#### Get Server Scan History
+```
+GET /api/v1/security/{server_id}/scans?limit=10
+```
+**Response**: Historical scan records for trend analysis
+
+### Security Check Details
+
+#### Dangerous Ports Analysis
+The system monitors and flags potentially dangerous open ports:
+- **SMB (445)**: Windows file sharing protocol - common attack vector
+- **RDP (3389)**: Remote Desktop - frequent brute-force target
+- **MongoDB (27017)**: Database - often exposed without authentication
+- **Redis (6379)**: Cache service - frequently misconfigured
+- **Elasticsearch (9200)**: Search engine - can expose sensitive data
+- **Telnet (23)**: Unencrypted remote access - obsolete and dangerous
+- **NetBIOS (139)**: Windows networking - legacy protocol with vulnerabilities
+- **VNC (5900)**: Remote access - weak authentication protocols
+
+#### SSL/TLS Validation
+Ensures secure web communication:
+- Detects minimum TLS version in use
+- Flags obsolete protocols (SSL 2.0, 3.0, TLS 1.0, 1.1)
+- Validates certificate chain
+- Recommends modern TLS 1.2+ with strong cipher suites
+
+### Dashboard Integration
+
+**Security Tab Features**:
+- Real-time vulnerability overview
+- Server risk status indicators
+- Scan history timeline
+- Vulnerability trending charts
+- Quick scan buttons for manual checks
+- Detailed vulnerability inspector
+
+### Risk Assessment
+
+The platform calculates overall server risk based on:
+- Number and severity of detected vulnerabilities
+- Exposure of critical services
+- SSL/TLS configuration strength
+- Open dangerous ports quantity
+
+### Automated Recommendations
+
+The system provides actionable recommendations including:
+- Port security hardening steps
+- SSL/TLS upgrade paths
+- Service hardening procedures
+- Network segmentation suggestions
+- Authentication strengthening measures
+
+### Scan Data Retention
+
+All scan results are persisted in the database for:
+- Historical comparison and trending
+- Compliance reporting
+- Security audit trails
+- Risk evolution tracking
+
+### Performance Impact
+
+- **Quick Scans**: Minimal resource usage, safe for frequent scheduling
+- **Full Scans**: More intensive, recommended for 1-2x daily frequency
+- **Background Processing**: Full scans don't block API response
+
+### Best Practices
+
+1. **Run Quick Scans**: Schedule hourly for continuous monitoring
+2. **Full Scans Weekly**: Run comprehensive scans during maintenance windows
+3. **Monitor Trends**: Use dashboard to track vulnerability evolution
+4. **Act on Recommendations**: Implement suggested security improvements promptly
+5. **Document Changes**: Track security remediation efforts over time
+6. **Compliance Alignment**: Use reports for security audits and compliance requirements
+
+## Security
 
 ### Current Security Measures
 - **Input Validation**: All user inputs are validated and sanitized
@@ -75,7 +227,7 @@ This application is designed for internal network monitoring. For production dep
 
 1. **Clone the repository**:
    ```bash
-   git clone [<repository-url>](https://github.com/iwebbo/THEAI)
+   git clone https://github.com/iwebbo/THEAI
    cd THEAI
    ```
 
