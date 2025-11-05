@@ -41,8 +41,8 @@ const Header = ({ user, onLogout }) => {
           <div
             style={{
               position: "relative",
-              width: "40px",
-              height: "40px",
+              width: "115px",
+              height: "115px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -58,28 +58,6 @@ const Header = ({ user, onLogout }) => {
                 objectFit: "contain"
               }}
             />
-          </div>
-          
-          {/* Nom de l'application */}
-          <div>
-            <h1 style={{ 
-              margin: 0, 
-              fontSize: '1.5rem',
-              fontWeight: '700',
-              color: '#1f2937',
-              letterSpacing: '0.05em'
-            }}>
-              THEAI
-            </h1>
-            <div style={{
-              fontSize: '0.75rem',
-              color: '#6b7280',
-              fontWeight: '500',
-              marginTop: '-2px',
-              letterSpacing: '0.025em'
-            }}>
-              Monitoring & Vulnerability
-            </div>
           </div>
         </Link>
         
