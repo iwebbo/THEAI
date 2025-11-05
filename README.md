@@ -10,13 +10,13 @@ A modern, professional server monitoring & vulnerability application built with 
 ## Demo
 
 ### Login page
-<img width="1911" height="913" alt="Capture d’écran 2025-09-22 233449" src="https://github.com/user-attachments/assets/a8eee6bf-0319-4ab2-bbc6-76626ed22dc2" />
+<img width="1862" height="902" alt="theai-login-page" src="https://github.com/user-attachments/assets/cf5a313d-9750-4ebd-8397-0d8d7cfb8ec6" />
 
 ### Dashboard
-<img width="1909" height="692" alt="Capture d’écran 2025-09-22 233135" src="https://github.com/user-attachments/assets/e2c85b0e-e3b1-40ca-97c6-f893922954b7" />
+<img width="1917" height="910" alt="theai-dashboard-page" src="https://github.com/user-attachments/assets/9f4f6184-af5b-4ee4-a15d-3a727e1c6fa7" />
 
 ### Security - Vulnerability reporting
-<img width="1884" height="906" alt="Capture d’écran 2025-09-22 233214" src="https://github.com/user-attachments/assets/a1358c56-4f9a-4b9a-ae9d-13db11650794" />
+<img width="1907" height="912" alt="theai-dashboard-security-page" src="https://github.com/user-attachments/assets/fd123dcc-5378-48f9-93f5-833568862bf6" />
 
 ## Features
 
