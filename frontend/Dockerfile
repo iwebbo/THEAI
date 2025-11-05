@@ -3,7 +3,7 @@ FROM node:18-alpine as build
 WORKDIR /app
 
 # Copie du package.json
-COPY package.json ./
+COPY package*.json ./
 
 # Installation des dépendances
 RUN npm install

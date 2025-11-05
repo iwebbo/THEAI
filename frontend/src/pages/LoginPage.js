@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import logoPng from "../assets/logo.png";
 
 const LoginPage = ({ onLogin }) => {
   const navigate = useNavigate();
@@ -73,46 +74,28 @@ const LoginPage = ({ onLogin }) => {
           textAlign: 'center',
           marginBottom: '2rem'
         }}>
-          {/* Hexagone THEAI */}
-          <div style={{
-            display: 'inline-block',
-            marginBottom: '1rem'
-          }}>
-            <svg width="80" height="80" viewBox="0 0 100 100">
-              <polygon 
-                points="50,10 80,30 80,70 50,90 20,70 20,30" 
-                fill="#3b82f6"
-                stroke="none"
-              />
-              {/* Motif intérieur */}
-              <g fill="white" stroke="white" strokeWidth="3">
-                <line x1="35" y1="35" x2="65" y2="65" />
-                <line x1="65" y1="35" x2="35" y2="65" />
-                <line x1="50" y1="25" x2="50" y2="75" />
-                <line x1="30" y1="50" x2="70" y2="50" />
-              </g>
-            </svg>
+          {/* Icône hexagonale THEAI */}
+          <div
+            style={{
+              position: "relative",
+              width: "400",
+              height: "400",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              overflow: "hidden"
+            }}
+          >
+            <img
+              src={logoPng}
+              alt="Brand"
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "contain"
+              }}
+            />
           </div>
-          
-          {/* Titre */}
-          <h1 style={{
-            fontSize: '2.5rem',
-            fontWeight: '700',
-            color: '#1f2937',
-            margin: '0 0 0.5rem 0',
-            letterSpacing: '0.05em'
-          }}>
-            THEAI
-          </h1>
-          
-          <p style={{
-            color: '#6b7280',
-            fontSize: '1rem',
-            margin: '0 0 2rem 0',
-            fontWeight: '500'
-          }}>
-            Monitoring & Vulnerability Platform
-          </p>
         </div>
 
         {/* Formulaire de connexion */}
@@ -254,33 +237,6 @@ const LoginPage = ({ onLogin }) => {
             )}
           </button>
         </form>
-
-        {/* Note pour le développement */}
-        <div style={{
-          marginTop: '2rem',
-          padding: '1rem',
-          backgroundColor: '#f9fafb',
-          borderRadius: '0.5rem',
-          border: '1px solid #e5e7eb'
-        }}>
-          <p style={{
-            fontSize: '0.875rem',
-            color: '#6b7280',
-            margin: '0 0 0.5rem 0',
-            fontWeight: '600'
-          }}>
-            Development Mode
-          </p>
-          <p style={{
-            fontSize: '0.75rem',
-            color: '#9ca3af',
-            margin: 0,
-            lineHeight: '1.4'
-          }}>
-            Create a user via API: POST /api/v1/auth/create-user<br/>
-            {"{"}"username": "admin", "password": "admin123", "is_admin": true{"}"}
-          </p>
-        </div>
 
         {/* Animation CSS */}
         <style>{`
