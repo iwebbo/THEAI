@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { 
+  Save, X, Server, Globe, Activity, Lock, Network, 
+  Eye, EyeOff, ArrowLeft, CheckCircle
+} from 'lucide-react';
 import serverApi from '../../services/api';
 import Alert from '../common/Alert';
+import Loading from '../common/Loading';
 
 const ServerForm = ({ serverId }) => {
   const navigate = useNavigate();
   const isEditMode = !!serverId;
-  
+
   const [formData, setFormData] = useState({
     name: '',
     hostname: '',
@@ -14,25 +19,23 @@ const ServerForm = ({ serverId }) => {
     description: '',
     enabled: true,
     protocols: 'icmp',
-    
+
     // HTTP settings
     http_port: 80,
     http_path: '/',
     use_https: false,
-    
+
     // SSH settings
     ssh_port: 22,
     ssh_username: '',
     ssh_password: '',
     ssh_key_path: '',
-    
+
     // TCP settings
     tcp_port: 3306,
-    tcp_timeout: 5,
+    tcp_timeout: 5
   });
-  
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+
   const [protocolOptions, setProtocolOptions] = useState({
     icmp: true,
     http: false,
@@ -40,21 +43,23 @@ const ServerForm = ({ serverId }) => {
     tcp: false
   });
 
-  // Charger les données du serveur en mode édition
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
+
   useEffect(() => {
     if (isEditMode) {
       fetchServerData();
     }
   }, [serverId]);
 
-  // Récupérer les données du serveur à éditer
   const fetchServerData = async () => {
     try {
       setLoading(true);
       const response = await serverApi.getServer(serverId);
       const serverData = response.data;
-      
-      // Mettre à jour le formulaire avec les données du serveur
+
       setFormData({
         name: serverData.name || '',
         hostname: serverData.hostname || '',
@@ -62,21 +67,20 @@ const ServerForm = ({ serverId }) => {
         description: serverData.description || '',
         enabled: serverData.enabled ?? true,
         protocols: serverData.protocols || 'icmp',
-        
+
         http_port: serverData.http_port || 80,
         http_path: serverData.http_path || '/',
         use_https: serverData.use_https || false,
-        
+
         ssh_port: serverData.ssh_port || 22,
         ssh_username: serverData.ssh_username || '',
         ssh_password: serverData.ssh_password || '',
         ssh_key_path: serverData.ssh_key_path || '',
-        
+
         tcp_port: serverData.tcp_port || 3306,
-        tcp_timeout: serverData.tcp_timeout || 5,
+        tcp_timeout: serverData.tcp_timeout || 5
       });
-      
-      // Mettre à jour les options de protocole
+
       const protocols = serverData.protocols.split(',');
       setProtocolOptions({
         icmp: protocols.includes('icmp'),
@@ -84,433 +88,473 @@ const ServerForm = ({ serverId }) => {
         ssh: protocols.includes('ssh'),
         tcp: protocols.includes('tcp')
       });
-      
     } catch (err) {
-      setError('Erreur lors du chargement des données du serveur: ' + (err.response?.data?.detail || err.message));
+      setError('Error loading server data: ' + (err.response?.data?.detail || err.message));
     } finally {
       setLoading(false);
     }
   };
 
-  // Mettre à jour les valeurs du formulaire
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData({
       ...formData,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : type === 'number' ? parseInt(value) || 0 : value
     });
   };
 
-  // Gérer les changements de protocoles (checkboxes)
   const handleProtocolChange = (e) => {
     const { name, checked } = e.target;
-    
-    // Mettre à jour les options de protocole sélectionnées
-    const updatedProtocolOptions = {
+    const newProtocolOptions = {
       ...protocolOptions,
       [name]: checked
     };
-    
-    setProtocolOptions(updatedProtocolOptions);
-    
-    // Convertir les options en chaîne de caractères séparée par des virgules pour l'API
-    const selectedProtocols = Object.entries(updatedProtocolOptions)
-      .filter(([_, isSelected]) => isSelected)
-      .map(([protocol]) => protocol)
+    setProtocolOptions(newProtocolOptions);
+
+    const selectedProtocols = Object.keys(newProtocolOptions)
+      .filter((key) => newProtocolOptions[key])
       .join(',');
-    
-    // Mettre à jour le champ protocols dans formData
+
     setFormData({
       ...formData,
-      protocols: selectedProtocols || 'icmp' // Default to ICMP if nothing selected
+      protocols: selectedProtocols || 'icmp'
     });
   };
 
-  // Soumettre le formulaire
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+    setSaving(true);
+    setError(null);
+
     try {
-      setLoading(true);
-      
       if (isEditMode) {
-        // Mise à jour d'un serveur existant
         await serverApi.updateServer(serverId, formData);
       } else {
-        // Création d'un nouveau serveur
         await serverApi.createServer(formData);
       }
-      
-      // Rediriger vers la liste des serveurs
       navigate('/servers');
-      
     } catch (err) {
-      setError('Erreur lors de l\'enregistrement du serveur: ' + (err.response?.data?.detail || err.message));
-    } finally {
-      setLoading(false);
+      setError('Error saving server: ' + (err.response?.data?.detail || err.message));
+      setSaving(false);
     }
   };
 
-  // Styles pour le formulaire
-  const styles = {
-    form: {
-      maxWidth: '800px',
-      margin: '0 auto',
-      padding: '20px',
-      backgroundColor: 'white',
-      borderRadius: '8px',
-      boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
-    },
-    formGroup: {
-      marginBottom: '20px'
-    },
-    label: {
-      display: 'block',
-      marginBottom: '8px',
-      fontWeight: 'bold'
-    },
-    input: {
-      width: '100%',
-      padding: '10px',
-      borderRadius: '4px',
-      border: '1px solid #ddd',
-      fontSize: '16px'
-    },
-    checkbox: {
-      marginRight: '8px'
-    },
-    checkboxLabel: {
-      display: 'flex',
-      alignItems: 'center',
-      marginRight: '20px'
-    },
-    checkboxGroup: {
-      display: 'flex',
-      marginTop: '10px'
-    },
-    buttonGroup: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      marginTop: '30px'
-    },
-    submitButton: {
-      backgroundColor: '#2196f3',
-      color: 'white',
-      border: 'none',
-      padding: '12px 24px',
-      borderRadius: '4px',
-      fontSize: '16px',
-      cursor: 'pointer'
-    },
-    cancelButton: {
-      backgroundColor: '#f5f5f5',
-      color: '#333',
-      border: '1px solid #ddd',
-      padding: '12px 24px',
-      borderRadius: '4px',
-      fontSize: '16px',
-      cursor: 'pointer'
-    },
-    sectionTitle: {
-      borderBottom: '1px solid #eee',
-      paddingBottom: '10px',
-      marginTop: '30px',
-      marginBottom: '20px',
-      color: '#555'
-    }
-  };
+  if (loading) {
+    return <Loading message="Loading server data..." />;
+  }
 
   return (
-    <div style={styles.form}>
-      <h1>{isEditMode ? 'Modify server' : 'Add new server'}</h1>
-      
+    <div className="animate-fadeIn">
+      {/* Header */}
+      <div style={{ marginBottom: '2rem' }}>
+        <button
+          onClick={() => navigate('/servers')}
+          className="btn btn-ghost btn-sm"
+          style={{ marginBottom: '1rem' }}
+        >
+          <ArrowLeft size={16} />
+          Back to Servers
+        </button>
+
+        <h1 style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <Server size={32} style={{ color: 'var(--primary-600)' }} />
+          {isEditMode ? 'Edit Server' : 'Add New Server'}
+        </h1>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginTop: '0.5rem' }}>
+          {isEditMode ? 'Update server configuration' : 'Configure a new server for monitoring'}
+        </p>
+      </div>
+
       {error && <Alert type="error" message={error} />}
-      
+
       <form onSubmit={handleSubmit}>
-        {/* Informations de base */}
-        <h2 style={styles.sectionTitle}>Informations</h2>
-        
-        <div style={styles.formGroup}>
-          <label style={styles.label} htmlFor="name">Name</label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            value={formData.name}
-            onChange={handleInputChange}
-            required
-            style={styles.input}
-          />
-        </div>
-        
-        <div style={styles.formGroup}>
-          <label style={styles.label} htmlFor="hostname">Hostname</label>
-          <input
-            type="text"
-            id="hostname"
-            name="hostname"
-            value={formData.hostname}
-            onChange={handleInputChange}
-            required
-            style={styles.input}
-          />
-        </div>
-        
-        <div style={styles.formGroup}>
-          <label style={styles.label} htmlFor="ip_address">IP</label>
-          <input
-            type="text"
-            id="ip_address"
-            name="ip_address"
-            value={formData.ip_address}
-            onChange={handleInputChange}
-            required
-            style={styles.input}
-          />
-        </div>
-        
-        <div style={styles.formGroup}>
-          <label style={styles.label} htmlFor="description">Description</label>
-          <textarea
-            id="description"
-            name="description"
-            value={formData.description}
-            onChange={handleInputChange}
-            style={{...styles.input, height: '100px'}}
-          />
-        </div>
-        
-        <div style={styles.formGroup}>
-          <label style={styles.checkboxLabel}>
+        {/* Basic Information */}
+        <div className="card" style={{ marginBottom: '1.5rem' }}>
+          <h2 className="card-header" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Server size={20} style={{ color: 'var(--primary-600)' }} />
+            Basic Information
+          </h2>
+
+          <div className="grid grid-cols-2" style={{ gap: '1.5rem' }}>
+            <FormGroup label="Server Name" icon={Server} required>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                required
+                className="form-input"
+                placeholder="My Production Server"
+              />
+            </FormGroup>
+
+            <FormGroup label="Hostname" icon={Globe} required>
+              <input
+                type="text"
+                name="hostname"
+                value={formData.hostname}
+                onChange={handleInputChange}
+                required
+                className="form-input"
+                placeholder="server.example.com"
+              />
+            </FormGroup>
+          </div>
+
+          <FormGroup label="IP Address" icon={Activity} required>
             <input
-              type="checkbox"
-              name="enabled"
-              checked={formData.enabled}
+              type="text"
+              name="ip_address"
+              value={formData.ip_address}
               onChange={handleInputChange}
-              style={styles.checkbox}
+              required
+              className="form-input"
+              placeholder="192.168.1.100"
             />
-            Enable monitoring
-          </label>
+          </FormGroup>
+
+          <FormGroup label="Description">
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleInputChange}
+              className="form-textarea"
+              placeholder="Add a description for this server..."
+              rows="3"
+            />
+          </FormGroup>
+
+          <ToggleSwitch
+            label="Enable Monitoring"
+            name="enabled"
+            checked={formData.enabled}
+            onChange={handleInputChange}
+          />
         </div>
-        
-        {/* Protocoles de monitoring */}
-        <h2 style={styles.sectionTitle}>Protocols</h2>
-        
-        <div style={styles.formGroup}>
-          <label style={styles.label}>Protocols to be use</label>
-          <div style={styles.checkboxGroup}>
-            <label style={styles.checkboxLabel}>
-              <input
-                type="checkbox"
-                name="icmp"
-                checked={protocolOptions.icmp}
-                onChange={handleProtocolChange}
-                style={styles.checkbox}
-              />
-              ICMP (Ping)
-            </label>
-            
-            <label style={styles.checkboxLabel}>
-              <input
-                type="checkbox"
-                name="http"
-                checked={protocolOptions.http}
-                onChange={handleProtocolChange}
-                style={styles.checkbox}
-              />
-              HTTP/HTTPS
-            </label>
-            
-            <label style={styles.checkboxLabel}>
-              <input
-                type="checkbox"
-                name="ssh"
-                checked={protocolOptions.ssh}
-                onChange={handleProtocolChange}
-                style={styles.checkbox}
-              />
-              SSH
-            </label>
-            
-            <label style={styles.checkboxLabel}>
-              <input
-                type="checkbox"
-                name="tcp"
-                checked={protocolOptions.tcp}
-                onChange={handleProtocolChange}
-                style={styles.checkbox}
-              />
-              TCP Port
-            </label>
+
+        {/* Monitoring Protocols */}
+        <div className="card" style={{ marginBottom: '1.5rem' }}>
+          <h2 className="card-header" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Network size={20} style={{ color: 'var(--primary-600)' }} />
+            Monitoring Protocols
+          </h2>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
+            <ProtocolCheckbox
+              label="ICMP (Ping)"
+              name="icmp"
+              checked={protocolOptions.icmp}
+              onChange={handleProtocolChange}
+              description="Basic network connectivity check"
+            />
+
+            <ProtocolCheckbox
+              label="HTTP/HTTPS"
+              name="http"
+              checked={protocolOptions.http}
+              onChange={handleProtocolChange}
+              description="Web service availability"
+            />
+
+            <ProtocolCheckbox
+              label="SSH"
+              name="ssh"
+              checked={protocolOptions.ssh}
+              onChange={handleProtocolChange}
+              description="Secure shell connection"
+            />
+
+            <ProtocolCheckbox
+              label="TCP"
+              name="tcp"
+              checked={protocolOptions.tcp}
+              onChange={handleProtocolChange}
+              description="TCP port connectivity"
+            />
           </div>
         </div>
-        
-        {/* Paramètres HTTP */}
+
+        {/* HTTP Configuration */}
         {protocolOptions.http && (
-          <>
-            <h2 style={styles.sectionTitle}>HTTP Settings</h2>
-            
-            <div style={styles.formGroup}>
-              <label style={styles.checkboxLabel}>
+          <div className="card" style={{ marginBottom: '1.5rem' }}>
+            <h2 className="card-header">HTTP Configuration</h2>
+
+            <div className="grid grid-cols-2" style={{ gap: '1.5rem' }}>
+              <FormGroup label="HTTP Port">
                 <input
-                  type="checkbox"
-                  name="use_https"
-                  checked={formData.use_https}
+                  type="number"
+                  name="http_port"
+                  value={formData.http_port}
                   onChange={handleInputChange}
-                  style={styles.checkbox}
+                  className="form-input"
+                  placeholder="80"
                 />
-                Use HTTPS
-              </label>
+              </FormGroup>
+
+              <FormGroup label="HTTP Path">
+                <input
+                  type="text"
+                  name="http_path"
+                  value={formData.http_path}
+                  onChange={handleInputChange}
+                  className="form-input"
+                  placeholder="/"
+                />
+              </FormGroup>
             </div>
-            
-            <div style={styles.formGroup}>
-              <label style={styles.label} htmlFor="http_port">HTTP Port</label>
-              <input
-                type="number"
-                id="http_port"
-                name="http_port"
-                value={formData.http_port}
-                onChange={handleInputChange}
-                style={styles.input}
-              />
-            </div>
-            
-            <div style={styles.formGroup}>
-              <label style={styles.label} htmlFor="http_path">Path</label>
-              <input
-                type="text"
-                id="http_path"
-                name="http_path"
-                value={formData.http_path}
-                onChange={handleInputChange}
-                style={styles.input}
-              />
-            </div>
-          </>
+
+            <ToggleSwitch
+              label="Use HTTPS"
+              name="use_https"
+              checked={formData.use_https}
+              onChange={handleInputChange}
+            />
+          </div>
         )}
-        
-        {/* Paramètres SSH */}
+
+        {/* SSH Configuration */}
         {protocolOptions.ssh && (
-          <>
-            <h2 style={styles.sectionTitle}>SSH Settings</h2>
-            
-            <div style={styles.formGroup}>
-              <label style={styles.label} htmlFor="ssh_port">SSH Port</label>
-              <input
-                type="number"
-                id="ssh_port"
-                name="ssh_port"
-                value={formData.ssh_port}
-                onChange={handleInputChange}
-                style={styles.input}
-              />
+          <div className="card" style={{ marginBottom: '1.5rem' }}>
+            <h2 className="card-header" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Lock size={20} style={{ color: 'var(--primary-600)' }} />
+              SSH Configuration
+            </h2>
+
+            <div className="grid grid-cols-2" style={{ gap: '1.5rem' }}>
+              <FormGroup label="SSH Port">
+                <input
+                  type="number"
+                  name="ssh_port"
+                  value={formData.ssh_port}
+                  onChange={handleInputChange}
+                  className="form-input"
+                  placeholder="22"
+                />
+              </FormGroup>
+
+              <FormGroup label="Username">
+                <input
+                  type="text"
+                  name="ssh_username"
+                  value={formData.ssh_username}
+                  onChange={handleInputChange}
+                  className="form-input"
+                  placeholder="root"
+                />
+              </FormGroup>
             </div>
-            
-            <div style={styles.formGroup}>
-              <label style={styles.label} htmlFor="ssh_username">SSH Username</label>
+
+            <FormGroup label="Password">
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  name="ssh_password"
+                  value={formData.ssh_password}
+                  onChange={handleInputChange}
+                  className="form-input"
+                  placeholder="••••••••"
+                  style={{ paddingRight: '3rem' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: '0.75rem',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: 'var(--text-tertiary)',
+                    padding: '0.25rem'
+                  }}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </FormGroup>
+
+            <FormGroup label="SSH Key Path (optional)">
               <input
                 type="text"
-                id="ssh_username"
-                name="ssh_username"
-                value={formData.ssh_username}
-                onChange={handleInputChange}
-                style={styles.input}
-              />
-            </div>
-            
-            <div style={styles.formGroup}>
-              <label style={styles.label} htmlFor="ssh_password">SSH Password</label>
-              <input
-                type="password"
-                id="ssh_password"
-                name="ssh_password"
-                value={formData.ssh_password}
-                onChange={handleInputChange}
-                style={styles.input}
-              />
-            </div>
-            
-            <div style={styles.formGroup}>
-              <label style={styles.label} htmlFor="ssh_key_path">Path of private key SSH (optional)</label>
-              <input
-                type="text"
-                id="ssh_key_path"
                 name="ssh_key_path"
                 value={formData.ssh_key_path}
                 onChange={handleInputChange}
-                style={styles.input}
+                className="form-input"
+                placeholder="/path/to/private/key"
               />
-            </div>
-          </>
+            </FormGroup>
+          </div>
         )}
-        
-        {/* Paramètres TCP */}
+
+        {/* TCP Configuration */}
         {protocolOptions.tcp && (
-          <>
-            <h2 style={styles.sectionTitle}>TCP Port Settings</h2>
-            
-            <div style={styles.formGroup}>
-              <label style={styles.label} htmlFor="tcp_port">TCP Port to monitor</label>
-              <input
-                type="number"
-                id="tcp_port"
-                name="tcp_port"
-                value={formData.tcp_port}
-                onChange={handleInputChange}
-                required={protocolOptions.tcp}
-                min="1"
-                max="65535"
-                style={styles.input}
-                placeholder="e.g., 3306 (MySQL), 5432 (PostgreSQL), 27017 (MongoDB)"
-              />
-              <small style={{ color: '#757575', fontSize: '14px', marginTop: '5px', display: 'block' }}>
-                Common ports: MySQL (3306), PostgreSQL (5432), MongoDB (27017), Redis (6379), Elasticsearch (9200)
-              </small>
+          <div className="card" style={{ marginBottom: '1.5rem' }}>
+            <h2 className="card-header">TCP Configuration</h2>
+
+            <div className="grid grid-cols-2" style={{ gap: '1.5rem' }}>
+              <FormGroup label="TCP Port">
+                <input
+                  type="number"
+                  name="tcp_port"
+                  value={formData.tcp_port}
+                  onChange={handleInputChange}
+                  className="form-input"
+                  placeholder="3306"
+                />
+              </FormGroup>
+
+              <FormGroup label="Timeout (seconds)">
+                <input
+                  type="number"
+                  name="tcp_timeout"
+                  value={formData.tcp_timeout}
+                  onChange={handleInputChange}
+                  className="form-input"
+                  placeholder="5"
+                />
+              </FormGroup>
             </div>
-            
-            <div style={styles.formGroup}>
-              <label style={styles.label} htmlFor="tcp_timeout">Connection Timeout (seconds)</label>
-              <input
-                type="number"
-                id="tcp_timeout"
-                name="tcp_timeout"
-                value={formData.tcp_timeout}
-                onChange={handleInputChange}
-                min="1"
-                max="30"
-                style={styles.input}
-              />
-              <small style={{ color: '#757575', fontSize: '14px', marginTop: '5px', display: 'block' }}>
-                Time to wait before considering the port as unreachable (1-30 seconds)
-              </small>
-            </div>
-          </>
+          </div>
         )}
-        
-        <div style={styles.buttonGroup}>
+
+        {/* Action Buttons */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '2rem' }}>
           <button
             type="button"
             onClick={() => navigate('/servers')}
-            style={styles.cancelButton}
+            className="btn btn-secondary"
           >
+            <X size={18} />
             Cancel
           </button>
-          
+
           <button
             type="submit"
-            disabled={loading}
-            style={{
-              ...styles.submitButton,
-              opacity: loading ? 0.7 : 1,
-              cursor: loading ? 'not-allowed' : 'pointer'
-            }}
+            disabled={saving}
+            className="btn btn-primary"
           >
-            {loading ? 'Saving...' : isEditMode ? 'Update' : 'Add'}
+            {saving ? (
+              <>
+                <div className="animate-spin" style={{ width: '18px', height: '18px', border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%' }} />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save size={18} />
+                {isEditMode ? 'Update Server' : 'Create Server'}
+              </>
+            )}
           </button>
         </div>
       </form>
     </div>
   );
 };
+
+// Helper Components
+const FormGroup = ({ label, icon: Icon, required, children }) => (
+  <div className="form-group">
+    <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+      {Icon && <Icon size={14} style={{ color: 'var(--text-tertiary)' }} />}
+      {label}
+      {required && <span style={{ color: 'var(--error-500)' }}>*</span>}
+    </label>
+    {children}
+  </div>
+);
+
+const ToggleSwitch = ({ label, name, checked, onChange }) => (
+  <label
+    style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: '0.75rem',
+      cursor: 'pointer',
+      padding: '0.75rem',
+      borderRadius: 'var(--radius-md)',
+      transition: 'background-color 200ms',
+      backgroundColor: checked ? 'var(--primary-50)' : 'transparent'
+    }}
+  >
+    <input
+      type="checkbox"
+      name={name}
+      checked={checked}
+      onChange={onChange}
+      style={{ display: 'none' }}
+    />
+    <div
+      style={{
+        width: '44px',
+        height: '24px',
+        borderRadius: '12px',
+        backgroundColor: checked ? 'var(--primary-600)' : 'var(--gray-300)',
+        position: 'relative',
+        transition: 'background-color 200ms',
+        flexShrink: 0
+      }}
+    >
+      <div
+        style={{
+          width: '20px',
+          height: '20px',
+          borderRadius: '50%',
+          backgroundColor: 'white',
+          position: 'absolute',
+          top: '2px',
+          left: checked ? '22px' : '2px',
+          transition: 'left 200ms',
+          boxShadow: 'var(--shadow-sm)'
+        }}
+      />
+    </div>
+    <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>{label}</span>
+    {checked && <CheckCircle size={16} style={{ color: 'var(--primary-600)', marginLeft: 'auto' }} />}
+  </label>
+);
+
+const ProtocolCheckbox = ({ label, name, checked, onChange, description }) => (
+  <label
+    style={{
+      display: 'flex',
+      alignItems: 'flex-start',
+      gap: '0.75rem',
+      padding: '1rem',
+      border: `2px solid ${checked ? 'var(--primary-500)' : 'var(--border-light)'}`,
+      borderRadius: 'var(--radius-lg)',
+      cursor: 'pointer',
+      transition: 'all 200ms',
+      backgroundColor: checked ? 'var(--primary-50)' : 'transparent'
+    }}
+  >
+    <input
+      type="checkbox"
+      name={name}
+      checked={checked}
+      onChange={onChange}
+      style={{
+        width: '20px',
+        height: '20px',
+        borderRadius: 'var(--radius-sm)',
+        border: `2px solid ${checked ? 'var(--primary-600)' : 'var(--border-medium)'}`,
+        backgroundColor: checked ? 'var(--primary-600)' : 'transparent',
+        cursor: 'pointer',
+        flexShrink: 0,
+        marginTop: '0.125rem',
+        accentColor: 'var(--primary-600)'
+      }}
+    />
+    <div style={{ flex: 1 }}>
+      <div style={{ fontWeight: 600, fontSize: '0.875rem', marginBottom: '0.25rem' }}>
+        {label}
+      </div>
+      <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
+        {description}
+      </div>
+    </div>
+  </label>
+);
 
 export default ServerForm;

@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
+import { LayoutDashboard, Server, PlusCircle, Settings } from 'lucide-react';
 
 const Sidebar = () => {
   const location = useLocation();
@@ -8,51 +9,58 @@ const Sidebar = () => {
     {
       path: '/',
       label: 'Dashboard',
-      icon: '📊'
+      icon: LayoutDashboard
     },
     {
       path: '/servers',
-      label: 'View all servers',
-      icon: '🖥️'
+      label: 'All Servers',
+      icon: Server
     },
     {
       path: '/servers/new',
-      label: 'Add new server',
-      icon: '➕'
+      label: 'Add Server',
+      icon: PlusCircle
     },
     {
       path: '/settings',
-      label: 'Parameters',
-      icon: '⚙️'
+      label: 'Settings',
+      icon: Settings
     }
   ];
 
   return (
-    <aside style={{
-      width: '250px',
-      backgroundColor: '#ffffff',
-      borderRight: '1px solid #e5e7eb',
-      height: '100vh',
-      position: 'fixed',
-      top: '64px',
-      left: 0,
-      overflow: 'auto',
-      zIndex: 100
-    }}>
+    <aside
+      style={{
+        width: '250px',
+        backgroundColor: 'var(--bg-primary)',
+        borderRight: '1px solid var(--border-light)',
+        height: '100vh',
+        position: 'fixed',
+        top: '64px',
+        left: 0,
+        overflow: 'auto',
+        zIndex: 100,
+        boxShadow: 'var(--shadow-sm)'
+      }}
+    >
       <nav style={{ padding: '1.5rem 0' }}>
-        <ul style={{ 
-          listStyle: 'none', 
-          padding: 0, 
-          margin: 0 
-        }}>
+        <ul
+          style={{
+            listStyle: 'none',
+            padding: 0,
+            margin: 0
+          }}
+        >
           {menuItems.map((item) => {
-            const isActive = item.path === '/' 
-              ? location.pathname === '/' 
+            const isActive = item.path === '/'
+              ? location.pathname === '/'
               : location.pathname.startsWith(item.path);
-            
+
+            const Icon = item.icon;
+
             return (
               <li key={item.path} style={{ marginBottom: '0.25rem' }}>
-                <NavLink 
+                <NavLink
                   to={item.path}
                   style={{
                     display: 'flex',
@@ -60,62 +68,86 @@ const Sidebar = () => {
                     gap: '0.75rem',
                     padding: '0.75rem 1.5rem',
                     margin: '0 0.75rem',
-                    color: isActive ? '#1d4ed8' : '#6b7280',
-                    backgroundColor: isActive ? '#eff6ff' : 'transparent',
+                    color: isActive ? 'var(--primary-700)' : 'var(--text-secondary)',
+                    backgroundColor: isActive ? 'var(--primary-50)' : 'transparent',
                     textDecoration: 'none',
-                    borderRadius: '0.5rem',
+                    borderRadius: '0.75rem',
                     fontWeight: isActive ? '600' : '500',
                     fontSize: '0.875rem',
-                    transition: 'all 0.2s ease',
-                    border: isActive ? '1px solid #dbeafe' : '1px solid transparent'
+                    transition: 'all 200ms cubic-bezier(0.4, 0, 0.2, 1)',
+                    border: isActive ? '1px solid var(--primary-200)' : '1px solid transparent',
+                    position: 'relative'
                   }}
-                  onMouseOver={(e) => {
+                  onMouseEnter={(e) => {
                     if (!isActive) {
-                      e.target.style.backgroundColor = '#f9fafb';
-                      e.target.style.color = '#374151';
+                      e.currentTarget.style.backgroundColor = 'var(--gray-50)';
+                      e.currentTarget.style.color = 'var(--text-primary)';
                     }
                   }}
-                  onMouseOut={(e) => {
+                  onMouseLeave={(e) => {
                     if (!isActive) {
-                      e.target.style.backgroundColor = 'transparent';
-                      e.target.style.color = '#6b7280';
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                      e.currentTarget.style.color = 'var(--text-secondary)';
                     }
                   }}
                 >
-                  <span style={{ fontSize: '1rem' }}>{item.icon}</span>
+                  {/* Barre verticale pour item actif */}
+                  {isActive && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        left: 0,
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        width: '3px',
+                        height: '70%',
+                        backgroundColor: 'var(--primary-600)',
+                        borderRadius: '0 2px 2px 0'
+                      }}
+                    />
+                  )}
+
+                  <Icon
+                    size={20}
+                    style={{
+                      color: isActive ? 'var(--primary-600)' : 'inherit'
+                    }}
+                  />
+
                   <span>{item.label}</span>
                 </NavLink>
               </li>
             );
           })}
         </ul>
-        
-        {/* Section informations */}
-        <div style={{
-          margin: '2rem 1.5rem 1rem 1.5rem',
-          padding: '1rem',
-          backgroundColor: '#f9fafb',
-          borderRadius: '0.75rem',
-          border: '1px solid #e5e7eb'
-        }}>
-          <h4 style={{
-            margin: '0 0 0.5rem 0',
-            fontSize: '0.875rem',
-            fontWeight: '600',
-            color: '#374151'
-          }}>
-            💡 Info
-          </h4>
-          <p style={{
-            margin: 0,
-            fontSize: '0.75rem',
-            color: '#6b7280',
-            lineHeight: '1.4'
-          }}>
-            Monitoring in real time of your home server.
-          </p>
-        </div>
       </nav>
+
+      {/* Footer info */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '1rem',
+          left: '1.5rem',
+          right: '1.5rem',
+          padding: '1rem',
+          backgroundColor: 'var(--gray-50)',
+          borderRadius: '0.75rem',
+          border: '1px solid var(--border-light)'
+        }}
+      >
+        <p
+          style={{
+            fontSize: '0.75rem',
+            color: 'var(--text-tertiary)',
+            margin: 0,
+            textAlign: 'center'
+          }}
+        >
+          THEAI Monitoring
+          <br />
+          <strong style={{ color: 'var(--text-secondary)' }}>v1.0.0</strong>
+        </p>
+      </div>
     </aside>
   );
 };

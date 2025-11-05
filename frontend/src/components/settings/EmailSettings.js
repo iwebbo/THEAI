@@ -1,4 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { 
+  Mail, Server as ServerIcon, Save, Send, 
+  Plus, X, CheckCircle, AlertCircle 
+} from 'lucide-react';
 import Alert from '../common/Alert';
 import Loading from '../common/Loading';
 import axios from 'axios';
@@ -14,14 +18,13 @@ const EmailSettings = () => {
     enable_email_alerts: false,
     alert_emails: []
   });
-  
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
   const [message, setMessage] = useState(null);
   const [emailInput, setEmailInput] = useState('');
 
-  // Charger la configuration au démarrage
   useEffect(() => {
     fetchEmailConfig();
   }, []);
@@ -35,7 +38,7 @@ const EmailSettings = () => {
     } catch (err) {
       setMessage({
         type: 'error',
-        text: 'Error during loading configuration: ' + (err.response?.data?.detail || err.message)
+        text: 'Error loading configuration: ' + (err.response?.data?.detail || err.message)
       });
     } finally {
       setLoading(false);
@@ -46,11 +49,12 @@ const EmailSettings = () => {
     const { name, value, type, checked } = e.target;
     setConfig({
       ...config,
-      [name]: type === 'checkbox' ? checked : (type === 'number' ? parseInt(value) : value)
+      [name]: type === 'checkbox' ? checked : type === 'number' ? parseInt(value) : value
     });
   };
 
-  const handleAddEmail = () => {
+  const handleAddEmail = (e) => {
+    e.preventDefault();
     if (emailInput && !config.alert_emails.includes(emailInput)) {
       setConfig({
         ...config,
@@ -63,7 +67,7 @@ const EmailSettings = () => {
   const handleRemoveEmail = (email) => {
     setConfig({
       ...config,
-      alert_emails: config.alert_emails.filter(e => e !== email)
+      alert_emails: config.alert_emails.filter((e) => e !== email)
     });
   };
 
@@ -73,12 +77,12 @@ const EmailSettings = () => {
       await axios.put('/api/v1/settings/email', config);
       setMessage({
         type: 'success',
-        text: 'Configuration updated with success !'
+        text: 'Configuration saved successfully!'
       });
     } catch (err) {
       setMessage({
         type: 'error',
-        text: 'Error with loading save: ' + (err.response?.data?.detail || err.message)
+        text: 'Error saving configuration: ' + (err.response?.data?.detail || err.message)
       });
     } finally {
       setSaving(false);
@@ -88,23 +92,15 @@ const EmailSettings = () => {
   const handleTest = async () => {
     try {
       setTesting(true);
-      const response = await axios.post('/api/v1/settings/email/test');
-      
-      if (response.data.success) {
-        setMessage({
-          type: 'success',
-          text: `Email sent successfully: ${response.data.recipients.join(', ')}`
-        });
-      } else {
-        setMessage({
-          type: 'error',
-          text: `Issue with the test: ${response.data.message}`
-        });
-      }
+      await axios.post('/api/v1/settings/email/test');
+      setMessage({
+        type: 'success',
+        text: 'Test email sent successfully! Check your inbox.'
+      });
     } catch (err) {
       setMessage({
         type: 'error',
-        text: 'Error with the test email: ' + (err.response?.data?.detail || err.message)
+        text: 'Error sending test email: ' + (err.response?.data?.detail || err.message)
       });
     } finally {
       setTesting(false);
@@ -112,236 +108,243 @@ const EmailSettings = () => {
   };
 
   if (loading) {
-    return <Loading message="Loading email configuration..." />;
+    return <Loading message="Loading email settings..." />;
   }
 
-  const styles = {
-    section: {
-      backgroundColor: 'white',
-      borderRadius: '8px',
-      padding: '24px',
-      boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-      marginBottom: '20px'
-    },
-    formGroup: {
-      marginBottom: '20px'
-    },
-    label: {
-      display: 'block',
-      marginBottom: '8px',
-      fontWeight: 'bold'
-    },
-    input: {
-      width: '100%',
-      padding: '10px',
-      borderRadius: '4px',
-      border: '1px solid #ddd',
-      fontSize: '16px'
-    },
-    checkbox: {
-      marginRight: '8px'
-    },
-    checkboxLabel: {
-      display: 'flex',
-      alignItems: 'center'
-    },
-    buttonGroup: {
-      display: 'flex',
-      gap: '10px',
-      marginTop: '20px'
-    },
-    button: {
-      padding: '10px 16px',
-      borderRadius: '4px',
-      border: 'none',
-      cursor: 'pointer',
-      fontSize: '16px'
-    },
-    saveButton: {
-      backgroundColor: '#2196f3',
-      color: 'white'
-    },
-    testButton: {
-      backgroundColor: '#4caf50',
-      color: 'white'
-    },
-    emailList: {
-      display: 'flex',
-      flexWrap: 'wrap',
-      gap: '8px',
-      marginTop: '10px'
-    },
-    emailTag: {
-      backgroundColor: '#e3f2fd',
-      padding: '4px 8px',
-      borderRadius: '16px',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '8px'
-    },
-    removeButton: {
-      backgroundColor: '#f44336',
-      color: 'white',
-      border: 'none',
-      borderRadius: '50%',
-      width: '20px',
-      height: '20px',
-      cursor: 'pointer',
-      fontSize: '12px'
-    },
-    grid: {
-      display: 'grid',
-      gridTemplateColumns: '1fr 1fr',
-      gap: '20px'
-    }
-  };
-
   return (
-    <div style={styles.section}>
-      <h2 style={{ borderBottom: '1px solid #eee', paddingBottom: '10px', marginTop: 0 }}>
-        Configuration email alerting
+    <div className="card animate-fadeIn">
+      <h2 className="card-header" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <Mail size={20} style={{ color: 'var(--primary-600)' }} />
+        Email Alert Configuration
       </h2>
 
       {message && (
-        <Alert 
-          type={message.type} 
-          message={message.text} 
-          duration={5000} 
-        />
+        <Alert type={message.type} message={message.text} duration={5000} />
       )}
 
-      <div style={styles.formGroup}>
-        <label style={styles.checkboxLabel}>
+      {/* Enable Alerts Toggle */}
+      <div style={{ marginBottom: '2rem' }}>
+        <label
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem',
+            cursor: 'pointer',
+            padding: '1rem',
+            borderRadius: 'var(--radius-lg)',
+            border: `2px solid ${config.enable_email_alerts ? 'var(--success-200)' : 'var(--border-light)'}`,
+            backgroundColor: config.enable_email_alerts ? 'var(--success-50)' : 'transparent',
+            transition: 'all 200ms'
+          }}
+        >
           <input
             type="checkbox"
             name="enable_email_alerts"
             checked={config.enable_email_alerts}
             onChange={handleInputChange}
-            style={styles.checkbox}
+            style={{ display: 'none' }}
           />
-          Enable alerting email
+          <div
+            style={{
+              width: '48px',
+              height: '26px',
+              borderRadius: '13px',
+              backgroundColor: config.enable_email_alerts ? 'var(--success-500)' : 'var(--gray-300)',
+              position: 'relative',
+              transition: 'background-color 200ms',
+              flexShrink: 0
+            }}
+          >
+            <div
+              style={{
+                width: '22px',
+                height: '22px',
+                borderRadius: '50%',
+                backgroundColor: 'white',
+                position: 'absolute',
+                top: '2px',
+                left: config.enable_email_alerts ? '24px' : '2px',
+                transition: 'left 200ms',
+                boxShadow: 'var(--shadow-sm)'
+              }}
+            />
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontWeight: 600, fontSize: '0.875rem', marginBottom: '0.25rem' }}>
+              Enable Email Alerts
+            </div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
+              Receive notifications when server status changes
+            </div>
+          </div>
+          {config.enable_email_alerts && (
+            <CheckCircle size={20} style={{ color: 'var(--success-600)' }} />
+          )}
         </label>
       </div>
 
-      <div style={styles.grid}>
-        <div>
-          <div style={styles.formGroup}>
-            <label style={styles.label} htmlFor="smtp_server">Server SMTP</label>
-            <input
-              type="text"
-              id="smtp_server"
-              name="smtp_server"
-              value={config.smtp_server}
-              onChange={handleInputChange}
-              style={styles.input}
-              placeholder="smtp.gmail.com"
-            />
-          </div>
-
-          <div style={styles.formGroup}>
-            <label style={styles.label} htmlFor="smtp_port">Port SMTP</label>
-            <input
-              type="number"
-              id="smtp_port"
-              name="smtp_port"
-              value={config.smtp_port}
-              onChange={handleInputChange}
-              style={styles.input}
-              placeholder="587"
-            />
-          </div>
-
-          <div style={styles.formGroup}>
-            <label style={styles.checkboxLabel}>
-              <input
-                type="checkbox"
-                name="smtp_use_tls"
-                checked={config.smtp_use_tls}
-                onChange={handleInputChange}
-                style={styles.checkbox}
-              />
-              Utiliser TLS/SSL
-            </label>
-          </div>
+      {/* SMTP Configuration */}
+      <div className="grid grid-cols-2" style={{ gap: '1.5rem', marginBottom: '1.5rem' }}>
+        <div className="form-group">
+          <label className="form-label" htmlFor="smtp_server">
+            <ServerIcon size={14} style={{ display: 'inline', marginRight: '0.375rem' }} />
+            SMTP Server
+          </label>
+          <input
+            type="text"
+            id="smtp_server"
+            name="smtp_server"
+            value={config.smtp_server}
+            onChange={handleInputChange}
+            className="form-input"
+            placeholder="smtp.gmail.com"
+          />
         </div>
 
-        <div>
-          <div style={styles.formGroup}>
-            <label style={styles.label} htmlFor="smtp_username">Username</label>
-            <input
-              type="email"
-              id="smtp_username"
-              name="smtp_username"
-              value={config.smtp_username}
-              onChange={handleInputChange}
-              style={styles.input}
-              placeholder="votre-email@gmail.com"
-            />
-          </div>
+        <div className="form-group">
+          <label className="form-label" htmlFor="smtp_port">
+            SMTP Port
+          </label>
+          <input
+            type="number"
+            id="smtp_port"
+            name="smtp_port"
+            value={config.smtp_port}
+            onChange={handleInputChange}
+            className="form-input"
+            placeholder="587"
+          />
+        </div>
 
-          <div style={styles.formGroup}>
-            <label style={styles.label} htmlFor="smtp_password">Password</label>
-            <input
-              type="password"
-              id="smtp_password"
-              name="smtp_password"
-              value={config.smtp_password}
-              onChange={handleInputChange}
-              style={styles.input}
-              placeholder="Mot de passe d'application"
-            />
-          </div>
+        <div className="form-group">
+          <label className="form-label" htmlFor="smtp_username">
+            Username
+          </label>
+          <input
+            type="text"
+            id="smtp_username"
+            name="smtp_username"
+            value={config.smtp_username}
+            onChange={handleInputChange}
+            className="form-input"
+            placeholder="your-email@gmail.com"
+          />
+        </div>
 
-          <div style={styles.formGroup}>
-            <label style={styles.label} htmlFor="smtp_from_email">Email sender</label>
-            <input
-              type="email"
-              id="smtp_from_email"
-              name="smtp_from_email"
-              value={config.smtp_from_email}
-              onChange={handleInputChange}
-              style={styles.input}
-              placeholder="monitoring@votre-domaine.com"
-            />
-          </div>
+        <div className="form-group">
+          <label className="form-label" htmlFor="smtp_password">
+            Password / App Password
+          </label>
+          <input
+            type="password"
+            id="smtp_password"
+            name="smtp_password"
+            value={config.smtp_password}
+            onChange={handleInputChange}
+            className="form-input"
+            placeholder="••••••••••••••••"
+          />
         </div>
       </div>
 
-      <div style={styles.formGroup}>
-        <label style={styles.label}>Email Destination</label>
-        <div style={{ display: 'flex', gap: '10px' }}>
+      <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+        <label className="form-label" htmlFor="smtp_from_email">
+          <Mail size={14} style={{ display: 'inline', marginRight: '0.375rem' }} />
+          From Email Address
+        </label>
+        <input
+          type="email"
+          id="smtp_from_email"
+          name="smtp_from_email"
+          value={config.smtp_from_email}
+          onChange={handleInputChange}
+          className="form-input"
+          placeholder="monitoring@yourdomain.com"
+        />
+      </div>
+
+      {/* Use TLS */}
+      <div style={{ marginBottom: '2rem' }}>
+        <label
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem',
+            cursor: 'pointer',
+            padding: '0.75rem',
+            borderRadius: 'var(--radius-md)',
+            backgroundColor: config.smtp_use_tls ? 'var(--gray-50)' : 'transparent'
+          }}
+        >
+          <input
+            type="checkbox"
+            name="smtp_use_tls"
+            checked={config.smtp_use_tls}
+            onChange={handleInputChange}
+            style={{
+              width: '18px',
+              height: '18px',
+              cursor: 'pointer',
+              accentColor: 'var(--primary-600)'
+            }}
+          />
+          <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>Use TLS Encryption</span>
+        </label>
+      </div>
+
+      {/* Alert Recipients */}
+      <div style={{ marginBottom: '2rem' }}>
+        <label className="form-label">Alert Recipients</label>
+        <form onSubmit={handleAddEmail} style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
           <input
             type="email"
             value={emailInput}
             onChange={(e) => setEmailInput(e.target.value)}
-            style={{ ...styles.input, flex: 1 }}
-            placeholder="Ajouter une adresse email"
-            onKeyPress={(e) => e.key === 'Enter' && handleAddEmail()}
+            className="form-input"
+            placeholder="email@example.com"
+            style={{ flex: 1 }}
           />
-          <button
-            type="button"
-            onClick={handleAddEmail}
-            style={{
-              ...styles.button,
-              backgroundColor: '#2196f3',
-              color: 'white'
-            }}
-          >
+          <button type="submit" className="btn btn-primary" disabled={!emailInput}>
+            <Plus size={18} />
             Add
           </button>
-        </div>
-        
+        </form>
+
+        {/* Email Tags */}
         {config.alert_emails.length > 0 && (
-          <div style={styles.emailList}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
             {config.alert_emails.map((email, index) => (
-              <div key={index} style={styles.emailTag}>
-                <span>{email}</span>
+              <div
+                key={index}
+                className="badge badge-primary"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '0.5rem 0.75rem',
+                  fontSize: '0.813rem'
+                }}
+              >
+                <Mail size={14} />
+                {email}
                 <button
-                  style={styles.removeButton}
                   onClick={() => handleRemoveEmail(email)}
-                  title="Supprimer"
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    color: 'inherit',
+                    opacity: 0.7,
+                    transition: 'opacity 150ms'
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')}
+                  onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.7')}
+                  aria-label={`Remove ${email}`}
                 >
-                  ×
+                  <X size={14} />
                 </button>
               </div>
             ))}
@@ -349,42 +352,65 @@ const EmailSettings = () => {
         )}
       </div>
 
-      <div style={styles.buttonGroup}>
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          style={{
-            ...styles.button,
-            ...styles.saveButton,
-            opacity: saving ? 0.7 : 1,
-            cursor: saving ? 'not-allowed' : 'pointer'
-          }}
-        >
-          {saving ? 'Saving...' : 'Save'}
-        </button>
+      {/* Information Box */}
+      <div
+        style={{
+          padding: '1rem',
+          backgroundColor: 'var(--primary-50)',
+          border: '1px solid var(--primary-200)',
+          borderRadius: 'var(--radius-lg)',
+          marginBottom: '1.5rem'
+        }}
+      >
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <AlertCircle size={20} style={{ color: 'var(--primary-600)', flexShrink: 0 }} />
+          <div>
+            <h4 style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--primary-800)', marginBottom: '0.5rem' }}>
+              Important Information
+            </h4>
+            <ul style={{ margin: 0, paddingLeft: '1.25rem', fontSize: '0.813rem', color: 'var(--primary-700)', lineHeight: 1.6 }}>
+              <li>For Gmail, use an <strong>App Password</strong> instead of your regular password</li>
+              <li>Enable 2-factor authentication on your Google account first</li>
+              <li>Alerts are sent only when server status changes (online ↔ offline)</li>
+              <li>Test the configuration to verify email delivery</li>
+            </ul>
+          </div>
+        </div>
+      </div>
 
+      {/* Action Buttons */}
+      <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
         <button
           onClick={handleTest}
           disabled={testing || !config.enable_email_alerts || config.alert_emails.length === 0}
-          style={{
-            ...styles.button,
-            ...styles.testButton,
-            opacity: (testing || !config.enable_email_alerts || config.alert_emails.length === 0) ? 0.7 : 1,
-            cursor: (testing || !config.enable_email_alerts || config.alert_emails.length === 0) ? 'not-allowed' : 'pointer'
-          }}
+          className="btn btn-secondary"
         >
-          {testing ? 'Test in progress...' : 'Test configuration'}
+          {testing ? (
+            <>
+              <div className="animate-spin" style={{ width: '18px', height: '18px', border: '2px solid currentColor', borderTopColor: 'transparent', borderRadius: '50%' }} />
+              Sending...
+            </>
+          ) : (
+            <>
+              <Send size={18} />
+              Test Configuration
+            </>
+          )}
         </button>
-      </div>
 
-      <div style={{ marginTop: '20px', padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '4px' }}>
-        <h4 style={{ margin: '0 0 10px 0', color: '#495057' }}>Informations</h4>
-        <ul style={{ margin: 0, paddingLeft: '20px', color: '#6c757d' }}>
-          <li>For Gmail, use an application <strong>password </strong> instead of your regular passwordw</li>
-          <li>Make sure 2-factor authentication is enabled on your Google account</li>
-          <li>Alerts are only sent when server status changes occur</li>
-          <li>A test email can be sent to verify the configuration</li>
-        </ul>
+        <button onClick={handleSave} disabled={saving} className="btn btn-primary">
+          {saving ? (
+            <>
+              <div className="animate-spin" style={{ width: '18px', height: '18px', border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%' }} />
+              Saving...
+            </>
+          ) : (
+            <>
+              <Save size={18} />
+              Save Configuration
+            </>
+          )}
+        </button>
       </div>
     </div>
   );

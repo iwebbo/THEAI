@@ -6,7 +6,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Installation des dépendances
-RUN npm install
+RUN npm install lucide-react react-hot-toast
 
 # Copie du code source
 COPY . .

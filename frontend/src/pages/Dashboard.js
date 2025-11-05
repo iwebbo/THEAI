@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Server, CheckCircle, XCircle, HelpCircle, RefreshCw, Plus } from 'lucide-react';
 import serverApi from '../services/api';
 import StatusBadge from '../components/common/StatusBadge';
 import Loading from '../components/common/Loading';
@@ -14,6 +15,7 @@ const Dashboard = () => {
     unknown: 0
   });
   const [loading, setLoading] = useState(true);
+  const [checking, setChecking] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -25,21 +27,21 @@ const Dashboard = () => {
       setLoading(true);
       const response = await serverApi.getServers();
       const serverData = response.data;
-      
+
       setServers(serverData);
-      
+
       // Calculer les statistiques
-      const online = serverData.filter(s => s.status === 'online').length;
-      const offline = serverData.filter(s => s.status === 'offline').length;
-      const unknown = serverData.filter(s => s.status === 'unknown').length;
-      
+      const online = serverData.filter((s) => s.status === 'online').length;
+      const offline = serverData.filter((s) => s.status === 'offline').length;
+      const unknown = serverData.filter((s) => s.status === 'unknown').length;
+
       setStats({
         total: serverData.length,
         online,
         offline,
         unknown
       });
-      
+      setError(null);
     } catch (err) {
       setError('Error loading servers: ' + (err.response?.data?.detail || err.message));
     } finally {
@@ -49,13 +51,13 @@ const Dashboard = () => {
 
   const handleCheckAllServers = async () => {
     try {
-      setLoading(true);
+      setChecking(true);
       await serverApi.checkAllServers();
       await fetchServers();
     } catch (err) {
       setError('Error during checking servers: ' + (err.response?.data?.detail || err.message));
     } finally {
-      setLoading(false);
+      setChecking(false);
     }
   };
 
@@ -63,225 +65,244 @@ const Dashboard = () => {
     return <Loading message="Loading Dashboard..." />;
   }
 
+  // Stats Cards Data
+  const statsCards = [
+    {
+      title: 'Total Servers',
+      value: stats.total,
+      icon: Server,
+      color: '#3b82f6',
+      bgColor: '#eff6ff',
+      borderColor: '#bfdbfe'
+    },
+    {
+      title: 'Online',
+      value: stats.online,
+      icon: CheckCircle,
+      color: '#10b981',
+      bgColor: '#ecfdf5',
+      borderColor: '#a7f3d0'
+    },
+    {
+      title: 'Offline',
+      value: stats.offline,
+      icon: XCircle,
+      color: '#ef4444',
+      bgColor: '#fef2f2',
+      borderColor: '#fecaca'
+    },
+    {
+      title: 'Unknown',
+      value: stats.unknown,
+      icon: HelpCircle,
+      color: '#6b7280',
+      bgColor: '#f9fafb',
+      borderColor: '#e5e7eb'
+    }
+  ];
+
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-      {/* En-tête */}
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        marginBottom: '2rem'
-      }}>
+    <div className="animate-fadeIn">
+      {/* Header Section */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '2rem'
+        }}
+      >
         <div>
-          <h1 style={{ marginBottom: '0.5rem', color: '#1f2937' }}>Dashboard</h1>
+          <h1 style={{ marginBottom: '0.5rem' }}>Dashboard</h1>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+            Monitor and manage your server infrastructure
+          </p>
         </div>
-        
-        <button
-          onClick={handleCheckAllServers}
-          className="btn btn-success"
-        >
-          Check all servers
-        </button>
+
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <Link to="/servers/new" className="btn btn-primary">
+            <Plus size={18} />
+            Add Server
+          </Link>
+          <button
+            onClick={handleCheckAllServers}
+            disabled={checking}
+            className="btn btn-success"
+          >
+            <RefreshCw size={18} className={checking ? 'animate-spin' : ''} />
+            {checking ? 'Checking...' : 'Check All'}
+          </button>
+        </div>
       </div>
 
+      {/* Error Alert */}
       {error && <Alert type="error" message={error} />}
 
-      {/* Statistiques */}
-      <div className="grid grid-cols-4 mb-8">
-        <div className="card" style={{ textAlign: 'center' }}>
-          <div className="card-body">
-            <h3 style={{ color: '#6b7280', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.5rem' }}>
-              TOTAL
-            </h3>
-            <p style={{ fontSize: '2.25rem', fontWeight: 'bold', color: '#3b82f6', margin: 0 }}>
-              {stats.total}
-            </p>
-            <p style={{ color: '#9ca3af', fontSize: '0.875rem', margin: 0 }}>servers</p>
-          </div>
-        </div>
-        
-        <div className="card" style={{ textAlign: 'center' }}>
-          <div className="card-body">
-            <h3 style={{ color: '#6b7280', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.5rem' }}>
-              ONLINE
-            </h3>
-            <p style={{ fontSize: '2.25rem', fontWeight: 'bold', color: '#10b981', margin: 0 }}>
-              {stats.online}
-            </p>
-            <p style={{ color: '#9ca3af', fontSize: '0.875rem', margin: 0 }}>
-              {stats.total > 0 ? Math.round((stats.online / stats.total) * 100) : 0}% uptime
-            </p>
-          </div>
-        </div>
-        
-        <div className="card" style={{ textAlign: 'center' }}>
-          <div className="card-body">
-            <h3 style={{ color: '#6b7280', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.5rem' }}>
-              OFFLINE
-            </h3>
-            <p style={{ fontSize: '2.25rem', fontWeight: 'bold', color: '#ef4444', margin: 0 }}>
-              {stats.offline}
-            </p>
-            <p style={{ color: '#9ca3af', fontSize: '0.875rem', margin: 0 }}>
-              {stats.offline > 0 ? 'Attention' : 'Everything is good'}
-            </p>
-          </div>
-        </div>
-        
-        <div className="card" style={{ textAlign: 'center' }}>
-          <div className="card-body">
-            <h3 style={{ color: '#6b7280', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.5rem' }}>
-              UNKNOW
-            </h3>
-            <p style={{ fontSize: '2.25rem', fontWeight: 'bold', color: '#6b7280', margin: 0 }}>
-              {stats.unknown}
-            </p>
-            <p style={{ color: '#9ca3af', fontSize: '0.875rem', margin: 0 }}>unchecked</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Serveurs avec problèmes */}
-      {stats.offline > 0 && (
-        <div className="card mb-6" style={{ borderLeft: '4px solid #ef4444' }}>
-          <div className="card-body">
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}>
-              <span style={{ fontSize: '1.25rem', marginRight: '0.5rem' }}>⚠️</span>
-              <h3 style={{ color: '#dc2626', fontSize: '1.125rem' }}>
-                Problems ({stats.offline})
-              </h3>
-            </div>
-            
-            <div style={{ display: 'grid', gap: '0.75rem' }}>
-              {servers
-                .filter(s => s.status === 'offline')
-                .map(server => (
-                  <div key={server.id} style={{ 
-                    padding: '1rem', 
-                    backgroundColor: '#fef2f2',
-                    borderRadius: '0.5rem',
+      {/* Stats Cards Grid */}
+      <div className="grid grid-cols-4" style={{ marginBottom: '2rem' }}>
+        {statsCards.map((stat, index) => {
+          const Icon = stat.icon;
+          return (
+            <div
+              key={index}
+              className="card card-interactive"
+              style={{
+                borderLeft: `4px solid ${stat.color}`,
+                backgroundColor: stat.bgColor,
+                borderColor: stat.borderColor
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                <div>
+                  <p
+                    style={{
+                      fontSize: '0.875rem',
+                      fontWeight: 500,
+                      color: 'var(--text-secondary)',
+                      marginBottom: '0.5rem'
+                    }}
+                  >
+                    {stat.title}
+                  </p>
+                  <h2
+                    style={{
+                      fontSize: '2.25rem',
+                      fontWeight: 700,
+                      color: stat.color,
+                      lineHeight: 1
+                    }}
+                  >
+                    {stat.value}
+                  </h2>
+                </div>
+                <div
+                  style={{
+                    width: '48px',
+                    height: '48px',
+                    borderRadius: 'var(--radius-lg)',
+                    backgroundColor: 'white',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'space-between'
-                  }}>
-                    <div>
-                      <div style={{ fontWeight: '600', color: '#1f2937', marginBottom: '0.25rem' }}>
-                        {server.name}
-                      </div>
-                      <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>
-                        {server.hostname} • {server.ip_address}
-                      </div>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                      <StatusBadge status={server.status} />
-                      <Link 
-                        to={`/servers/${server.id}`}
-                        className="btn btn-primary"
-                        style={{ fontSize: '0.75rem', padding: '0.375rem 0.75rem' }}
-                      >
-                        Détails
-                      </Link>
-                    </div>
-                  </div>
-                ))}
+                    justifyContent: 'center',
+                    boxShadow: 'var(--shadow-sm)'
+                  }}
+                >
+                  <Icon size={24} style={{ color: stat.color }} />
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          );
+        })}
+      </div>
 
-      {/* Liste des serveurs */}
+      {/* Servers Section */}
       <div className="card">
         <div className="card-header">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3 style={{ fontSize: '1.125rem' }}>Monitoring view</h3>
-            <Link to="/servers" className="btn btn-secondary" style={{ fontSize: '0.875rem' }}>
-              Show all →
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 600 }}>Recent Servers</h2>
+        </div>
+
+        {servers.length === 0 ? (
+          <div
+            style={{
+              textAlign: 'center',
+              padding: '3rem 1rem',
+              color: 'var(--text-secondary)'
+            }}
+          >
+            <Server size={48} style={{ color: 'var(--text-tertiary)', marginBottom: '1rem' }} />
+            <p style={{ fontSize: '1rem', fontWeight: 500, marginBottom: '0.5rem' }}>
+              No servers yet
+            </p>
+            <p style={{ fontSize: '0.875rem', marginBottom: '1.5rem' }}>
+              Get started by adding your first server to monitor
+            </p>
+            <Link to="/servers/new" className="btn btn-primary">
+              <Plus size={18} />
+              Add Your First Server
             </Link>
           </div>
-        </div>
-        
-        <div className="card-body">
-          {servers.length === 0 ? (
-            <div style={{ 
-              textAlign: 'center', 
-              padding: '3rem',
-              color: '#6b7280'
-            }}>
-              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📊</div>
-              <p style={{ fontSize: '1.125rem', marginBottom: '1rem' }}>No server has been added</p>
-              <Link 
-                to="/servers/new"
-                className="btn btn-primary"
+        ) : (
+          <div className="grid grid-cols-3" style={{ gap: '1rem' }}>
+            {servers.slice(0, 6).map((server) => (
+              <Link
+                key={server.id}
+                to={`/servers/${server.id}`}
+                className="card card-interactive"
+                style={{
+                  textDecoration: 'none',
+                  padding: '1.25rem',
+                  borderLeft: `4px solid ${
+                    server.status === 'online'
+                      ? '#10b981'
+                      : server.status === 'offline'
+                      ? '#ef4444'
+                      : '#6b7280'
+                  }`
+                }}
               >
-                Add your first server
-              </Link>
-            </div>
-          ) : (
-            <div className="grid grid-cols-3">
-              {servers.slice(0, 6).map(server => (
-                <Link
-                  key={server.id}
-                  to={`/servers/${server.id}`}
-                  style={{ textDecoration: 'none', color: 'inherit' }}
-                >
-                  <div style={{ 
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '0.75rem',
-                    padding: '1.25rem',
-                    transition: 'all 0.2s ease',
-                    cursor: 'pointer',
-                    backgroundColor: '#ffffff'
-                  }}
-                  onMouseOver={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-2px)';
-                    e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)';
-                  }}
-                  onMouseOut={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = 'none';
-                  }}
-                  >
-                    <div style={{ 
-                      display: 'flex', 
-                      justifyContent: 'space-between', 
-                      alignItems: 'flex-start',
-                      marginBottom: '0.75rem'
-                    }}>
-                      <div>
-                        <div style={{ 
-                          fontWeight: '600', 
-                          color: '#1f2937',
-                          marginBottom: '0.25rem'
-                        }}>
-                          {server.name}
-                        </div>
-                        <div style={{ 
-                          fontSize: '0.875rem', 
-                          color: '#6b7280'
-                        }}>
-                          {server.hostname}
-                        </div>
-                      </div>
-                      <StatusBadge status={server.status} />
-                    </div>
-                    
-                    <div style={{ 
-                      display: 'flex', 
-                      justifyContent: 'space-between',
-                      fontSize: '0.75rem',
-                      color: '#9ca3af'
-                    }}>
-                      <span>IP: {server.ip_address}</span>
-                      {server.response_time && (
-                        <span>{server.response_time}ms</span>
-                      )}
-                    </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
+                  <div style={{ flex: 1 }}>
+                    <h3
+                      style={{
+                        fontSize: '1rem',
+                        fontWeight: 600,
+                        color: 'var(--text-primary)',
+                        marginBottom: '0.25rem'
+                      }}
+                    >
+                      {server.name}
+                    </h3>
+                    <p style={{ fontSize: '0.813rem', color: 'var(--text-tertiary)' }}>
+                      {server.hostname}
+                    </p>
                   </div>
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
+                  <StatusBadge status={server.status} />
+                </div>
+
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    fontSize: '0.75rem',
+                    color: 'var(--text-tertiary)',
+                    paddingTop: '0.75rem',
+                    borderTop: '1px solid var(--border-light)'
+                  }}
+                >
+                  <span>{server.ip_address}</span>
+                  {server.response_time && (
+                    <span
+                      className="badge badge-gray"
+                      style={{ fontSize: '0.688rem' }}
+                    >
+                      {server.response_time}ms
+                    </span>
+                  )}
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+
+        {servers.length > 6 && (
+          <div
+            style={{
+              marginTop: '1.5rem',
+              paddingTop: '1.5rem',
+              borderTop: '1px solid var(--border-light)',
+              textAlign: 'center'
+            }}
+          >
+            <Link
+              to="/servers"
+              className="btn btn-secondary"
+            >
+              <Server size={18} />
+              View All Servers ({servers.length})
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Plus, RefreshCw, Server as ServerIcon } from 'lucide-react';
 import ServerItem from './ServerItem';
 import Loading from '../common/Loading';
 import Alert from '../common/Alert';
@@ -11,12 +12,10 @@ const ServerList = () => {
   const [error, setError] = useState(null);
   const [checkingAll, setCheckingAll] = useState(false);
 
-  // Charger les serveurs au chargement du composant
   useEffect(() => {
     fetchServers();
   }, []);
 
-  // Récupérer tous les serveurs depuis l'API
   const fetchServers = async () => {
     try {
       setLoading(true);
@@ -24,134 +23,138 @@ const ServerList = () => {
       setServers(response.data);
       setError(null);
     } catch (err) {
-      setError('Erreur lors du chargement des serveurs: ' + (err.response?.data?.detail || err.message));
+      setError('Error loading servers: ' + (err.response?.data?.detail || err.message));
     } finally {
       setLoading(false);
     }
   };
 
-  // Vérifier l'état d'un serveur spécifique
   const handleCheckServer = async (serverId) => {
     try {
       const response = await serverApi.checkServer(serverId);
-      // Mettre à jour le serveur vérifié dans la liste
-      setServers(servers.map(server => 
-        server.id === serverId 
-          ? { ...server, status: response.data.status, last_check: response.data.last_check, response_time: response.data.response_time }
-          : server
-      ));
+      setServers(
+        servers.map((server) =>
+          server.id === serverId
+            ? {
+                ...server,
+                status: response.data.status,
+                last_check: response.data.last_check,
+                response_time: response.data.response_time
+              }
+            : server
+        )
+      );
     } catch (err) {
-      setError('Erreur lors de la vérification du serveur: ' + (err.response?.data?.detail || err.message));
+      setError('Error checking server: ' + (err.response?.data?.detail || err.message));
     }
   };
 
-  // Vérifier l'état de tous les serveurs
   const handleCheckAllServers = async () => {
     try {
       setCheckingAll(true);
       const response = await serverApi.checkAllServers();
-      
-      // Créer un objet Map pour faciliter la mise à jour
+
       const updatedServersMap = new Map(
-        response.data.map(checkResult => [
-          checkResult.id, 
-          { status: checkResult.status, last_check: checkResult.last_check, response_time: checkResult.response_time }
+        response.data.map((checkResult) => [
+          checkResult.id,
+          {
+            status: checkResult.status,
+            last_check: checkResult.last_check,
+            response_time: checkResult.response_time
+          }
         ])
       );
-      
-      // Mettre à jour tous les serveurs avec leurs nouveaux statuts
-      setServers(servers.map(server => {
-        const checkResult = updatedServersMap.get(server.id);
-        if (checkResult) {
-          return { ...server, ...checkResult };
-        }
-        return server;
-      }));
-      
+
+      setServers(
+        servers.map((server) => {
+          const checkResult = updatedServersMap.get(server.id);
+          if (checkResult) {
+            return { ...server, ...checkResult };
+          }
+          return server;
+        })
+      );
     } catch (err) {
-      setError('Erreur lors de la vérification des serveurs: ' + (err.response?.data?.detail || err.message));
+      setError('Error checking servers: ' + (err.response?.data?.detail || err.message));
     } finally {
       setCheckingAll(false);
     }
   };
 
-  // Supprimer un serveur
   const handleDeleteServer = async (serverId) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce serveur ?')) {
+    if (window.confirm('Are you sure you want to delete this server?')) {
       try {
         await serverApi.deleteServer(serverId);
-        // Retirer le serveur supprimé de la liste
-        setServers(servers.filter(server => server.id !== serverId));
+        setServers(servers.filter((server) => server.id !== serverId));
       } catch (err) {
-        setError('Erreur lors de la suppression du serveur: ' + (err.response?.data?.detail || err.message));
+        setError('Error deleting server: ' + (err.response?.data?.detail || err.message));
       }
     }
   };
 
   if (loading) {
-    return <Loading message="Chargement des serveurs..." />;
+    return <Loading message="Loading servers..." />;
   }
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h1 style={{ margin: 0 }}>Servers List</h1>
-        <div style={{ display: 'flex', gap: '10px' }}>
+    <div className="animate-fadeIn">
+      {/* Header */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '2rem'
+        }}
+      >
+        <div>
+          <h1 style={{ marginBottom: '0.5rem' }}>Servers List</h1>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+            Manage and monitor all your servers
+          </p>
+        </div>
+
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
           <button
             onClick={handleCheckAllServers}
             disabled={checkingAll}
-            style={{
-              backgroundColor: '#4caf50',
-              color: 'white',
-              border: 'none',
-              padding: '10px 16px',
-              borderRadius: '4px',
-              cursor: checkingAll ? 'not-allowed' : 'pointer',
-              opacity: checkingAll ? 0.7 : 1
-            }}
+            className="btn btn-success"
           >
-            {checkingAll ? 'Vérification...' : 'Check all servers'}
+            <RefreshCw size={18} className={checkingAll ? 'animate-spin' : ''} />
+            {checkingAll ? 'Checking...' : 'Check All Servers'}
           </button>
-          <Link
-            to="/servers/new"
-            style={{
-              backgroundColor: '#2196f3',
-              color: 'white',
-              textDecoration: 'none',
-              padding: '10px 16px',
-              borderRadius: '4px',
-              display: 'inline-block'
-            }}
-          >
-            Add a server
+
+          <Link to="/servers/new" className="btn btn-primary">
+            <Plus size={18} />
+            Add Server
           </Link>
         </div>
       </div>
 
+      {/* Error Alert */}
       {error && <Alert type="error" message={error} />}
 
+      {/* Servers List */}
       {servers.length === 0 ? (
-        <div style={{ 
-          padding: '40px', 
-          textAlign: 'center',
-          backgroundColor: '#f5f5f5',
-          borderRadius: '8px'
-        }}>
-          <p>Nothing server has been added.</p>
-          <Link 
-            to="/servers/new"
-            style={{
-              color: '#2196f3',
-              textDecoration: 'none',
-              fontWeight: 'bold'
-            }}
-          >
-            Add your first server
+        <div className="card" style={{ textAlign: 'center', padding: '4rem 2rem' }}>
+          <ServerIcon
+            size={64}
+            style={{ color: 'var(--text-tertiary)', margin: '0 auto 1.5rem' }}
+          />
+          <h3 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '0.5rem' }}>
+            No servers added yet
+          </h3>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', fontSize: '0.875rem' }}>
+            Start monitoring your infrastructure by adding your first server
+          </p>
+          <Link to="/servers/new" className="btn btn-primary btn-lg">
+            <Plus size={20} />
+            Add Your First Server
           </Link>
         </div>
       ) : (
-        <div>
-          {servers.map(server => (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {servers.map((server) => (
             <ServerItem
               key={server.id}
               server={server}
@@ -159,6 +162,59 @@ const ServerList = () => {
               onDelete={handleDeleteServer}
             />
           ))}
+        </div>
+      )}
+
+      {/* Stats Footer */}
+      {servers.length > 0 && (
+        <div
+          className="card"
+          style={{
+            marginTop: '2rem',
+            padding: '1rem',
+            backgroundColor: 'var(--gray-50)'
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-around',
+              textAlign: 'center'
+            }}
+          >
+            <div>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', marginBottom: '0.25rem' }}>
+                Total
+              </p>
+              <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                {servers.length}
+              </p>
+            </div>
+            <div>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', marginBottom: '0.25rem' }}>
+                Online
+              </p>
+              <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--success-600)' }}>
+                {servers.filter((s) => s.status === 'online').length}
+              </p>
+            </div>
+            <div>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', marginBottom: '0.25rem' }}>
+                Offline
+              </p>
+              <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--error-600)' }}>
+                {servers.filter((s) => s.status === 'offline').length}
+              </p>
+            </div>
+            <div>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', marginBottom: '0.25rem' }}>
+                Unknown
+              </p>
+              <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--gray-600)' }}>
+                {servers.filter((s) => s.status === 'unknown').length}
+              </p>
+            </div>
+          </div>
         </div>
       )}
     </div>

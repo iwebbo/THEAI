@@ -30,10 +30,10 @@ function App() {
       try {
         // Configurer axios avec le token
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        
+
         // Vérifier si le token est toujours valide
         const response = await axios.get('/api/v1/auth/me');
-        
+
         setUser(JSON.parse(userData));
         setIsAuthenticated(true);
       } catch (error) {
@@ -41,14 +41,14 @@ function App() {
         handleLogout();
       }
     }
-    
+
     setLoading(false);
   };
 
   const handleLogin = (userData, token) => {
     setUser(userData);
     setIsAuthenticated(true);
-    
+
     // Configurer axios pour les futures requêtes
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   };
@@ -70,42 +70,104 @@ function App() {
   };
 
   if (loading) {
-    return <Loading message="Loading THEAI..." />;
+    return <Loading message="Loading THEAI..." size="lg" />;
   }
 
   return (
     <Router>
       <Routes>
         {/* Route de login */}
-        <Route 
-          path="/login" 
+        <Route
+          path="/login"
           element={
-            isAuthenticated ? 
-            <Navigate to="/" replace /> : 
-            <LoginPage onLogin={handleLogin} />
-          } 
+            isAuthenticated ? (
+              <Navigate to="/" replace />
+            ) : (
+              <LoginPage onLogin={handleLogin} />
+            )
+          }
         />
-        
+
         {/* Routes protégées */}
-        <Route 
-          path="/*" 
+        <Route
+          path="/"
           element={
             <ProtectedRoute>
               <Layout user={user} onLogout={handleLogout}>
-                <Routes>
-                  <Route path="/" element={<Dashboard />} />
-                  <Route path="/servers" element={<ServerListPage />} />
-                  <Route path="/servers/:id" element={<ServerDetailPage />} />
-                  <Route path="/servers/new" element={<ServerFormPage />} />
-                  <Route path="/servers/edit/:id" element={<ServerFormPage />} />
-                  <Route path="/settings" element={<SettingsPage />} />
-                  <Route path="/servers/:id/security" element={<SecurityDashboardPage />} />
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
+                <Dashboard />
               </Layout>
             </ProtectedRoute>
-          } 
+          }
         />
+
+        <Route
+          path="/servers"
+          element={
+            <ProtectedRoute>
+              <Layout user={user} onLogout={handleLogout}>
+                <ServerListPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/servers/new"
+          element={
+            <ProtectedRoute>
+              <Layout user={user} onLogout={handleLogout}>
+                <ServerFormPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/servers/edit/:id"
+          element={
+            <ProtectedRoute>
+              <Layout user={user} onLogout={handleLogout}>
+                <ServerFormPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/servers/:id"
+          element={
+            <ProtectedRoute>
+              <Layout user={user} onLogout={handleLogout}>
+                <ServerDetailPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/servers/:id/security"
+          element={
+            <ProtectedRoute>
+              <Layout user={user} onLogout={handleLogout}>
+                <SecurityDashboardPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <Layout user={user} onLogout={handleLogout}>
+                <SettingsPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* 404 - Redirect to dashboard */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );

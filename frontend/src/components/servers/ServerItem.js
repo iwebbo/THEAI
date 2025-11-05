@@ -1,123 +1,192 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Edit, Trash2, Shield, RefreshCw, Clock } from 'lucide-react';
 import StatusBadge from '../common/StatusBadge';
 import moment from 'moment';
 
 const ServerItem = ({ server, onCheck, onDelete }) => {
+  const [isChecking, setIsChecking] = React.useState(false);
+
   // Formatage des dates
   const formatDate = (dateString) => {
-    if (!dateString) return 'Jamais';
+    if (!dateString) return 'Never';
     return moment(dateString).format('DD/MM/YYYY HH:mm:ss');
   };
 
-  // Formatage des protocoles (conversion de "icmp,http" en "ICMP, HTTP")
+  // Formatage des protocoles
   const formatProtocols = (protocols) => {
     if (!protocols) return '';
     return protocols
       .split(',')
-      .map(p => p.toUpperCase())
+      .map((p) => p.toUpperCase())
       .join(', ');
+  };
+
+  const handleCheck = async () => {
+    setIsChecking(true);
+    await onCheck(server.id);
+    setIsChecking(false);
   };
 
   return (
     <div
+      className="card"
       style={{
-        border: '1px solid #e0e0e0',
-        borderRadius: '4px',
-        padding: '16px',
-        margin: '8px 0',
-        display: 'flex',
-        flexDirection: 'column',
-        backgroundColor: 'white',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+        borderLeft: `4px solid ${
+          server.status === 'online'
+            ? 'var(--success-500)'
+            : server.status === 'offline'
+            ? 'var(--error-500)'
+            : 'var(--gray-400)'
+        }`,
+        transition: 'all 200ms'
       }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-        <h3 style={{ margin: 0, fontSize: '18px' }}>
-          <Link to={`/servers/${server.id}`} style={{ textDecoration: 'none', color: '#2196f3' }}>
+      {/* Header */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          marginBottom: '1rem'
+        }}
+      >
+        <div style={{ flex: 1 }}>
+          <Link
+            to={`/servers/${server.id}`}
+            style={{
+              fontSize: '1.125rem',
+              fontWeight: 600,
+              color: 'var(--text-primary)',
+              textDecoration: 'none',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              transition: 'color 200ms'
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--primary-600)')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-primary)')}
+          >
             {server.name}
           </Link>
-        </h3>
+          <p style={{ fontSize: '0.875rem', color: 'var(--text-tertiary)', marginTop: '0.25rem' }}>
+            {server.hostname}
+          </p>
+        </div>
         <StatusBadge status={server.status} />
       </div>
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginBottom: '12px' }}>
+      {/* Info Grid */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+          gap: '1rem',
+          padding: '1rem',
+          backgroundColor: 'var(--gray-50)',
+          borderRadius: 'var(--radius-md)',
+          marginBottom: '1rem'
+        }}
+      >
         <div>
-          <span style={{ color: '#757575', fontSize: '14px' }}>Hostname:</span>
-          <div>{server.hostname}</div>
+          <p
+            style={{
+              fontSize: '0.75rem',
+              fontWeight: 500,
+              color: 'var(--text-tertiary)',
+              marginBottom: '0.25rem',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em'
+            }}
+          >
+            IP Address
+          </p>
+          <p style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-primary)' }}>
+            {server.ip_address}
+          </p>
         </div>
+
         <div>
-          <span style={{ color: '#757575', fontSize: '14px' }}>IP:</span>
-          <div>{server.ip_address}</div>
+          <p
+            style={{
+              fontSize: '0.75rem',
+              fontWeight: 500,
+              color: 'var(--text-tertiary)',
+              marginBottom: '0.25rem',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em'
+            }}
+          >
+            Protocols
+          </p>
+          <p style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-primary)' }}>
+            {formatProtocols(server.protocols)}
+          </p>
         </div>
+
         <div>
-          <span style={{ color: '#757575', fontSize: '14px' }}>Protocols:</span>
-          <div>{formatProtocols(server.protocols)}</div>
+          <p
+            style={{
+              fontSize: '0.75rem',
+              fontWeight: 500,
+              color: 'var(--text-tertiary)',
+              marginBottom: '0.25rem',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em'
+            }}
+          >
+            <Clock size={12} style={{ display: 'inline', marginRight: '0.25rem' }} />
+            Last Check
+          </p>
+          <p style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-primary)' }}>
+            {formatDate(server.last_check)}
+          </p>
         </div>
-        <div>
-          <span style={{ color: '#757575', fontSize: '14px' }}>Last check:</span>
-          <div>{formatDate(server.last_check)}</div>
-        </div>
+
         {server.response_time && (
           <div>
-            <span style={{ color: '#757575', fontSize: '14px' }}>Time in ms:</span>
-            <div>{server.response_time} ms</div>
+            <p
+              style={{
+                fontSize: '0.75rem',
+                fontWeight: 500,
+                color: 'var(--text-tertiary)',
+                marginBottom: '0.25rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em'
+              }}
+            >
+              Response Time
+            </p>
+            <span className="badge badge-success" style={{ fontSize: '0.813rem' }}>
+              {server.response_time} ms
+            </span>
           </div>
         )}
       </div>
 
-      <div style={{ display: 'flex', gap: '8px', marginTop: 'auto' }}>
+      {/* Actions */}
+      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
         <button
-          onClick={() => onCheck(server.id)}
-          style={{
-            backgroundColor: '#4caf50',
-            color: 'white',
-            border: 'none',
-            padding: '8px 12px',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
+          onClick={handleCheck}
+          disabled={isChecking}
+          className="btn btn-success btn-sm"
         >
-          Check now
+          <RefreshCw size={16} className={isChecking ? 'animate-spin' : ''} />
+          {isChecking ? 'Checking...' : 'Check Now'}
         </button>
-        <Link
-          to={`/servers/edit/${server.id}`}
-          style={{
-            backgroundColor: '#2196f3',
-            color: 'white',
-            textDecoration: 'none',
-            padding: '8px 12px',
-            borderRadius: '4px'
-          }}
-        >
-          Modify
+
+        <Link to={`/servers/edit/${server.id}`} className="btn btn-primary btn-sm">
+          <Edit size={16} />
+          Edit
         </Link>
-        <Link
-          to={`/servers/${server.id}/security`}
-          style={{
-            backgroundColor: '#ff9800',
-            color: 'white',
-            textDecoration: 'none',
-            padding: '8px 12px',
-            borderRadius: '4px',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '4px'
-          }}
-        >
+
+        <Link to={`/servers/${server.id}/security`} className="btn btn-warning btn-sm">
+          <Shield size={16} />
           Security
         </Link>
-        <button
-          onClick={() => onDelete(server.id)}
-          style={{
-            backgroundColor: '#f44336',
-            color: 'white',
-            border: 'none',
-            padding: '8px 12px',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
-        >
+
+        <button onClick={() => onDelete(server.id)} className="btn btn-danger btn-sm">
+          <Trash2 size={16} />
           Delete
         </button>
       </div>

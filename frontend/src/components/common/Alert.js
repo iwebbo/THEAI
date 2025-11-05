@@ -1,81 +1,115 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { CheckCircle, XCircle, AlertTriangle, Info, X } from 'lucide-react';
 
-const Alert = ({ type = 'info', message, duration = 0 }) => {
-  const [visible, setVisible] = useState(true);
+const Alert = ({ type = 'info', message, duration = 0, onClose }) => {
+  const [visible, setVisible] = React.useState(true);
 
   useEffect(() => {
     if (duration > 0) {
       const timer = setTimeout(() => {
-        setVisible(false);
+        handleClose();
       }, duration);
 
       return () => clearTimeout(timer);
     }
   }, [duration]);
 
+  const handleClose = () => {
+    setVisible(false);
+    if (onClose) onClose();
+  };
+
   if (!visible) return null;
 
-  // Définir les styles en fonction du type d'alerte
-  const getAlertStyle = () => {
-    const baseStyle = {
-      padding: '12px 16px',
-      borderRadius: '4px',
-      marginBottom: '20px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between'
-    };
-
+  // Configuration par type
+  const getAlertConfig = () => {
     switch (type) {
       case 'success':
         return {
-          ...baseStyle,
-          backgroundColor: '#e8f5e9',
-          color: '#2e7d32',
-          border: '1px solid #c8e6c9'
+          icon: CheckCircle,
+          className: 'alert-success',
+          bgColor: '#ecfdf5',
+          borderColor: '#a7f3d0',
+          textColor: '#047857',
+          iconColor: '#10b981'
         };
       case 'error':
         return {
-          ...baseStyle,
-          backgroundColor: '#ffebee',
-          color: '#c62828',
-          border: '1px solid #ffcdd2'
+          icon: XCircle,
+          className: 'alert-error',
+          bgColor: '#fef2f2',
+          borderColor: '#fecaca',
+          textColor: '#b91c1c',
+          iconColor: '#ef4444'
         };
       case 'warning':
         return {
-          ...baseStyle,
-          backgroundColor: '#fff8e1',
-          color: '#f57f17',
-          border: '1px solid #ffecb3'
+          icon: AlertTriangle,
+          className: 'alert-warning',
+          bgColor: '#fffbeb',
+          borderColor: '#fde68a',
+          textColor: '#b45309',
+          iconColor: '#f59e0b'
         };
       case 'info':
       default:
         return {
-          ...baseStyle,
-          backgroundColor: '#e3f2fd',
-          color: '#0d47a1',
-          border: '1px solid #bbdefb'
+          icon: Info,
+          className: 'alert-info',
+          bgColor: '#eff6ff',
+          borderColor: '#bfdbfe',
+          textColor: '#1e40af',
+          iconColor: '#3b82f6'
         };
     }
   };
 
+  const config = getAlertConfig();
+  const Icon = config.icon;
+
   return (
-    <div style={getAlertStyle()}>
-      <div>{message}</div>
-      {duration === 0 && (
-        <button
-          onClick={() => setVisible(false)}
-          style={{
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: '16px',
-            color: 'inherit'
-          }}
-        >
-          ×
-        </button>
-      )}
+    <div
+      className="animate-fadeIn"
+      style={{
+        display: 'flex',
+        alignItems: 'flex-start',
+        gap: '0.75rem',
+        padding: '1rem',
+        borderRadius: '0.75rem',
+        marginBottom: '1rem',
+        backgroundColor: config.bgColor,
+        border: `1px solid ${config.borderColor}`,
+        color: config.textColor,
+        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+      }}
+    >
+      <Icon size={20} style={{ color: config.iconColor, flexShrink: 0, marginTop: '0.125rem' }} />
+      
+      <div style={{ flex: 1, fontSize: '0.875rem', lineHeight: '1.5' }}>
+        {message}
+      </div>
+
+      <button
+        onClick={handleClose}
+        style={{
+          background: 'none',
+          border: 'none',
+          cursor: 'pointer',
+          padding: '0',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: config.textColor,
+          opacity: 0.7,
+          transition: 'opacity 150ms',
+          flexShrink: 0
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+        onMouseLeave={(e) => e.currentTarget.style.opacity = '0.7'}
+        aria-label="Close alert"
+      >
+        <X size={18} />
+      </button>
     </div>
   );
 };
