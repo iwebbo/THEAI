@@ -1,3 +1,7 @@
+<p align="center">
+<img width="500" height="500" alt="theai" src="https://github.com/user-attachments/assets/eeb2491b-34c0-4bf5-84e0-7a3cfa0f36af" />
+</p>
+
 # THEAI Monitoring & Vulnerability Platform
 
 A modern, professional server monitoring & vulnerability application built with React frontend and FastAPI backend. Monitor your servers in real-time using multiple protocols (ICMP, HTTP, SSH, TCP) with an intuitive dashboard interface.
