@@ -17,7 +17,7 @@ A modern, professional server monitoring & vulnerability application built with 
 <img width="1862" height="902" alt="theai-login-page" src="https://github.com/user-attachments/assets/cf5a313d-9750-4ebd-8397-0d8d7cfb8ec6" />
 
 ### Dashboard
-<img width="1917" height="910" alt="theai-dashboard-page" src="https://github.com/user-attachments/assets/9f4f6184-af5b-4ee4-a15d-3a727e1c6fa7" />
+<img width="1915" height="909" alt="image" src="https://github.com/user-attachments/assets/a11d0670-d24f-4526-b6c4-174b4a988d6e" />
 
 ### Server view
 <img width="1903" height="907" alt="image" src="https://github.com/user-attachments/assets/a3206f01-6172-46c6-93fd-eb82a8dbe0c9" />
