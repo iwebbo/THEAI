@@ -2,10 +2,10 @@ apiVersion: v1
 entries:
   theai:
   - apiVersion: v2
-    appVersion: v1.2-docker-17-g323c251
-    created: "2025-11-07T15:27:03.205581193Z"
+    appVersion: v1.2-docker-18-g1fd591a
+    created: "2025-11-07T18:28:04.979107462Z"
     description: TheAI Application - Backend + Frontend + PostgreSQL
-    digest: 91882ea8c8758b60281c5e8fe5ca683ca94883bbc2f5b130e87806b8c70d8605
+    digest: 3803c815736c7f020b3beeb6058013c35a277791171d6a2dc50ae4423b68f285
     home: https://github.com/iwebbo/theai
     keywords:
     - theai
@@ -19,6 +19,6 @@ entries:
     - https://github.com/iwebbo/theai
     type: application
     urls:
-    - https://iwebbo.github.io/THEAI/theai-v1.2-docker-17-g323c251.tgz
-    version: v1.2-docker-17-g323c251
-generated: "2025-11-07T15:27:03.204752345Z"
+    - https://iwebbo.github.io/THEAI/theai-v1.2-docker-18-g1fd591a.tgz
+    version: v1.2-docker-18-g1fd591a
+generated: "2025-11-07T18:28:04.978311413Z"

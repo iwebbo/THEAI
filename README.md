@@ -1,6 +1,6 @@
-# TheAI Helm Charts
+# THEAI Helm Charts
 
-Kubernetes deployment chart for TheAI Application (Backend + Frontend + PostgreSQL).
+Kubernetes deployment chart for THEAI Application (Backend + Frontend + PostgreSQL).
 
 ## Add Repository
 
