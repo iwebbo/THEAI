@@ -35,7 +35,7 @@ jobs:
     - name: Generate version
       id: version
       run: |
-        VERSION=$(git describe --tags --always 2>/dev/null || echo "0.1.0")
+        VERSION=$(git describe --tags --always 2>/dev/null || echo "0.1.0" | sed 's/^v//')
         echo "version=${VERSION}" >> $GITHUB_OUTPUT
         echo "date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_OUTPUT
 
@@ -68,9 +68,9 @@ jobs:
     - name: Create documentation
       run: |
         cat > charts/README.md << 'EOF'
-        # TheAI Helm Charts
+        # THEAI Helm Charts
         
-        Kubernetes deployment chart for TheAI Application (Backend + Frontend + PostgreSQL).
+        Kubernetes deployment chart for THEAI Application (Backend + Frontend + PostgreSQL).
         
         ## Add Repository
         
