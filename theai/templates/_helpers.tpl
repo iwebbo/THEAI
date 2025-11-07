@@ -6,13 +6,6 @@ theai
 {{- end }}
 
 {{/*
-Create a default fully qualified app name.
-*/}}
-{{- define "theai.fullname" -}}
-{{ .Release.Name }}-theai
-{{- end }}
-
-{{/*
 Create chart name and version.
 */}}
 {{- define "theai.chart" -}}

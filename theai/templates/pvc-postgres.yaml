@@ -8,7 +8,9 @@ spec:
   accessModes:
     - ReadWriteOnce
   {{- if .Values.postgres.storage.className }}
+  {{- if ne .Values.postgres.storage.className "default" }}
   storageClassName: {{ .Values.postgres.storage.className }}
+  {{- end }}
   {{- end }}
   resources:
     requests:
