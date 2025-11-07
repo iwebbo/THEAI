@@ -3,9 +3,9 @@ entries:
   theai:
   - apiVersion: v2
     appVersion: 1.2-docker-19-g90743af
-    created: "2025-11-07T18:48:43.515617501Z"
+    created: "2025-11-07T20:41:49.862113297Z"
     description: TheAI Application - Backend + Frontend + PostgreSQL
-    digest: 76c3d68ba3098b3de6101bf7804ec66c6b9775b1c1f62b3421006d70feb1de51
+    digest: b0a671fb3a55a93254f882ad9e610d9ccd00150d9bd134ebc1766720a682d319
     home: https://github.com/iwebbo/theai
     keywords:
     - theai
@@ -21,4 +21,4 @@ entries:
     urls:
     - https://iwebbo.github.io/THEAI/theai-1.2-docker-19-g90743af.tgz
     version: 1.2-docker-19-g90743af
-generated: "2025-11-07T18:48:43.514819504Z"
+generated: "2025-11-07T20:41:49.86134385Z"
