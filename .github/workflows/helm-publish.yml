@@ -45,7 +45,7 @@ jobs:
         sed -i "s/appVersion: .*/appVersion: \"${{ steps.version.outputs.version }}\"/" charts/theai/Chart.yaml
         sed -i "s|{{ github_username }}|${{ github.repository_owner }}|g" charts/theai/Chart.yaml
         sed -i "s|{{ github_username }}|${{ github.repository_owner }}|g" charts/theai/values.yaml
-        cat helm-chart/Chart.yaml
+        cat charts/theai/Chart.yaml
 
     - name: Lint Helm chart
       run: helm lint charts/theai
