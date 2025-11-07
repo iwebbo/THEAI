@@ -113,3 +113,55 @@ secrets:
     DEFAULT_ADMIN_USERNAME: "admin"
     DEFAULT_ADMIN_PASSWORD: "AdminPass123"
     DEFAULT_ADMIN_EMAIL: "admin@theai.local"
+
+configmap:
+  create: true
+  name: theai-users-config
+  users_config_path: /etc/theai/users.yml
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/proxy-body-size: "20m"
+  
+  hosts:
+    - host: theai.local
+      paths:
+        - path: /
+          pathType: Prefix
+          service: frontend
+          port: 80
+        - path: /api
+          pathType: Prefix
+          service: backend
+          port: 8000
+  
+  tls:
+    enabled: false
+
+# Service Account
+serviceAccount:
+  create: true
+  name: "theai-sa"
+
+# Pod Security
+podAnnotations: {}
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+
+# Node selection
+nodeSelector: {}
+tolerations: []
+affinity: {}
