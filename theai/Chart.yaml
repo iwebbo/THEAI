@@ -2,8 +2,8 @@ apiVersion: v2
 name: theai
 description: TheAI Application - Backend + Frontend + PostgreSQL
 type: application
-version: v1.2-docker-18-g1fd591a
-appVersion: "v1.2-docker-18-g1fd591a"
+version: 1.2-docker-19-g90743af
+appVersion: "1.2-docker-19-g90743af"
 keywords:
   - theai
   - monitoring
