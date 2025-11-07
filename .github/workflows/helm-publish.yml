@@ -186,7 +186,7 @@ jobs:
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### 📥 Add Repository" >> $GITHUB_STEP_SUMMARY
         echo '```bash' >> $GITHUB_STEP_SUMMARY
-        echo "helm repo add theai https://${{ github.repository_owner }}.github.io/theai/" >> $GITHUB_STEP_SUMMARY
+        echo "helm repo add theai https://${{ github.repository_owner }}.github.io/THEAI/" >> $GITHUB_STEP_SUMMARY
         echo "helm repo update" >> $GITHUB_STEP_SUMMARY
         echo '```' >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
