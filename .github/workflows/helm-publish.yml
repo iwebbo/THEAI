@@ -1,0 +1,190 @@
+# .github/workflows/helm-publish.yml
+name: Helm Chart Package & Publish
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'helm-chart/**'
+      - 'values.yml'
+      - 'ingress.yml'
+      - 'users.yml'
+      - '.github/workflows/helm-publish.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  package-and-publish:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Helm
+      uses: azure/setup-helm@v3
+      with:
+        version: 'latest'
+
+    - name: Generate version
+      id: version
+      run: |
+        VERSION=$(git describe --tags --always 2>/dev/null || echo "0.1.0")
+        echo "version=${VERSION}" >> $GITHUB_OUTPUT
+        echo "date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_OUTPUT
+
+    - name: Update Chart.yaml
+      run: |
+        sed -i "s/version: .*/version: ${{ steps.version.outputs.version }}/" helm-chart/Chart.yaml
+        sed -i "s/appVersion: .*/appVersion: \"${{ steps.version.outputs.version }}\"/" helm-chart/Chart.yaml
+        sed -i "s|{{ github_username }}|${{ github.repository_owner }}|g" helm-chart/Chart.yaml
+        sed -i "s|{{ github_username }}|${{ github.repository_owner }}|g" helm-chart/values.yaml
+        cat helm-chart/Chart.yaml
+
+    - name: Lint Helm chart
+      run: helm lint helm-chart
+
+    - name: Package Helm chart
+      run: |
+        mkdir -p charts
+        helm package helm-chart -d charts/
+        ls -lah charts/
+
+    - name: Create Helm index
+      run: |
+        if [ -f charts/index.yaml ]; then
+          helm repo index charts/ --url https://${{ github.repository_owner }}.github.io/theai/ --merge charts/index.yaml
+        else
+          helm repo index charts/ --url https://${{ github.repository_owner }}.github.io/theai/
+        fi
+        cat charts/index.yaml
+
+    - name: Create documentation
+      run: |
+        cat > charts/README.md << 'EOF'
+        # TheAI Helm Charts
+        
+        Kubernetes deployment chart for TheAI Application (Backend + Frontend + PostgreSQL).
+        
+        ## Add Repository
+        
+        ```bash
+        helm repo add theai https://${{ github.repository_owner }}.github.io/theai/
+        helm repo update
+        ```
+        
+        ## Install Chart
+        
+        ```bash
+        helm install theai theai/theai \
+          --namespace theai \
+          --create-namespace \
+          -f values.yml
+        ```
+        
+        ## Prerequisites
+        
+        - Kubernetes 1.20+
+        - Helm 3.0+
+        - Ingress Controller (nginx-ingress)
+        
+        ## Configuration Files (at repo root)
+        
+        - `values.yml` - Helm values (mandatory)
+        - `ingress.yml` - Ingress configuration (optional)
+        - `users.yml` - Application users (optional)
+        
+        ## Deploy with Generic Ansible Pipeline
+        
+        ```bash
+        ansible-playbook deploy_helm_generic_FINAL.yml \
+          -e "repo_git=http://git.local/theai" \
+          -e "chart_name=theai" \
+          -e "namespace=theai" \
+          -e "release_name=theai" \
+          -e "values_file=values.yml" \
+          -e "ingress_enabled=true" \
+          -e "generate_token=true"
+        ```
+        
+        ## Chart Values
+        
+        | Parameter | Description | Default |
+        |-----------|-------------|---------|
+        | `backend.replicas` | Backend replicas | 2 |
+        | `frontend.replicas` | Frontend replicas | 2 |
+        | `backend.image.tag` | Backend image tag | latest |
+        | `frontend.image.tag` | Frontend image tag | latest |
+        | `postgres.storage.size` | PostgreSQL volume size | 10Gi |
+        | `ingress.enabled` | Enable Ingress | true |
+        
+        ## Build & Push Flow
+        
+        1. Push to `backend/**` → GitHub Actions builds and pushes to `ghcr.io`
+        2. Push to `frontend/**` → GitHub Actions builds and pushes to `ghcr.io`
+        3. Push to `helm-chart/**` → GitHub Actions packages and publishes chart
+        
+        ## Verification
+        
+        ```bash
+        # List charts
+        helm search repo theai
+        
+        # Get values
+        helm show values theai/theai
+        
+        # Dry run
+        helm install theai theai/theai --dry-run --debug
+        ```
+        EOF
+        cat charts/README.md
+
+    - name: Checkout gh-pages branch
+      uses: actions/checkout@v4
+      with:
+        ref: gh-pages
+        path: gh-pages
+        fetch-depth: 0
+
+    - name: Copy charts to gh-pages
+      run: |
+        mkdir -p gh-pages
+        cp -r charts/* gh-pages/
+        ls -lah gh-pages/
+
+    - name: Commit and push to gh-pages
+      run: |
+        cd gh-pages
+        git config user.name "GitHub Actions"
+        git config user.email "actions@github.com"
+        git add .
+        git commit -m "Publishing Helm chart ${{ steps.version.outputs.version }}" || true
+        git push origin gh-pages
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Create deployment summary
+      run: |
+        echo "## 📦 Helm Chart Published" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "✅ **Chart Version:** ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📍 Repository URL" >> $GITHUB_STEP_SUMMARY
+        echo "https://${{ github.repository_owner }}.github.io/theai/" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📥 Add Repository" >> $GITHUB_STEP_SUMMARY
+        echo '```bash' >> $GITHUB_STEP_SUMMARY
+        echo "helm repo add theai https://${{ github.repository_owner }}.github.io/theai/" >> $GITHUB_STEP_SUMMARY
+        echo "helm repo update" >> $GITHUB_STEP_SUMMARY
+        echo '```' >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🚀 Install" >> $GITHUB_STEP_SUMMARY
+        echo '```bash' >> $GITHUB_STEP_SUMMARY
+        echo "helm install theai theai/theai -n theai --create-namespace" >> $GITHUB_STEP_SUMMARY
+        echo '```' >> $GITHUB_STEP_SUMMARY

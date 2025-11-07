@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "theai.fullname" . }}-{{ .Values.postgres.name }}
+  labels:
+    {{- include "theai.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "theai.fullname" . }}-postgres
+  template:
+    metadata:
+      labels:
+        app: {{ include "theai.fullname" . }}-postgres
+    spec:
+      containers:
+      - name: postgres
+        image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
+        imagePullPolicy: {{ .Values.postgres.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.postgres.service.targetPort }}
+          name: postgresql
+        env:
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.secrets.name }}
+              key: POSTGRES_DB
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.secrets.name }}
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.secrets.name }}
+              key: POSTGRES_PASSWORD
+        volumeMounts:
+        {{- if .Values.postgres.storage.enabled }}
+        - mountPath: {{ .Values.postgres.storage.mountPath }}
+          name: postgres-storage
+          subPath: {{ .Values.postgres.storage.subPath }}
+        {{- end }}
+        resources:
+          {{- toYaml .Values.postgres.resources | nindent 10 }}
+      volumes:
+      {{- if .Values.postgres.storage.enabled }}
+      - name: postgres-storage
+        persistentVolumeClaim:
+          claimName: {{ include "theai.fullname" . }}-postgres-pvc
+      {{- end }}
