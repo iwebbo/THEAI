@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "theai.fullname" . }}-{{ .Values.postgres.name }}
+  name: {{ include "theai.name" . }}-{{ .Values.postgres.name }}
   labels:
     {{- include "theai.labels" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{ include "theai.fullname" . }}-postgres
+      app: {{ include "theai.name" . }}-postgres
   template:
     metadata:
       labels:
-        app: {{ include "theai.fullname" . }}-postgres
+        app: {{ include "theai.name" . }}-postgres
     spec:
       containers:
       - name: postgres
@@ -49,5 +49,5 @@ spec:
       {{- if .Values.postgres.storage.enabled }}
       - name: postgres-storage
         persistentVolumeClaim:
-          claimName: {{ include "theai.fullname" . }}-postgres-pvc
+          claimName: {{ include "theai.name" . }}-postgres-pvc
       {{- end }}

@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "theai.fullname" . }}
+  name: {{ include "theai.name" . }}
   labels:
     {{- include "theai.labels" . | nindent 4 }}
   {{- if .Values.ingress.annotations }}
@@ -22,7 +22,7 @@ spec:
             pathType: {{ .pathType }}
             backend:
               service:
-                name: {{ include "theai.fullname" . }}-{{ .service }}
+                name: {{ include "theai.name" . }}-{{ .service }}
                 port:
                   number: {{ .port }}
           {{- end }}

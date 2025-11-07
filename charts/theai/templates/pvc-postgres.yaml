@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ include "theai.fullname" . }}-postgres-pvc
+  name: {{ include "theai.name" . }}-postgres-pvc
   labels:
     {{- include "theai.labels" . | nindent 4 }}
 spec:

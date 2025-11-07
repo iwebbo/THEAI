@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "theai.fullname" . }}-{{ .Values.frontend.name }}
+  name: {{ include "theai.name" . }}-{{ .Values.frontend.name }}
   labels:
     {{- include "theai.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.frontend.replicas }}
   selector:
     matchLabels:
-      app: {{ include "theai.fullname" . }}-frontend
+      app: {{ include "theai.name" . }}-frontend
   template:
     metadata:
       labels:
-        app: {{ include "theai.fullname" . }}-frontend
+        app: {{ include "theai.name" . }}-frontend
     spec:
       serviceAccountName: {{ .Values.serviceAccount.name }}
       securityContext:
