@@ -59,9 +59,9 @@ jobs:
     - name: Create Helm index
       run: |
         if [ -f charts/index.yaml ]; then
-          helm repo index charts/ --url https://${{ github.repository_owner }}.github.io/theai/ --merge charts/index.yaml
+          helm repo index charts/ --url https://${{ github.repository_owner }}.github.io/THEAI/ --merge charts/index.yaml
         else
-          helm repo index charts/ --url https://${{ github.repository_owner }}.github.io/theai/
+          helm repo index charts/ --url https://${{ github.repository_owner }}.github.io/THEAI/
         fi
         cat charts/index.yaml
 
@@ -75,7 +75,7 @@ jobs:
         ## Add Repository
         
         ```bash
-        helm repo add theai https://${{ github.repository_owner }}.github.io/theai/
+        helm repo add theai https://${{ github.repository_owner }}.github.io/THEAI/
         helm repo update
         ```
         
@@ -86,6 +86,12 @@ jobs:
           --namespace theai \
           --create-namespace \
           -f values.yml
+        ```
+
+        ## Initialise create ingress
+        
+        ```bash
+        kubectl apply -f ingress.yml -n theai
         ```
         
         ## Prerequisites
