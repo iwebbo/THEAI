@@ -1,4 +1,6 @@
 # Default values for TheAI Helm chart
+nameOverride: ""
+fullnameOverride: ""
 
 replicaCount: 1
 
