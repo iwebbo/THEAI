@@ -5,7 +5,7 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'helm-chart/**'
+      - 'charts/**'
       - 'values.yml'
       - 'ingress.yml'
       - 'users.yml'
@@ -41,19 +41,19 @@ jobs:
 
     - name: Update Chart.yaml
       run: |
-        sed -i "s/version: .*/version: ${{ steps.version.outputs.version }}/" helm-chart/Chart.yaml
-        sed -i "s/appVersion: .*/appVersion: \"${{ steps.version.outputs.version }}\"/" helm-chart/Chart.yaml
-        sed -i "s|{{ github_username }}|${{ github.repository_owner }}|g" helm-chart/Chart.yaml
-        sed -i "s|{{ github_username }}|${{ github.repository_owner }}|g" helm-chart/values.yaml
+        sed -i "s/version: .*/version: ${{ steps.version.outputs.version }}/" charts/theai/Chart.yaml
+        sed -i "s/appVersion: .*/appVersion: \"${{ steps.version.outputs.version }}\"/" charts/theai/Chart.yaml
+        sed -i "s|{{ github_username }}|${{ github.repository_owner }}|g" charts/theai/Chart.yaml
+        sed -i "s|{{ github_username }}|${{ github.repository_owner }}|g" charts/theai/values.yaml
         cat helm-chart/Chart.yaml
 
     - name: Lint Helm chart
-      run: helm lint helm-chart
+      run: helm lint charts/theai
 
     - name: Package Helm chart
       run: |
         mkdir -p charts
-        helm package helm-chart -d charts/
+        helm package charts/theai -d charts/
         ls -lah charts/
 
     - name: Create Helm index
