@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.configmap.name }}
+  labels:
+    {{- include "theai.labels" . | nindent 4 }}
+data:
+  users.yml: |
+    # Users loaded at app startup
+    users:
+      - username: admin
+        password: admin123
+        email: admin@theai.local
+        role: admin

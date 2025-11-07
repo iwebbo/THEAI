@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "theai.name" . }}-postgres-pvc
+  labels:
+    {{- include "theai.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  {{- if .Values.postgres.storage.className }}
+  storageClassName: {{ .Values.postgres.storage.className }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.postgres.storage.size }}

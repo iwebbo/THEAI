@@ -1,436 +1,74 @@
-<p align="center">
-<img width="500" height="500" alt="theai" src="https://github.com/user-attachments/assets/eeb2491b-34c0-4bf5-84e0-7a3cfa0f36af" />
-</p>
+# TheAI Helm Charts
 
-# THEAI Monitoring & Vulnerability Platform
+Kubernetes deployment chart for TheAI Application (Backend + Frontend + PostgreSQL).
 
-A modern, professional server monitoring & vulnerability application built with React frontend and FastAPI backend. Monitor your servers in real-time using multiple protocols (ICMP, HTTP, SSH, TCP) with an intuitive dashboard interface.
+## Add Repository
 
-![License](https://img.shields.io/badge/MIT-00599C?style=for-the-badge&logo=MIT&logoColor=black)
-![Python](https://img.shields.io/badge/Python-4EAA25?style=for-the-badge&logo=Python&logoColor=black)
-![React](https://img.shields.io/badge/React-4EAA25?style=for-the-badge&logo=React&logoColor=black)
-![Docker](https://img.shields.io/badge/Docker-0078D6?style=for-the-badge&logo=Docker&logoColor=black)
-
-## Demo
-
-### Login page
-<img width="1862" height="902" alt="theai-login-page" src="https://github.com/user-attachments/assets/cf5a313d-9750-4ebd-8397-0d8d7cfb8ec6" />
-
-### Dashboard
-<img width="1915" height="909" alt="image" src="https://github.com/user-attachments/assets/a11d0670-d24f-4526-b6c4-174b4a988d6e" />
-
-### Server view
-<img width="1903" height="907" alt="image" src="https://github.com/user-attachments/assets/a3206f01-6172-46c6-93fd-eb82a8dbe0c9" />
-
-### Security Dashboard 
-<img width="1909" height="909" alt="image" src="https://github.com/user-attachments/assets/6d1ce4a7-312b-43c4-b58d-ef846cd34a43" />
-
-
-## Features
-
-### Current Features
-- **Multi-Protocol Monitoring**: Support for ICMP (ping), HTTP/HTTPS, and SSH monitoring
-- **Real-time Dashboard**: Modern, responsive interface with server status overview
-- **Server Management**: Add, edit, delete, and configure servers to monitor
-- **Automated Checks**: Periodic server health checks with configurable intervals
-- **Status Tracking**: Visual status indicators and response time monitoring
-- **Modern UI**: Professional interface with customizable themes
-- **Settings Panel**: Configure monitoring intervals, alerts, and preferences
-- **Dockerized Deployment**: Complete containerized setup with Docker Compose
-- **Authentication System**: JWT-based login with environment-configured default user
-
-### Monitoring Capabilities
-- **ICMP Ping**: Basic connectivity testing with response time measurement
-- **TCP**: TCP availability with custom ports
-- **HTTP/HTTPS Monitoring**: Web service availability with custom ports and paths
-- **SSH Connectivity**: SSH service monitoring with authentication support
-- **Response Time Tracking**: Monitor and track server response times
-- **Status History**: Track server status changes over time
-
-## Vulnerability Scanning & Security Assessment
-
-### Overview
-The platform now includes comprehensive vulnerability scanning capabilities to detect and report security issues across your monitored servers. The system provides two scanning approaches: **Quick Scan** for rapid security assessments and **Full Security Scan** for detailed vulnerability analysis.
-
-### Quick Scan Features
-Quick scans provide immediate security checks with minimal overhead:
-
-- **Critical Ports Detection**: Identifies dangerous open ports that pose security risks
-  - Detects: Telnet (23), NetBIOS (139), SMB (445), RDP (3389), VNC (5900), Redis (6379), Elasticsearch (9200), MongoDB (27017)
-  - Categorizes risks by severity level (Critical, High, Medium, Low)
-  
-- **SSL/TLS Security Check**: Validates HTTPS protocol configuration
-  - Detects outdated SSL/TLS versions (SSLv2, SSLv3, TLSv1, TLSv1.1)
-  - Recommends upgrade to TLS 1.2 or higher
-  - Provides certificate validation information
-  
-- **Real-time Results**: Synchronous execution with immediate feedback
-  - Response time: Typically 5-15 seconds per server
-  - Ideal for periodic monitoring and quick security audits
-
-### Full Security Scan Features
-Comprehensive vulnerability assessments for in-depth security analysis:
-
-- **Advanced Port Scanning**: Extended port analysis and service detection
-- **Protocol Vulnerability Detection**: Identifies protocol-specific weaknesses
-- **Technology Stack Assessment**: Detects and analyzes installed services and versions
-- **Detailed Vulnerability Reporting**: Complete vulnerability descriptions with severity ratings
-  - Critical: Immediate action required
-  - High: Must be addressed shortly
-  - Medium: Should be resolved in planned maintenance
-  - Low: Informational, address when possible
-- **Background Execution**: Asynchronous scanning for large-scale deployments
-- **Comprehensive Recommendations**: Actionable remediation steps for each vulnerability
-
-### Vulnerability Severity Levels
-
-| Severity | Impact | Example |
-|----------|--------|---------|
-| **Critical** | Immediate compromise risk | Unencrypted dangerous services |
-| **High** | Significant security exposure | Weak SSL/TLS, exposed database ports |
-| **Medium** | Moderate security concern | Outdated services, unnecessary open ports |
-| **Low** | Minor security issue | Informational findings |
-
-### API Endpoints
-
-#### Quick Security Check (Synchronous)
+```bash
+helm repo add theai https://iwebbo.github.io/theai/
+helm repo update
 ```
-POST /api/v1/security/scan/quick/{server_id}
+
+## Install Chart
+
+```bash
+helm install theai theai/theai \
+  --namespace theai \
+  --create-namespace \
+  -f values.yml
 ```
-**Response**: Immediate vulnerability report with risk assessment
-
-#### Start Full Security Scan (Asynchronous)
-```
-POST /api/v1/security/{server_id}/scan
-```
-**Response**: Scan ID for tracking progress
-
-#### Get Scan Results
-```
-GET /api/v1/security/scan/{scan_id}
-```
-**Response**: Detailed scan results with vulnerabilities and recommendations
-
-#### Get Security Recommendations
-```
-GET /api/v1/security/recommendations/{server_id}
-```
-**Response**: Latest recommendations based on most recent scan
-
-#### Get Vulnerability Summary (All Servers)
-```
-GET /api/v1/security/vulnerabilities/summary
-```
-**Response**: Aggregated vulnerability report across all monitored servers
-
-#### Get Server Scan History
-```
-GET /api/v1/security/{server_id}/scans?limit=10
-```
-**Response**: Historical scan records for trend analysis
-
-### Security Check Details
-
-#### Dangerous Ports Analysis
-The system monitors and flags potentially dangerous open ports:
-- **SMB (445)**: Windows file sharing protocol - common attack vector
-- **RDP (3389)**: Remote Desktop - frequent brute-force target
-- **MongoDB (27017)**: Database - often exposed without authentication
-- **Redis (6379)**: Cache service - frequently misconfigured
-- **Elasticsearch (9200)**: Search engine - can expose sensitive data
-- **Telnet (23)**: Unencrypted remote access - obsolete and dangerous
-- **NetBIOS (139)**: Windows networking - legacy protocol with vulnerabilities
-- **VNC (5900)**: Remote access - weak authentication protocols
-
-#### SSL/TLS Validation
-Ensures secure web communication:
-- Detects minimum TLS version in use
-- Flags obsolete protocols (SSL 2.0, 3.0, TLS 1.0, 1.1)
-- Validates certificate chain
-- Recommends modern TLS 1.2+ with strong cipher suites
-
-### Dashboard Integration
-
-**Security Tab Features**:
-- Real-time vulnerability overview
-- Server risk status indicators
-- Scan history timeline
-- Vulnerability trending charts
-- Quick scan buttons for manual checks
-- Detailed vulnerability inspector
-
-### Risk Assessment
-
-The platform calculates overall server risk based on:
-- Number and severity of detected vulnerabilities
-- Exposure of critical services
-- SSL/TLS configuration strength
-- Open dangerous ports quantity
-
-### Automated Recommendations
-
-The system provides actionable recommendations including:
-- Port security hardening steps
-- SSL/TLS upgrade paths
-- Service hardening procedures
-- Network segmentation suggestions
-- Authentication strengthening measures
-
-### Scan Data Retention
-
-All scan results are persisted in the database for:
-- Historical comparison and trending
-- Compliance reporting
-- Security audit trails
-- Risk evolution tracking
-
-### Performance Impact
-
-- **Quick Scans**: Minimal resource usage, safe for frequent scheduling
-- **Full Scans**: More intensive, recommended for 1-2x daily frequency
-- **Background Processing**: Full scans don't block API response
-
-### Best Practices
-
-1. **Run Quick Scans**: Schedule hourly for continuous monitoring
-2. **Full Scans Weekly**: Run comprehensive scans during maintenance windows
-3. **Monitor Trends**: Use dashboard to track vulnerability evolution
-4. **Act on Recommendations**: Implement suggested security improvements promptly
-5. **Document Changes**: Track security remediation efforts over time
-6. **Compliance Alignment**: Use reports for security audits and compliance requirements
-
-## Security
-
-### Current Security Measures
-- **Input Validation**: All user inputs are validated and sanitized
-- **SQL Injection Protection**: Using SQLAlchemy ORM with parameterized queries
-- **CORS Configuration**: Properly configured Cross-Origin Resource Sharing
-- **Environment Variables**: Sensitive data stored in environment variables
-- **Docker Security**: Non-root containers and minimal attack surface
-- **JWT Authentication**: Secure token-based authentication system
-
-### Known Security Considerations
-- **SSH Credentials**: Currently stored in database (encryption planned)
-- **HTTPS**: Currently HTTP only (TLS termination recommended)
-- **Rate Limiting**: No rate limiting implemented yet
-- **Audit Logging**: Limited security event logging
-
-### Vulnerability Assessment
-This application is designed for internal network monitoring. For production deployment:
-- Deploy behind a reverse proxy with TLS termination
-- Implement network segmentation
-- Regular security updates of dependencies
-- Monitor for CVEs in used packages
-- Consider implementing WAF (Web Application Firewall)
 
 ## Prerequisites
 
-- **Docker** and **Docker Compose** installed on your machine
-- **Git** for cloning the repository
-- Minimum **2GB RAM** and **1GB storage** for optimal performance
+- Kubernetes 1.20+
+- Helm 3.0+
+- Ingress Controller (nginx-ingress)
 
-## 🔧 Installation
+## Configuration Files (at repo root)
 
-### Quick Start with Docker
+- `values.yml` - Helm values (mandatory)
+- `ingress.yml` - Ingress configuration (optional)
+- `users.yml` - Application users (optional)
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/iwebbo/THEAI
-   cd THEAI
-   ```
+## Deploy with Generic Ansible Pipeline
 
-2. **Configure authentication** (optional):
-   Create a `.env` file at the root of the project:
-   ```bash
-   # Authentication Configuration
-   SECRET_KEY=your-super-secret-jwt-key-change-this-in-production
-   DEFAULT_ADMIN_USERNAME=admin
-   DEFAULT_ADMIN_PASSWORD=SecurePassword123!
-   DEFAULT_ADMIN_EMAIL=admin@theai.local
-   ```
-
-3. **Start the application**:
-   ```bash
-   docker-compose up -d
-   ```
-
-4. **Access the application**:
-   - Frontend: http://localhost
-   - API Documentation: http://localhost:8000/docs
-   - Database: localhost:5432 (postgres/postgres)
-
-### Default Login
-The application automatically creates a default admin user on startup:
-- **Username**: `admin` (or value from `DEFAULT_ADMIN_USERNAME` in .env)
-- **Password**: `admin123` (or value from `DEFAULT_ADMIN_PASSWORD` in .env)
-
-You can customize these credentials by setting the appropriate environment variables in your `.env` file.
-
-### Manual Installation
-
-#### Backend Setup
 ```bash
-cd backend
-pip install -r requirements.txt
-cd app
-uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+ansible-playbook deploy_helm_generic_FINAL.yml \
+  -e "repo_git=http://git.local/theai" \
+  -e "chart_name=theai" \
+  -e "namespace=theai" \
+  -e "release_name=theai" \
+  -e "values_file=values.yml" \
+  -e "ingress_enabled=true" \
+  -e "generate_token=true"
 ```
 
-#### Frontend Setup
+## Chart Values
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `backend.replicas` | Backend replicas | 2 |
+| `frontend.replicas` | Frontend replicas | 2 |
+| `backend.image.tag` | Backend image tag | latest |
+| `frontend.image.tag` | Frontend image tag | latest |
+| `postgres.storage.size` | PostgreSQL volume size | 10Gi |
+| `ingress.enabled` | Enable Ingress | true |
+
+## Build & Push Flow
+
+1. Push to `backend/**` → GitHub Actions builds and pushes to `ghcr.io`
+2. Push to `frontend/**` → GitHub Actions builds and pushes to `ghcr.io`
+3. Push to `charts/**` → GitHub Actions packages and publishes chart
+
+## Verification
+
 ```bash
-cd frontend
-npm install
-npm start
+# List charts
+helm search repo theai
+
+# Get values
+helm show values theai/theai
+
+# Dry run
+helm install theai theai/theai --dry-run --debug
 ```
-
-#### Database Setup
-```bash
-# Using Docker for PostgreSQL
-docker run --name postgres-monitoring \
-  -e POSTGRES_DB=server_monitoring \
-  -e POSTGRES_USER=postgres \
-  -e POSTGRES_PASSWORD=postgres \
-  -p 5432:5432 -d postgres:15-alpine
-```
-
-## 🏗️ Architecture
-
-The application consists of three main services:
-
-### Frontend (React)
-- **Technology**: React 18+ with modern hooks
-- **Styling**: Custom CSS with CSS variables for theming
-- **Routing**: React Router for SPA navigation
-- **API Client**: Axios for HTTP requests
-- **Charts**: Chart.js integration for data visualization
-- **Authentication**: JWT token management with automatic login/logout
-
-### Backend (FastAPI)
-- **Technology**: Python 3.11+ with FastAPI framework
-- **Database**: SQLAlchemy ORM with PostgreSQL
-- **Monitoring**: Custom monitoring services for each protocol
-- **Scheduling**: Background tasks for automated checks
-- **Documentation**: Automatic OpenAPI/Swagger documentation
-- **Authentication**: JWT-based authentication with bcrypt password hashing
-
-### Database (PostgreSQL)
-- **Version**: PostgreSQL 15+
-- **Features**: ACID compliance, JSON support, full-text search
-- **Backup**: Volume persistence for data safety
-- **Performance**: Optimized queries and indexing
-
-## 📖 Usage
-
-### Adding Servers
-1. Navigate to **"Servers"** → **"Add Server"**
-2. Configure server details:
-   - **Name**: Friendly server name
-   - **Hostname/IP**: Server address
-   - **Protocols**: Select monitoring methods (ICMP, HTTP, SSH)
-   - **Protocol Settings**: Configure ports, paths, credentials
-
-### Monitoring Dashboard
-- **Server Overview**: Real-time status of all servers
-- **Statistics**: Uptime percentages and response times
-- **Alerts**: Visual indicators for offline servers
-- **Quick Actions**: Manual server checks and status refresh
-
-### Settings Configuration
-- **Monitoring Intervals**: Configure check frequencies
-- **Alert Thresholds**: Set response time limits
-- **Notifications**: Enable/disable email alerts
-- **Data Retention**: Configure data storage periods
-
-## 🔮 Upcoming Features
-
-### High Priority
-- **Additional Protocols**: FTP, SMTP, DNS, TCP port monitoring
-- **Vulnerability Scanning**: Integrated security assessment tools
-- **SSO Authentication**: Single Sign-On integration (SAML, OAuth2, LDAP)
-
-### Medium Priority
-- **Advanced Alerting**: webhook notifications
-- **Performance Metrics**: Detailed performance analytics and trending
-- **Mobile App**: Native mobile application for monitoring
-
-### Future Enhancements
-- **AI-Powered Insights**: Predictive analytics and anomaly detection
-- **Compliance Reporting**: Security and uptime compliance reports
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our contributing guidelines:
-
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/AmazingFeature`)
-3. **Commit** your changes (`git commit -m 'Add some AmazingFeature'`)
-4. **Push** to the branch (`git push origin feature/AmazingFeature`)
-5. **Open** a Pull Request
-
-### Development Guidelines
-- Follow PEP 8 for Python code
-- Use ESLint/Prettier for JavaScript code
-- Write tests for new features
-- Update documentation for API changes
-
-## 📝 API Documentation
-
-Access the interactive API documentation at:
-- **Swagger UI**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
-
-### Key Endpoints
-- `GET /api/v1/servers` - List all servers
-- `POST /api/v1/servers` - Create new server
-- `GET /api/v1/servers/{id}/check` - Check server status
-- `GET /api/v1/servers/check/all` - Check all servers
-- `POST /api/v1/auth/login` - User authentication
-- `GET /api/v1/auth/me` - Get current user info
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-**Application won't start**:
-```bash
-# Check Docker logs
-docker-compose logs -f
-
-# Restart services
-docker-compose down && docker-compose up -d
-```
-
-**Database connection errors**:
-```bash
-# Reset database
-docker-compose down -v
-docker-compose up -d
-```
-
-**Permission denied for ping**:
-```bash
-# On Linux, you may need to allow ping for non-root users
-sudo sysctl net.ipv4.ping_group_range="0 2000"
-```
-
-### Getting Help
-- Check the [Issues](../../issues) page for known problems
-- Review Docker logs for error messages
-- Ensure all required ports are available (80, 8000, 5432)
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- **FastAPI** for the excellent Python web framework
-- **React** community for the frontend ecosystem
-- **PostgreSQL** for reliable data storage
-- **Docker** for containerization simplicity
-
----
-
-**Built with ❤️ for system administrators and DevOps engineers**
-
-For questions, suggestions, or support, please open an issue or contact the maintainers.

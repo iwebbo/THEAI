@@ -1,0 +1,16 @@
+apiVersion: v2
+name: theai
+description: TheAI Application - Backend + Frontend + PostgreSQL
+type: application
+version: v1.2-docker-16-gbcb9c90
+appVersion: "v1.2-docker-16-gbcb9c90"
+keywords:
+  - theai
+  - monitoring
+  - kubernetes
+home: https://github.com/iwebbo/theai
+sources:
+  - https://github.com/iwebbo/theai
+maintainers:
+  - name: DevOps Team
+    email: devops@theai.local
