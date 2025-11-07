@@ -5,7 +5,7 @@ Kubernetes deployment chart for TheAI Application (Backend + Frontend + PostgreS
 ## Add Repository
 
 ```bash
-helm repo add theai https://iwebbo.github.io/theai/
+helm repo add theai https://iwebbo.github.io/THEAI/
 helm repo update
 ```
 
@@ -16,6 +16,12 @@ helm install theai theai/theai \
   --namespace theai \
   --create-namespace \
   -f values.yml
+```
+
+## Initialise create ingress
+
+```bash
+kubectl apply -f ingress.yml -n theai
 ```
 
 ## Prerequisites
