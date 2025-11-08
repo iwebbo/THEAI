@@ -17,7 +17,7 @@ backend:
     tag: "latest"  # GitHub Actions update ce tag
     pullPolicy: IfNotPresent
   
-  replicas: 2
+  replicas: 1
   
   service:
     type: ClusterIP
@@ -47,7 +47,7 @@ frontend:
     tag: "latest"
     pullPolicy: IfNotPresent
   
-  replicas: 2
+  replicas: 1
   
   service:
     type: ClusterIP
@@ -78,10 +78,8 @@ postgres:
   
   storage:
     enabled: true
-    className: "standard"
     size: 10Gi
-    mountPath: /var/lib/postgresql/data
-    subPath: postgres
+    className: local-storage
   
   resources:
     requests:
