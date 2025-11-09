@@ -31,6 +31,12 @@ spec:
           mountPath: /etc/nginx/conf.d/default.conf
           subPath: default.conf
           readOnly: true
+        - name: nginx-cache
+          mountPath: /var/cache/nginx
+        - name: nginx-run
+          mountPath: /var/run
+        - name: tmp
+          mountPath: /tmp
         resources:
           {{- toYaml .Values.frontend.resources | nindent 10 }}
         livenessProbe:
@@ -49,3 +55,9 @@ spec:
       - name: nginx-config
         configMap:
           name: {{ include "theai.name" . }}-nginx-config
+      - name: nginx-cache
+        emptyDir: {}
+      - name: nginx-run
+        emptyDir: {}
+      - name: tmp
+        emptyDir: {}
