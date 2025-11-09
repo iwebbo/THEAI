@@ -3,9 +3,9 @@ entries:
   theai:
   - apiVersion: v2
     appVersion: 1.2.0
-    created: "2025-11-09T21:39:45.07864961Z"
+    created: "2025-11-09T22:02:56.763151454Z"
     description: THEAI Application - Backend + Frontend + PostgreSQL
-    digest: 36955651363438b236982b09c781da8d0a738df863914da6345513ccc6b3702d
+    digest: 1a9d984cf282c906f11582e36d9fa1ea9b493a47ea7e7c90fafbd388c16b01d4
     home: https://github.com/iwebbo/theai
     keywords:
     - theai
@@ -21,4 +21,4 @@ entries:
     urls:
     - https://iwebbo.github.io/THEAI/theai-1.2.0.tgz
     version: 1.2.0
-generated: "2025-11-09T21:39:45.077811921Z"
+generated: "2025-11-09T22:02:56.762289589Z"
