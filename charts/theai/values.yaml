@@ -79,7 +79,9 @@ postgres:
   storage:
     enabled: true
     size: 10Gi
-    className: local-storage
+    className: local-path
+    mountPath: /var/lib/postgresql/data
+    subPath: postgres
   
   resources:
     requests:
