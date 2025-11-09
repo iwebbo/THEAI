@@ -11,7 +11,7 @@ data:
     }
 
     server {
-        listen 80;
+        listen 8080;
         server_name localhost;
 
         # Frontend static files
