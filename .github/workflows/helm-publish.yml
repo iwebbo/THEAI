@@ -82,16 +82,223 @@ jobs:
         ## Install Chart
         
         ```bash
-        helm install theai theai/theai \
+        helm upgrade --install theai theai/theai \
           --namespace theai \
           --create-namespace \
-          -f values.yml
+          -f values.yaml
         ```
 
-        ## Initialise create ingress
+        ## Values with storageclass manual + pv-postgres.yaml
+        ```yaml
+            postgres:
+              storage:
+                enabled: true
+                size: 10Gi
+                className: local-storage  # Manual Storageclass
+        ```
         
-        ```bash
-        kubectl apply -f ingress.yml -n theai
+        ## pv-postres.yaml
+        ```yaml
+            apiVersion: v1
+            kind: PersistentVolume
+            metadata:
+              name: theai-postgres-pv
+            spec:
+              storageClassName: local-storage
+              capacity:
+                storage: 10Gi
+              accessModes:
+                - ReadWriteOnce
+              persistentVolumeReclaimPolicy: Retain
+              hostPath:
+                path: "/mnt/data/theai-postgres"
+                type: DirectoryOrCreate
+              nodeAffinity:
+                required:
+                  nodeSelectorTerms:
+                  - matchExpressions:
+                    - key: kubernetes.io/hostname
+                      operator: In
+                      values:
+                      - k8s-prod-worker-01
+        ``` 
+
+        # Apply pv 
+        ```shell
+          kubectl apply -f pv-postgres.yaml AVANT HELM UPGRADE INSTLAL (CREER PVC POUR HEBERGER DB APRES on DEPLOY via HELM CHART)
+        ```
+
+        ## Values.yaml storageclass auto provisionning.
+        ```yaml
+        # Default values for TheAI Helm chart
+          nameOverride: ""
+          fullnameOverride: ""
+
+          replicaCount: 1
+
+          # Container Registry
+          registry: ghcr.io
+          imagePullSecrets: []
+
+          # Backend configuration
+          backend:
+            enabled: true
+            name: backend
+            image:
+              repository: ghcr.io/iwebbo/theai/backend
+              tag: "latest"  # GitHub Actions update ce tag
+              pullPolicy: IfNotPresent
+            
+            replicas: 1
+            
+            service:
+              type: ClusterIP
+              port: 8000
+              targetPort: 8000
+            
+            resources:
+              requests:
+                memory: "256Mi"
+                cpu: "100m"
+              limits:
+                memory: "512Mi"
+                cpu: "500m"
+            
+            env:
+              - name: LOG_LEVEL
+                value: "INFO"
+              - name: DEBUG
+                value: "false"
+
+          # Frontend configuration
+          frontend:
+            enabled: true
+            name: frontend
+            image:
+              repository: ghcr.io/iwebbo/theai/frontend
+              tag: "latest"
+              pullPolicy: IfNotPresent
+            
+            replicas: 1
+            
+            service:
+              type: ClusterIP
+              port: 80
+              targetPort: 8080
+            
+            resources:
+              requests:
+                memory: "128Mi"
+                cpu: "50m"
+              limits:
+                memory: "256Mi"
+                cpu: "250m"
+
+          # PostgreSQL configuration
+          postgres:
+            enabled: true
+            name: postgres
+            image:
+              repository: postgres
+              tag: "15-alpine"
+              pullPolicy: IfNotPresent
+            
+            service:
+              type: ClusterIP
+              port: 5432
+              targetPort: 5432
+            
+            storage:
+              enabled: true
+              size: 10Gi
+              className: local-path
+              mountPath: /var/lib/postgresql/data
+              subPath: postgres
+            
+            resources:
+              requests:
+                memory: "256Mi"
+                cpu: "100m"
+              limits:
+                memory: "512Mi"
+                cpu: "500m"
+            
+            database: server_monitoring
+            user: admindb
+            password: "changeMe123!"
+
+          secrets:
+            create: true
+            name: theai-secret
+            data:
+              SECRET_KEY: "changeMeSecretKey"
+              POSTGRES_SERVER: "theai-postgres"
+              POSTGRES_PORT: "5432"
+              POSTGRES_DB: "server_monitoring"
+              POSTGRES_USER: "admindb"
+              POSTGRES_PASSWORD: "changeMe123!"
+              SMTP_SERVER: "smtp.gmail.com"
+              SMTP_PORT: "587"
+              SMTP_USERNAME: "your-email@gmail.com"
+              SMTP_PASSWORD: "your-app-password"
+              SMTP_FROM_EMAIL: "monitoring@theai.local"
+              SMTP_USE_TLS: "true"
+              ENABLE_EMAIL_ALERTS: "true"
+              DEFAULT_ADMIN_USERNAME: "admin"
+              DEFAULT_ADMIN_PASSWORD: "AdminPass123"
+              DEFAULT_ADMIN_EMAIL: "admin@theai.local"
+
+          configmap:
+            create: true
+            name: theai-users-config
+            users_config_path: /etc/theai/users.yml
+
+          # Ingress configuration
+          ingress:
+            enabled: true
+            className: "nginx"
+            annotations:
+              nginx.ingress.kubernetes.io/rewrite-target: /
+              nginx.ingress.kubernetes.io/proxy-body-size: "20m"
+            
+            hosts:
+              - host: theai.local
+                paths:
+                  - path: /
+                    pathType: Prefix
+                    service: frontend
+                    port: 80
+                  - path: /api
+                    pathType: Prefix
+                    service: backend
+                    port: 8000
+            
+            tls:
+              enabled: false
+
+          # Service Account
+          serviceAccount:
+            create: true
+            name: "theai-sa"
+
+          # Pod Security
+          podAnnotations: {}
+          podSecurityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            fsGroup: 1000
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+
+          # Node selection
+          nodeSelector: {}
+          tolerations: []
+          affinity: {}
         ```
         
         ## Prerequisites
@@ -109,14 +316,10 @@ jobs:
         ## Deploy with Generic Ansible Pipeline
         
         ```bash
-        ansible-playbook deploy_helm_generic_FINAL.yml \
-          -e "repo_git=http://git.local/theai" \
-          -e "chart_name=theai" \
-          -e "namespace=theai" \
-          -e "release_name=theai" \
-          -e "values_file=values.yml" \
-          -e "ingress_enabled=true" \
-          -e "generate_token=true"
+        ansible-playbook deploy_helm_generic.yml 
+
+        use : https://github.com/iwebbo/Ansible/tree/main/roles/deploy_herlmchart_stack_standalone
+
         ```
         
         ## Chart Values
@@ -182,7 +385,7 @@ jobs:
         echo "✅ **Chart Version:** ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### 📍 Repository URL" >> $GITHUB_STEP_SUMMARY
-        echo "https://${{ github.repository_owner }}.github.io/theai/" >> $GITHUB_STEP_SUMMARY
+        echo "https://${{ github.repository_owner }}.github.io/THEAI/" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### 📥 Add Repository" >> $GITHUB_STEP_SUMMARY
         echo '```bash' >> $GITHUB_STEP_SUMMARY
@@ -192,5 +395,5 @@ jobs:
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### 🚀 Install" >> $GITHUB_STEP_SUMMARY
         echo '```bash' >> $GITHUB_STEP_SUMMARY
-        echo "helm install theai theai/theai -n theai --create-namespace" >> $GITHUB_STEP_SUMMARY
+        echo "helm install theai theai/theai -n theai --create-namespace -f values.yaml" >> $GITHUB_STEP_SUMMARY
         echo '```' >> $GITHUB_STEP_SUMMARY
