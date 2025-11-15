@@ -18,46 +18,6 @@ helm upgrade --install theai theai/theai \
   -f values.yaml
 ```
 
-## Values with storageclass manual + pv-postgres.yaml
-```yaml
-    postgres:
-      storage:
-        enabled: true
-        size: 10Gi
-        className: local-storage  # Manual Storageclass
-```
-
-## pv-postres.yaml
-```yaml
-    apiVersion: v1
-    kind: PersistentVolume
-    metadata:
-      name: theai-postgres-pv
-    spec:
-      storageClassName: local-storage
-      capacity:
-        storage: 10Gi
-      accessModes:
-        - ReadWriteOnce
-      persistentVolumeReclaimPolicy: Retain
-      hostPath:
-        path: "/mnt/data/theai-postgres"
-        type: DirectoryOrCreate
-      nodeAffinity:
-        required:
-          nodeSelectorTerms:
-          - matchExpressions:
-            - key: kubernetes.io/hostname
-              operator: In
-              values:
-              - k8s-prod-worker-01
-``` 
-
-# Apply pv 
-```shell
-  kubectl apply -f pv-postgres.yaml AVANT HELM UPGRADE INSTLAL (CREER PVC POUR HEBERGER DB APRES on DEPLOY via HELM CHART)
-```
-
 ## Values.yaml storageclass auto provisionning.
 ```yaml
 # Default values for TheAI Helm chart
@@ -229,6 +189,46 @@ helm upgrade --install theai theai/theai \
   nodeSelector: {}
   tolerations: []
   affinity: {}
+```
+
+## Values to be changed with storageclass manual + pv-postgres.yaml
+```yaml
+    postgres:
+      storage:
+        enabled: true
+        size: 10Gi
+        className: local-storage  # Manual Storageclass
+```
+
+## pv-postres.yaml
+```yaml
+    apiVersion: v1
+    kind: PersistentVolume
+    metadata:
+      name: theai-postgres-pv
+    spec:
+      storageClassName: local-storage
+      capacity:
+        storage: 10Gi
+      accessModes:
+        - ReadWriteOnce
+      persistentVolumeReclaimPolicy: Retain
+      hostPath:
+        path: "/mnt/data/theai-postgres"
+        type: DirectoryOrCreate
+      nodeAffinity:
+        required:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+              - k8s-prod-worker-01
+``` 
+
+## Apply pv 
+```shell
+  kubectl apply -f pv-postgres.yaml AVANT HELM UPGRADE INSTLAL (CREER PVC POUR HEBERGER DB APRES on DEPLOY via HELM CHART)
 ```
 
 ## Prerequisites
