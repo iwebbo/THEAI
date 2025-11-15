@@ -23,14 +23,11 @@ icmplib==3.0.3
 paramiko==3.3.1
 
 # Security scanning dependencies
-httpx==0.26.0           # Pour les tests HTTP/HTTPS
-dnspython==2.4.2        # Pour les vérifications DNS
-python-nmap==0.7.1      # Wrapper Python pour nmap
-cryptography==41.0.7    # Pour l'analyse SSL/TLS
-
-# Note: Removed safety and bandit to avoid conflicts
-# They can be run separately in CI/CD if needed
+httpx==0.26.0  
+dnspython==2.4.2 
+python-nmap==0.7.1 
+cryptography==41.0.7 
 
 # Utilities
-aiofiles==23.2.1        # Pour les opérations fichiers asynchrones
-python-dateutil==2.8.2  # Pour la manipulation des dates
+aiofiles==23.2.1 
+python-dateutil==2.8.2

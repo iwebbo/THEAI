@@ -4,7 +4,7 @@ import socket
 import httpx
 import paramiko
 import subprocess
-from icmplib import ping
+from icmplib import ping as icmp_ping
 from datetime import datetime
 from typing import Dict, Any, Optional
 
@@ -16,47 +16,29 @@ class MonitoringService:
     @staticmethod
     async def check_icmp(ip_address: str, timeout: int = 2) -> Dict[str, Any]:
         """
-        Vérifie la connectivité à un serveur en utilisant la commande ping du système
+        Vérifie la connectivité ICMP avec icmplib (non-privileged mode)
         """
         try:
-            start_time = time.time()
-            # Exécuter ping de manière asynchrone
-            process = await asyncio.create_subprocess_exec(
-                'ping', '-c', '2', '-W', str(timeout), ip_address,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE
+            # icmplib peut fonctionner en mode non-privileged avec NET_RAW
+            host = await asyncio.to_thread(
+                icmp_ping, 
+                ip_address, 
+                count=2, 
+                timeout=timeout,
+                privileged=False  # Mode non-root avec NET_RAW
             )
-            stdout, stderr = await process.communicate()
             
-            response_time = int((time.time() - start_time) * 1000)  # ms
-            output = stdout.decode()
-            
-            # Analyser la sortie du ping pour extraire le temps de réponse moyen
-            if process.returncode == 0:
-                # Ping réussi
-                # Essayer d'extraire le temps de réponse moyen de la sortie
-                avg_time = None
-                try:
-                    for line in output.splitlines():
-                        if "min/avg/max" in line:
-                            # Format typique: "rtt min/avg/max/mdev = 1.556/2.223/2.890/0.667 ms"
-                            parts = line.split('=')[1].strip().split('/')
-                            avg_time = float(parts[1])
-                            break
-                except:
-                    pass
-                
+            if host.is_alive:
                 return {
                     "status": ServerStatus.ONLINE.value,
-                    "response_time": int(avg_time) if avg_time else response_time,
-                    "message": f"Server responds to ICMP ping in {int(avg_time) if avg_time else response_time}ms"
+                    "response_time": int(host.avg_rtt),
+                    "message": f"Server responds to ICMP ping in {int(host.avg_rtt)}ms"
                 }
             else:
-                # Ping échoué
                 return {
                     "status": ServerStatus.OFFLINE.value,
                     "response_time": None,
-                    "message": f"Server does not respond to ICMP ping: {stderr.decode()}"
+                    "message": "Server does not respond to ICMP ping"
                 }
         except Exception as e:
             return {
