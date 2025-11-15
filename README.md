@@ -11,22 +11,7 @@ A modern, professional server monitoring & vulnerability application built with 
 ![React](https://img.shields.io/badge/React-4EAA25?style=for-the-badge&logo=React&logoColor=black)
 ![Docker](https://img.shields.io/badge/Docker-0078D6?style=for-the-badge&logo=Docker&logoColor=black)
 
-## Demo
-
-### Login page
-<img width="1862" height="902" alt="theai-login-page" src="https://github.com/user-attachments/assets/cf5a313d-9750-4ebd-8397-0d8d7cfb8ec6" />
-
-### Dashboard
-<img width="1915" height="909" alt="image" src="https://github.com/user-attachments/assets/a11d0670-d24f-4526-b6c4-174b4a988d6e" />
-
-### Server view
-<img width="1903" height="907" alt="image" src="https://github.com/user-attachments/assets/a3206f01-6172-46c6-93fd-eb82a8dbe0c9" />
-
-### Security Dashboard 
-<img width="1909" height="909" alt="image" src="https://github.com/user-attachments/assets/6d1ce4a7-312b-43c4-b58d-ef846cd34a43" />
-
-
-📋 **Table of Contents**
+## 📋 **Table of Contents**
 
 1. [Overview](#theai-monitoring--vulnerability-platform)  
 2. [Demo](#demo)  
@@ -45,6 +30,20 @@ A modern, professional server monitoring & vulnerability application built with 
 15. [Acknowledgments](#-acknowledgments)  
 
 ---
+
+## Demo
+
+### Login page
+<img width="1862" height="902" alt="theai-login-page" src="https://github.com/user-attachments/assets/cf5a313d-9750-4ebd-8397-0d8d7cfb8ec6" />
+
+### Dashboard
+<img width="1915" height="909" alt="image" src="https://github.com/user-attachments/assets/a11d0670-d24f-4526-b6c4-174b4a988d6e" />
+
+### Server view
+<img width="1903" height="907" alt="image" src="https://github.com/user-attachments/assets/a3206f01-6172-46c6-93fd-eb82a8dbe0c9" />
+
+### Security Dashboard 
+<img width="1909" height="909" alt="image" src="https://github.com/user-attachments/assets/6d1ce4a7-312b-43c4-b58d-ef846cd34a43" />
 
 ## Features
 
@@ -251,9 +250,11 @@ This application is designed for internal network monitoring. For production dep
 
 ## 🔧 Installation
 
-### Quick Start with Kubernetes
+### ☸️ **Quick start with Kubernetes** *(Production-ready)*
 
-1.  **Documentation Kubernetes**
+> **Helm Chart + Documentation**
+
+[📚 **Documentation Kubernetes officiel** →](https://iwebbo.github.io/THEAI/)
 
 https://iwebbo.github.io/THEAI/
 
@@ -266,7 +267,7 @@ https://iwebbo.github.io/THEAI/
    ```
 
 2. **Configure authentication** (optional):
-   Create a `.env` file at the root of the project:
+   Change value in `.env` file at the root of the project:
    ```bash
    # Authentication Configuration
    SECRET_KEY=your-super-secret-jwt-key-change-this-in-production
@@ -281,9 +282,12 @@ https://iwebbo.github.io/THEAI/
    ```
 
 4. **Access the application**:
-   - Frontend: http://localhost
-   - API Documentation: http://localhost:8000/docs
-   - Database: localhost:5432 (postgres/postgres)
+| Service               | URL                                      |
+|-----------------------|------------------------------------------|
+| **Frontend**          | [http://localhost](http://localhost)     |
+| **API Documentation** | [http://localhost:8000/docs](http://localhost:8000/docs) |
+| **Base de données**   | `localhost:5432` (`postgres`/`postgres`) |
+
 
 ### Default Login
 The application automatically creates a default admin user on startup:
