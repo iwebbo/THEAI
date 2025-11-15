@@ -282,12 +282,13 @@ https://iwebbo.github.io/THEAI/
    ```
 
 4. **Access the application**:
-| Service               | URL                                      |
-|-----------------------|------------------------------------------|
-| **Frontend**          | [http://localhost](http://localhost)     |
+```markdown
+| Service               | URL / Accès                                      |
+|-----------------------|--------------------------------------------------|
+| **Frontend**          | [http://localhost](http://localhost)             |
 | **API Documentation** | [http://localhost:8000/docs](http://localhost:8000/docs) |
-| **Base de données**   | `localhost:5432` (`postgres`/`postgres`) |
-
+| **Base de données**   | `localhost:5432` → `postgres` / `postgres`       |
+```
 
 ### Default Login
 The application automatically creates a default admin user on startup:
