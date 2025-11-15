@@ -26,6 +26,26 @@ A modern, professional server monitoring & vulnerability application built with 
 <img width="1909" height="909" alt="image" src="https://github.com/user-attachments/assets/6d1ce4a7-312b-43c4-b58d-ef846cd34a43" />
 
 
+📋 **Table of Contents**
+
+1. [Overview](#theai-monitoring--vulnerability-platform)  
+2. [Demo](#demo)  
+3. [Features](#features)  
+4. [Vulnerability Scanning & Security Assessment](#vulnerability-scanning--security-assessment)  
+5. [Security](#security)  
+6. [Prerequisites](#prerequisites)  
+7. [Installation](#-installation)  
+8. [Architecture](#️-architecture)  
+9. [Usage](#-usage)  
+10. [Upcoming Features](#-upcoming-features)  
+11. [Contributing](#-contributing)  
+12. [API Documentation](#-api-documentation)  
+13. [Troubleshooting](#-troubleshooting)  
+14. [License](#-license)  
+15. [Acknowledgments](#-acknowledgments)  
+
+---
+
 ## Features
 
 ### Current Features
@@ -230,6 +250,12 @@ This application is designed for internal network monitoring. For production dep
 - Minimum **2GB RAM** and **1GB storage** for optimal performance
 
 ## 🔧 Installation
+
+### Quick Start with Kubernetes
+
+1.  **Documentation Kubernetes**
+
+https://iwebbo.github.io/THEAI/
 
 ### Quick Start with Docker
 
