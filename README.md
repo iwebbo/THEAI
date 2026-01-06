@@ -258,15 +258,20 @@ This application is designed for internal network monitoring. For production dep
 
 https://iwebbo.github.io/THEAI/
 
-### Quick Start with Docker
+### ☸️ **Quick Start with Docker**
 
 1. **Clone the repository**:
    ```bash
    git clone https://github.com/iwebbo/THEAI
    cd THEAI
    ```
+2.1. **Genere Secret Key** (mandatory):
+   ```bash
+   # Generate secret key
+    python3 -c "import secrets; print(secrets.token_hex(32))"  # SECRET_KEY
+   ```
 
-2. **Configure authentication** (optional):
+2.2. **Configure authentication** (mandatory):
    Change value in `.env` file at the root of the project:
    ```bash
    # Authentication Configuration
