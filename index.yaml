@@ -3,16 +3,16 @@ entries:
   theai:
   - apiVersion: v2
     appVersion: 1.2.0
-    created: "2025-11-15T17:21:39.838082508Z"
-    description: THEAI Application - Backend + Frontend + PostgreSQL
-    digest: d56d749f24c9bcd7b2d2dcbbdbd4e4b2654f43d85a478af7b21872b320cbacef
+    created: "2026-01-06T21:59:41.424258294Z"
+    description: THEAI - Monitoring & Vulnerability Platform
+    digest: f3675f360b4eb8a778045dd96ca52d196ad635960da52c0db0346604d6f2fa20
     home: https://github.com/iwebbo/theai
     keywords:
     - theai
     - monitoring
     - kubernetes
     maintainers:
-    - email: devops@theai.local
+    - email: aecodinglocal@gmail.com
       name: DevOps Team
     name: theai
     sources:
@@ -21,4 +21,4 @@ entries:
     urls:
     - https://iwebbo.github.io/THEAI/theai-1.2.0.tgz
     version: 1.2.0
-generated: "2025-11-15T17:21:39.837230574Z"
+generated: "2026-01-06T21:59:41.423343754Z"
