@@ -21,13 +21,11 @@ A modern, professional server monitoring & vulnerability application built with 
 6. [Prerequisites](#prerequisites)  
 7. [Installation](#-installation)  
 8. [Architecture](#️-architecture)  
-9. [Usage](#-usage)  
-10. [Upcoming Features](#-upcoming-features)  
-11. [Contributing](#-contributing)  
-12. [API Documentation](#-api-documentation)  
-13. [Troubleshooting](#-troubleshooting)  
-14. [License](#-license)  
-15. [Acknowledgments](#-acknowledgments)  
+9. [Upcoming Features](#-upcoming-features)  
+10. [API Documentation](#-api-documentation)  
+11. [Troubleshooting](#-troubleshooting)  
+12. [License](#-license)  
+13. [Acknowledgments](#-acknowledgments)  
 
 ---
 
@@ -248,13 +246,13 @@ This application is designed for internal network monitoring. For production dep
 - **Git** for cloning the repository
 - Minimum **2GB RAM** and **1GB storage** for optimal performance
 
-## 🔧 Installation
+## Installation
 
 ### ☸️ **Quick start with Kubernetes** *(Production-ready)*
 
 > **Helm Chart + Documentation**
 
-[📚 **Documentation Kubernetes officiel** →](https://iwebbo.github.io/THEAI/)
+[ **Documentation Kubernetes officiel** →](https://iwebbo.github.io/THEAI/)
 
 https://iwebbo.github.io/THEAI/
 
@@ -355,29 +353,7 @@ The application consists of three main services:
 - **Backup**: Volume persistence for data safety
 - **Performance**: Optimized queries and indexing
 
-## 📖 Usage
-
-### Adding Servers
-1. Navigate to **"Servers"** → **"Add Server"**
-2. Configure server details:
-   - **Name**: Friendly server name
-   - **Hostname/IP**: Server address
-   - **Protocols**: Select monitoring methods (ICMP, HTTP, SSH)
-   - **Protocol Settings**: Configure ports, paths, credentials
-
-### Monitoring Dashboard
-- **Server Overview**: Real-time status of all servers
-- **Statistics**: Uptime percentages and response times
-- **Alerts**: Visual indicators for offline servers
-- **Quick Actions**: Manual server checks and status refresh
-
-### Settings Configuration
-- **Monitoring Intervals**: Configure check frequencies
-- **Alert Thresholds**: Set response time limits
-- **Notifications**: Enable/disable email alerts
-- **Data Retention**: Configure data storage periods
-
-## 🔮 Upcoming Features
+## Upcoming Features
 
 ### High Priority
 - **Additional Protocols**: FTP, SMTP, DNS, TCP port monitoring
@@ -393,23 +369,7 @@ The application consists of three main services:
 - **AI-Powered Insights**: Predictive analytics and anomaly detection
 - **Compliance Reporting**: Security and uptime compliance reports
 
-## 🤝 Contributing
-
-We welcome contributions! Please see our contributing guidelines:
-
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/AmazingFeature`)
-3. **Commit** your changes (`git commit -m 'Add some AmazingFeature'`)
-4. **Push** to the branch (`git push origin feature/AmazingFeature`)
-5. **Open** a Pull Request
-
-### Development Guidelines
-- Follow PEP 8 for Python code
-- Use ESLint/Prettier for JavaScript code
-- Write tests for new features
-- Update documentation for API changes
-
-## 📝 API Documentation
+## API Documentation
 
 Access the interactive API documentation at:
 - **Swagger UI**: http://localhost:8000/docs
@@ -423,7 +383,7 @@ Access the interactive API documentation at:
 - `POST /api/v1/auth/login` - User authentication
 - `GET /api/v1/auth/me` - Get current user info
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
