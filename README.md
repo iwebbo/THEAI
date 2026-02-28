@@ -166,16 +166,6 @@ Ensures secure web communication:
 - Validates certificate chain
 - Recommends modern TLS 1.2+ with strong cipher suites
 
-### Dashboard Integration
-
-**Security Tab Features**:
-- Real-time vulnerability overview
-- Server risk status indicators
-- Scan history timeline
-- Vulnerability trending charts
-- Quick scan buttons for manual checks
-- Detailed vulnerability inspector
-
 ### Risk Assessment
 
 The platform calculates overall server risk based on:
@@ -254,104 +244,66 @@ This application is designed for internal network monitoring. For production dep
 
 [ **Documentation Kubernetes officiel** →](https://iwebbo.github.io/THEAI/)
 
-https://iwebbo.github.io/THEAI/
-
 ### ☸️ **Quick Start with Docker**
 
-1. **Clone the repository**:
-   ```bash
+### Clone the repository
+```bash
    git clone https://github.com/iwebbo/THEAI
    cd THEAI
-   ```
-2.1. **Genere Secret Key** (mandatory):
-   ```bash
-   # Generate secret key
-    python3 -c "import secrets; print(secrets.token_hex(32))"  # SECRET_KEY
-   ```
-
-2.2. **Configure authentication** (mandatory):
-   Change value in `.env` file at the root of the project:
-   ```bash
-   # Authentication Configuration
-   SECRET_KEY=your-super-secret-jwt-key-change-this-in-production
-   DEFAULT_ADMIN_USERNAME=admin
-   DEFAULT_ADMIN_PASSWORD=SecurePassword123!
-   DEFAULT_ADMIN_EMAIL=admin@theai.local
-   ```
-
-3. **Start the application**:
-   ```bash
-   docker-compose up -d
-   ```
-
-4. **Access the application**:
-```markdown
-| Service               | URL / Accès                                      |
-|-----------------------|--------------------------------------------------|
-| **Frontend**          | [http://localhost](http://localhost)             |
-| **API Documentation** | [http://localhost:8000/docs](http://localhost:8000/docs) |
-| **Base de données**   | `localhost:5432` → `postgres` / `postgres`       |
 ```
-
-### Default Login
-The application automatically creates a default admin user on startup:
-- **Username**: `admin` (or value from `DEFAULT_ADMIN_USERNAME` in .env)
-- **Password**: `admin123` (or value from `DEFAULT_ADMIN_PASSWORD` in .env)
-
-You can customize these credentials by setting the appropriate environment variables in your `.env` file.
-
-### Manual Installation
-
-#### Backend Setup
+### Prepare the Network
 ```bash
-cd backend
-pip install -r requirements.txt
-cd app
-uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+docker network create theai-net
 ```
 
-#### Frontend Setup
+### Run DB
 ```bash
-cd frontend
-npm install
-npm start
+docker run -d \
+--name theai-db \
+--network theai-net \
+-e POSTGRES_DB=theaidb \
+-e POSTGRES_USER=theaiuser \
+-e POSTGRES_PASSWORD=theaidbpwd \
+postgres:15-alpine
 ```
 
-#### Database Setup
+### Run the Backend
 ```bash
-# Using Docker for PostgreSQL
-docker run --name postgres-monitoring \
-  -e POSTGRES_DB=server_monitoring \
-  -e POSTGRES_USER=postgres \
-  -e POSTGRES_PASSWORD=postgres \
-  -p 5432:5432 -d postgres:15-alpine
+docker run -d \
+--name theai-backend \
+--network theai-net \
+--network-alias backend \
+-p 8000:8000 \
+-e POSTGRES_SERVER=theai-db \
+-e POSTGRES_USER=theaiuser \
+-e POSTGRES_PASSWORD=theaidbpwd \
+-e POSTGRES_DB=theaidb \
+-e POSTGRES_PORT=5432 \
+-e SMTP_SERVER=smtp.gmail.com \
+-e SMTP_PORT=587 \
+-e SMTP_USERNAME=your-email@gmail.com \
+-e SMTP_PASSWORD="your-app-specific-password" \
+-e SMTP_FROM_EMAIL=monitoring@yourcompany.com \
+-e SMTP_USE_TLS=true \
+-e ENABLE_EMAIL_ALERTS=true \
+-e ALERT_EMAILS=admin@yourcompany.com \
+-e SECRET_KEY=your-super-secret-jwt-key-change-this-in-production \
+-e ACCESS_TOKEN_EXPIRE_MINUTES=720 \
+-e DEFAULT_ADMIN_USERNAME=admin \
+-e DEFAULT_ADMIN_PASSWORD=MySecurePassword123! \
+-e DEFAULT_ADMIN_EMAIL=admin@theai.local \
+ghcr.io/iwebbo/theai/backend:main-861e063
 ```
 
-## 🏗️ Architecture
-
-The application consists of three main services:
-
-### Frontend (React)
-- **Technology**: React 18+ with modern hooks
-- **Styling**: Custom CSS with CSS variables for theming
-- **Routing**: React Router for SPA navigation
-- **API Client**: Axios for HTTP requests
-- **Charts**: Chart.js integration for data visualization
-- **Authentication**: JWT token management with automatic login/logout
-
-### Backend (FastAPI)
-- **Technology**: Python 3.11+ with FastAPI framework
-- **Database**: SQLAlchemy ORM with PostgreSQL
-- **Monitoring**: Custom monitoring services for each protocol
-- **Scheduling**: Background tasks for automated checks
-- **Documentation**: Automatic OpenAPI/Swagger documentation
-- **Authentication**: JWT-based authentication with bcrypt password hashing
-
-### Database (PostgreSQL)
-- **Version**: PostgreSQL 15+
-- **Features**: ACID compliance, JSON support, full-text search
-- **Backup**: Volume persistence for data safety
-- **Performance**: Optimized queries and indexing
+### Run the Frontend
+```bash
+docker run -d \
+--name theai-frontend \
+--network theai-net \
+-p 80:80 \
+-e API_URL=http://192.168.1.110:8000 \
+ghcr.io/iwebbo/theai/frontend:main-bd54f62
+```
 
 ## Upcoming Features
 
@@ -382,26 +334,6 @@ Access the interactive API documentation at:
 - `GET /api/v1/servers/check/all` - Check all servers
 - `POST /api/v1/auth/login` - User authentication
 - `GET /api/v1/auth/me` - Get current user info
-
-## Troubleshooting
-
-### Common Issues
-
-**Application won't start**:
-```bash
-# Check Docker logs
-docker-compose logs -f
-
-# Restart services
-docker-compose down && docker-compose up -d
-```
-
-**Database connection errors**:
-```bash
-# Reset database
-docker-compose down -v
-docker-compose up -d
-```
 
 **Permission denied for ping**:
 ```bash
