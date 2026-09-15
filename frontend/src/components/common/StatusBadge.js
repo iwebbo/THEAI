@@ -2,7 +2,7 @@ import React from 'react';
 import { CheckCircle, XCircle, HelpCircle, Loader } from 'lucide-react';
 
 const StatusBadge = ({ status }) => {
-  // Configuration des styles et icônes par statut
+  // Configuration des styles et icÃ´nes par statut
   const getStatusConfig = () => {
     switch (status?.toLowerCase()) {
       case 'online':
@@ -10,21 +10,21 @@ const StatusBadge = ({ status }) => {
           icon: CheckCircle,
           label: 'Online',
           className: 'badge-success',
-          dotColor: '#10b981'
+          dotColor: 'var(--success-500)'
         };
       case 'offline':
         return {
           icon: XCircle,
           label: 'Offline',
           className: 'badge-error',
-          dotColor: '#ef4444'
+          dotColor: 'var(--error-500)'
         };
       case 'checking':
         return {
           icon: Loader,
           label: 'Checking',
           className: 'badge-primary',
-          dotColor: '#3b82f6',
+          dotColor: 'var(--primary-500)',
           animate: true
         };
       case 'unknown':
@@ -33,7 +33,7 @@ const StatusBadge = ({ status }) => {
           icon: HelpCircle,
           label: 'Unknown',
           className: 'badge-gray',
-          dotColor: '#6b7280'
+          dotColor: 'var(--text-tertiary)'
         };
     }
   };

@@ -21,45 +21,45 @@ const Alert = ({ type = 'info', message, duration = 0, onClose }) => {
 
   if (!visible) return null;
 
-  // Configuration par type
+  // Configuration par type - tokens CSS uniquement (dark-mode ready)
   const getAlertConfig = () => {
     switch (type) {
       case 'success':
         return {
           icon: CheckCircle,
           className: 'alert-success',
-          bgColor: '#ecfdf5',
-          borderColor: '#a7f3d0',
-          textColor: '#047857',
-          iconColor: '#10b981'
+          bgColor: 'var(--success-100)',
+          borderColor: 'var(--success-200)',
+          textColor: 'var(--success-700)',
+          iconColor: 'var(--success-500)'
         };
       case 'error':
         return {
           icon: XCircle,
           className: 'alert-error',
-          bgColor: '#fef2f2',
-          borderColor: '#fecaca',
-          textColor: '#b91c1c',
-          iconColor: '#ef4444'
+          bgColor: 'var(--error-100)',
+          borderColor: 'var(--error-200)',
+          textColor: 'var(--error-700)',
+          iconColor: 'var(--error-500)'
         };
       case 'warning':
         return {
           icon: AlertTriangle,
           className: 'alert-warning',
-          bgColor: '#fffbeb',
-          borderColor: '#fde68a',
-          textColor: '#b45309',
-          iconColor: '#f59e0b'
+          bgColor: 'var(--warning-100)',
+          borderColor: 'var(--warning-200)',
+          textColor: 'var(--warning-700)',
+          iconColor: 'var(--warning-500)'
         };
       case 'info':
       default:
         return {
           icon: Info,
           className: 'alert-info',
-          bgColor: '#eff6ff',
-          borderColor: '#bfdbfe',
-          textColor: '#1e40af',
-          iconColor: '#3b82f6'
+          bgColor: 'var(--primary-100)',
+          borderColor: 'var(--primary-200)',
+          textColor: 'var(--primary-700)',
+          iconColor: 'var(--primary-500)'
         };
     }
   };
@@ -80,7 +80,7 @@ const Alert = ({ type = 'info', message, duration = 0, onClose }) => {
         backgroundColor: config.bgColor,
         border: `1px solid ${config.borderColor}`,
         color: config.textColor,
-        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+        boxShadow: 'var(--shadow-sm)'
       }}
     >
       <Icon size={20} style={{ color: config.iconColor, flexShrink: 0, marginTop: '0.125rem' }} />

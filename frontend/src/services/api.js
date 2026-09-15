@@ -12,7 +12,7 @@ const api = axios.create({
 const serverApi = {
   // Récupère la liste de tous les serveurs
   getServers: () => {
-    return api.get('/servers');
+    return api.get('/servers/');
   },
 
   // Récupère un serveur spécifique par son ID
@@ -22,7 +22,7 @@ const serverApi = {
 
   // Crée un nouveau serveur
   createServer: (serverData) => {
-    return api.post('/servers', serverData);
+    return api.post('/servers/', serverData);
   },
 
   // Met à jour un serveur existant

@@ -1,4 +1,4 @@
-FROM node:18-alpine as build
+FROM node:20-alpine as build
 
 WORKDIR /app
 
@@ -6,7 +6,8 @@ WORKDIR /app
 COPY package*.json ./
 
 # Installation des dépendances
-RUN npm install lucide-react react-hot-toast
+RUN npm install 
+#lucide-react react-hot-toast
 
 # Copie du code source
 COPY . .

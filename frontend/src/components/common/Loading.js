@@ -34,7 +34,7 @@ const Loading = ({ message = 'Loading...', size = 'md' }) => {
           size={iconSize}
           className="animate-spin"
           style={{
-            color: '#3b82f6'
+            color: 'var(--primary-500)'
           }}
         />
       </div>

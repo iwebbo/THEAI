@@ -36,7 +36,7 @@ const LoginPage = ({ onLogin }) => {
       localStorage.setItem('access_token', access_token);
       localStorage.setItem('user', JSON.stringify(user));
 
-      // Configurer axios pour les futures requêtes
+      // Configurer axios pour les futures requÃªtes
       axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
 
       // Callback pour informer l'app du login
@@ -57,7 +57,7 @@ const LoginPage = ({ onLogin }) => {
     <div
       style={{
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #0ea5e9 0%, #6366f1 50%, #a855f7 100%)',
+        background: 'linear-gradient(135deg, #14121c 0%, #241b38 50%, #3d2a63 100%)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -75,7 +75,7 @@ const LoginPage = ({ onLogin }) => {
           width: '500px',
           height: '500px',
           borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(168,85,247,0.18) 0%, transparent 70%)',
           animation: 'float 6s ease-in-out infinite'
         }}
       />
@@ -87,7 +87,7 @@ const LoginPage = ({ onLogin }) => {
           width: '400px',
           height: '400px',
           borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(168,85,247,0.18) 0%, transparent 70%)',
           animation: 'float 8s ease-in-out infinite reverse'
         }}
       />
@@ -103,9 +103,9 @@ const LoginPage = ({ onLogin }) => {
       <div
         className="animate-fadeIn"
         style={{
-          backgroundColor: 'white',
+          backgroundColor: 'var(--bg-primary)',
           borderRadius: '1.5rem',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+          boxShadow: 'var(--shadow-xl)',
           padding: '3rem',
           width: '100%',
           maxWidth: '440px',

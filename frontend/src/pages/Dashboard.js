@@ -71,33 +71,33 @@ const Dashboard = () => {
       title: 'Total Servers',
       value: stats.total,
       icon: Server,
-      color: '#3b82f6',
-      bgColor: '#eff6ff',
-      borderColor: '#bfdbfe'
+      color: 'var(--primary-500)',
+      bgColor: 'var(--primary-50)',
+      borderColor: 'var(--primary-200)'
     },
     {
       title: 'Online',
       value: stats.online,
       icon: CheckCircle,
-      color: '#10b981',
-      bgColor: '#ecfdf5',
-      borderColor: '#a7f3d0'
+      color: 'var(--success-500)',
+      bgColor: 'var(--success-50)',
+      borderColor: 'var(--success-200)'
     },
     {
       title: 'Offline',
       value: stats.offline,
       icon: XCircle,
-      color: '#ef4444',
-      bgColor: '#fef2f2',
-      borderColor: '#fecaca'
+      color: 'var(--error-500)',
+      bgColor: 'var(--error-50)',
+      borderColor: 'var(--error-200)'
     },
     {
       title: 'Unknown',
       value: stats.unknown,
       icon: HelpCircle,
-      color: '#6b7280',
-      bgColor: '#f9fafb',
-      borderColor: '#e5e7eb'
+      color: 'var(--text-tertiary)',
+      bgColor: 'var(--bg-tertiary)',
+      borderColor: 'var(--border-light)'
     }
   ];
 
@@ -165,6 +165,7 @@ const Dashboard = () => {
                     {stat.title}
                   </p>
                   <h2
+                    className="font-mono"
                     style={{
                       fontSize: '2.25rem',
                       fontWeight: 700,
@@ -180,7 +181,7 @@ const Dashboard = () => {
                     width: '48px',
                     height: '48px',
                     borderRadius: 'var(--radius-lg)',
-                    backgroundColor: 'white',
+                    backgroundColor: 'var(--bg-tertiary)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -233,10 +234,10 @@ const Dashboard = () => {
                   padding: '1.25rem',
                   borderLeft: `4px solid ${
                     server.status === 'online'
-                      ? '#10b981'
+                      ? 'var(--success-500)'
                       : server.status === 'offline'
-                      ? '#ef4444'
-                      : '#6b7280'
+                      ? 'var(--error-500)'
+                      : 'var(--text-tertiary)'
                   }`
                 }}
               >
@@ -270,10 +271,10 @@ const Dashboard = () => {
                     borderTop: '1px solid var(--border-light)'
                   }}
                 >
-                  <span>{server.ip_address}</span>
+                  <span className="font-mono">{server.ip_address}</span>
                   {server.response_time && (
                     <span
-                      className="badge badge-gray"
+                      className="badge badge-gray font-mono"
                       style={{ fontSize: '0.688rem' }}
                     >
                       {server.response_time}ms
