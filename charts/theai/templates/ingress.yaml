@@ -1,29 +1,46 @@
+# charts/theai/templates/ingress.yaml
+{{- $ingressConfig := dict "ingress" (default (dict) .Values.ingress) }}
+{{- if $ingressConfig.ingress.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "theai.name" . }}
+  name: {{ include "theai.fullname" . }}
+  namespace: {{ .Values.namespace.name }}
   labels:
     {{- include "theai.labels" . | nindent 4 }}
-  {{- if .Values.ingress.annotations }}
+  {{- with $ingressConfig.ingress.annotations }}
   annotations:
-    {{- toYaml .Values.ingress.annotations | nindent 4 }}
+    {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  {{- if .Values.ingress.className }}
-  ingressClassName: {{ .Values.ingress.className }}
+  {{- if $ingressConfig.ingress.className }}
+  ingressClassName: {{ $ingressConfig.ingress.className }}
+  {{- end }}
+  {{- if $ingressConfig.ingress.tls }}
+  tls:
+    {{- range $ingressConfig.ingress.tls }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      {{- if .secretName }}
+      secretName: {{ .secretName }}
+      {{- end }}
+    {{- end }}
   {{- end }}
   rules:
-    {{- range .Values.ingress.hosts }}
+    {{- range $ingressConfig.ingress.hosts }}
     - host: {{ .host | quote }}
       http:
         paths:
           {{- range .paths }}
           - path: {{ .path }}
-            pathType: {{ .pathType }}
+            pathType: {{ .pathType | default "Prefix" }}
             backend:
               service:
-                name: {{ include "theai.name" . }}-{{ .service }}
+                name: {{ include "theai.fullname" $ }}-{{ .component }}
                 port:
                   number: {{ .port }}
           {{- end }}
     {{- end }}
+{{- end }}
