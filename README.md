@@ -272,7 +272,6 @@ postgres:15-alpine
 docker run -d \
 --name theai-backend \
 --network theai-net \
---network-alias backend \
 -p 8000:8000 \
 -e POSTGRES_SERVER=theai-db \
 -e POSTGRES_USER=theaiuser \
