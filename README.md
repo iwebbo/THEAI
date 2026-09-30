@@ -15,7 +15,8 @@ helm repo update
 helm upgrade --install theai theai/theai \
   --namespace theai \
   --create-namespace \
-  -f values.yaml
+  -f values.yaml  \
+  -f ingress.yaml
 ```
 
 ## Values.yaml storageclass auto provisionning.
@@ -143,29 +144,6 @@ helm upgrade --install theai theai/theai \
     name: theai-users-config
     users_config_path: /etc/theai/users.yml
 
-  # Ingress configuration
-  ingress:
-    enabled: true
-    className: "nginx"
-    annotations:
-      nginx.ingress.kubernetes.io/rewrite-target: /
-      nginx.ingress.kubernetes.io/proxy-body-size: "20m"
-    
-    hosts:
-      - host: theai.local
-        paths:
-          - path: /
-            pathType: Prefix
-            service: frontend
-            port: 80
-          - path: /api
-            pathType: Prefix
-            service: backend
-            port: 8000
-    
-    tls:
-      enabled: false
-
   # Service Account
   serviceAccount:
     create: true
@@ -191,44 +169,29 @@ helm upgrade --install theai theai/theai \
   affinity: {}
 ```
 
-## Values to be changed with storageclass manual + pv-postgres.yaml
+## ingress.yaml
 ```yaml
-    postgres:
-      storage:
-        enabled: true
-        size: 10Gi
-        className: local-storage  # Manual Storageclass
-```
-
-## pv-postres.yaml
-```yaml
-    apiVersion: v1
-    kind: PersistentVolume
-    metadata:
-      name: theai-postgres-pv
-    spec:
-      storageClassName: local-storage
-      capacity:
-        storage: 10Gi
-      accessModes:
-        - ReadWriteOnce
-      persistentVolumeReclaimPolicy: Retain
-      hostPath:
-        path: "/mnt/data/theai-postgres"
-        type: DirectoryOrCreate
-      nodeAffinity:
-        required:
-          nodeSelectorTerms:
-          - matchExpressions:
-            - key: kubernetes.io/hostname
-              operator: In
-              values:
-              - k8s-prod-worker-01
-``` 
-
-## Apply pv 
-```shell
-  kubectl apply -f pv-postgres.yaml AVANT HELM UPGRADE INSTLAL (CREER PVC POUR HEBERGER DB APRES on DEPLOY via HELM CHART)
+    ingress:
+      enabled: true
+      className: "nginx"
+      annotations:
+        #nginx.ingress.kubernetes.io/rewrite-target: /
+        nginx.ingress.kubernetes.io/proxy-body-size: "20m"
+      
+      hosts:
+        - host: theai.local
+          paths:
+            - path: /
+              pathType: Prefix
+              service: frontend
+              port: 80
+            - path: /api
+              pathType: Prefix
+              service: backend
+              port: 8000
+      
+      tls:
+        enabled: false
 ```
 
 ## Prerequisites
@@ -240,7 +203,7 @@ helm upgrade --install theai theai/theai \
 ## Configuration Files (at repo root)
 
 - `values.yml` - Helm values (mandatory)
-- `ingress.yml` - Ingress configuration (optional)
+- `ingress.yml` - Ingress configuration (mandatory)
 - `users.yml` - Application users (optional)
 
 ## Deploy with Generic Ansible Pipeline
@@ -252,24 +215,7 @@ use : https://github.com/iwebbo/Ansible/tree/main/roles/deploy_herlmchart_stack_
 
 ```
 
-## Chart Values
-
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `backend.replicas` | Backend replicas | 2 |
-| `frontend.replicas` | Frontend replicas | 2 |
-| `backend.image.tag` | Backend image tag | latest |
-| `frontend.image.tag` | Frontend image tag | latest |
-| `postgres.storage.size` | PostgreSQL volume size | 10Gi |
-| `ingress.enabled` | Enable Ingress | true |
-
-## Build & Push Flow
-
-1. Push to `backend/**` → GitHub Actions builds and pushes to `ghcr.io`
-2. Push to `frontend/**` → GitHub Actions builds and pushes to `ghcr.io`
-3. Push to `charts/**` → GitHub Actions packages and publishes chart
-
-## Verification
+## Check
 
 ```bash
 # List charts

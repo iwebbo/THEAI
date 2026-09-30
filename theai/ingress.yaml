@@ -1,25 +1,21 @@
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: theai-ingress
-  namespace: theai
-spec:
-  ingressClassName: nginx
-  rules:
-  - host: theai.local
-    http:
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    #nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/proxy-body-size: "20m"
+  
+  hosts:
+    - host: theai.local
       paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: theai-frontend
-            port:
-              number: 80
-      - path: /api
-        pathType: Prefix
-        backend:
-          service:
-            name: theai-backend
-            port:
-              number: 8000
+        - path: /
+          pathType: Prefix
+          service: frontend
+          port: 80
+        - path: /api
+          pathType: Prefix
+          service: backend
+          port: 8000
+  
+  tls:
+    enabled: false
