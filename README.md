@@ -292,7 +292,7 @@ docker run -d \
 -e DEFAULT_ADMIN_USERNAME=admin \
 -e DEFAULT_ADMIN_PASSWORD=MySecurePassword123! \
 -e DEFAULT_ADMIN_EMAIL=admin@theai.local \
-ghcr.io/iwebbo/theai/backend:main-861e063
+ghcr.io/iwebbo/theai/backend:latest
 ```
 
 ### Run the Frontend
@@ -302,7 +302,7 @@ docker run -d \
 --network theai-net \
 -p 80:80 \
 -e API_URL=http://192.168.1.110:8000 \
-ghcr.io/iwebbo/theai/frontend:main-bd54f62
+ghcr.io/iwebbo/theai/frontend:latest
 ```
 
 ## Upcoming Features
