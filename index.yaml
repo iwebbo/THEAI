@@ -3,9 +3,9 @@ entries:
   theai:
   - apiVersion: v2
     appVersion: 1.1.5
-    created: "2026-09-30T17:43:06.542564293Z"
+    created: "2026-10-05T20:19:45.458436649Z"
     description: THEAI - Monitoring & Vulnerability Platform
-    digest: 1e95132c72e61bdfae5cd80d9fb3f4738acb9ca7634b47593bce2dbae73a1186
+    digest: 4a65e05b1a9793cb48a528d78d417888cbd7b2718d553f89dc85709ff1a32a59
     home: https://github.com/iwebbo/theai
     keywords:
     - theai
@@ -21,4 +21,4 @@ entries:
     urls:
     - https://iwebbo.github.io/THEAI/theai-1.1.5.tgz
     version: 1.1.5
-generated: "2026-09-30T17:43:06.541702067Z"
+generated: "2026-10-05T20:19:45.457803399Z"

@@ -15,108 +15,11 @@ helm repo update
 helm upgrade --install theai theai/theai \
   --namespace theai \
   --create-namespace \
-  -f values.yaml  \
   -f ingress.yaml
 ```
 
-## Values.yaml storageclass auto provisionning.
+## Values.yaml - change values.
 ```yaml
-# Default values for TheAI Helm chart
-  nameOverride: ""
-  fullnameOverride: ""
-
-  replicaCount: 1
-
-  # Container Registry
-  registry: ghcr.io
-  imagePullSecrets: []
-
-  # Backend configuration
-  backend:
-    enabled: true
-    name: backend
-    image:
-      repository: ghcr.io/iwebbo/theai/backend
-      tag: "latest"  # GitHub Actions update ce tag
-      pullPolicy: IfNotPresent
-    
-    replicas: 1
-    
-    service:
-      type: ClusterIP
-      port: 8000
-      targetPort: 8000
-    
-    resources:
-      requests:
-        memory: "256Mi"
-        cpu: "100m"
-      limits:
-        memory: "512Mi"
-        cpu: "500m"
-    
-    env:
-      - name: LOG_LEVEL
-        value: "INFO"
-      - name: DEBUG
-        value: "false"
-
-  # Frontend configuration
-  frontend:
-    enabled: true
-    name: frontend
-    image:
-      repository: ghcr.io/iwebbo/theai/frontend
-      tag: "latest"
-      pullPolicy: IfNotPresent
-    
-    replicas: 1
-    
-    service:
-      type: ClusterIP
-      port: 80
-      targetPort: 8080
-    
-    resources:
-      requests:
-        memory: "128Mi"
-        cpu: "50m"
-      limits:
-        memory: "256Mi"
-        cpu: "250m"
-
-  # PostgreSQL configuration
-  postgres:
-    enabled: true
-    name: postgres
-    image:
-      repository: postgres
-      tag: "15-alpine"
-      pullPolicy: IfNotPresent
-    
-    service:
-      type: ClusterIP
-      port: 5432
-      targetPort: 5432
-    
-    storage:
-      enabled: true
-      size: 10Gi
-      className: local-path
-      mountPath: /var/lib/postgresql/data
-      subPath: postgres
-    
-    resources:
-      requests:
-        memory: "256Mi"
-        cpu: "100m"
-      limits:
-        memory: "512Mi"
-        cpu: "500m"
-    
-    database: server_monitoring
-    user: admindb
-    password: "changeMe123!"
 
   secrets:
     create: true
@@ -139,34 +42,6 @@ helm upgrade --install theai theai/theai \
       DEFAULT_ADMIN_PASSWORD: "AdminPass123"
       DEFAULT_ADMIN_EMAIL: "admin@theai.local"
 
-  configmap:
-    create: true
-    name: theai-users-config
-    users_config_path: /etc/theai/users.yml
-
-  # Service Account
-  serviceAccount:
-    create: true
-    name: "theai-sa"
-
-  # Pod Security
-  podAnnotations: {}
-  podSecurityContext:
-    runAsNonRoot: true
-    runAsUser: 1000
-    fsGroup: 1000
-
-  securityContext:
-    allowPrivilegeEscalation: false
-    capabilities:
-      drop:
-        - ALL
-    readOnlyRootFilesystem: true
-
-  # Node selection
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
 ```
 
 ## ingress.yaml
