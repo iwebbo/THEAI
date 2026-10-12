@@ -49,7 +49,8 @@ jobs:
                 h = $0
                 sub(/^## +/, "", h)
                 gsub(/\[|\]/, "", h)
-                sub(/^v/, "", h)
+                sub(/^[Vv]ersion +/, "", h)
+                sub(/^[vV]\.?/, "", h)
                 split(h, a, " ")
                 if (a[1] == v) { found = 1; next }
               }
