@@ -37,44 +37,79 @@ jobs:
             echo "prerelease=false" >> "$GITHUB_OUTPUT"
           fi
 
-      # # Notes de la release : uniquement les commits depuis le tag précédent
-      # - name: Generate release notes
-      #   uses: orhun/git-cliff-action@v3
-      #   with:
-      #     config: cliff.toml
-      #     args: --latest --strip header
-      #   env:
-      #     OUTPUT: RELEASE_NOTES.md
-
-      # Changelog complet, joint à la release en pièce jointe
-      # - name: Generate full changelog
-      #   uses: orhun/git-cliff-action@v3
-      #   with:
-      #     config: cliff.toml
-      #   env:
-      #     OUTPUT: CHANGELOG.md
-
-      - name: Append install info to release notes
+      - name: Extract changelog section
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
+          : > changelog_section.md
+          if [ -f CHANGELOG.md ]; then
+            awk -v v="$VERSION" '
+              /^## / {
+                if (found) exit
+                h = $0
+                sub(/^## +/, "", h)
+                gsub(/\[|\]/, "", h)
+                sub(/^v/, "", h)
+                split(h, a, " ")
+                if (a[1] == v) { found = 1; next }
+              }
+              found { print }
+            ' CHANGELOG.md > changelog_section.md
+          fi
+          if ! grep -q '[^[:space:]]' changelog_section.md; then
+            echo "::warning::Aucune section pour la version ${VERSION} dans CHANGELOG.md"
+            echo "_No changelog entry for this version._" > changelog_section.md
+          fi
+          cat changelog_section.md
+
+      - name: Build release notes
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          FENCE='```'
+          OWNER="${GITHUB_REPOSITORY_OWNER}"
+          REPO_LC="$(echo "${GITHUB_REPOSITORY#*/}" | tr '[:upper:]' '[:lower:]')"
+          IMAGE_BASE="$(echo "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')"
+          PREV="$(git describe --tags --abbrev=0 "${TAG}^" 2>/dev/null || true)"
+
           {
-            echo
-            echo "---"
-            echo
-            echo "### Helm"
-            echo
-            echo '```bash'
-            echo "helm repo add theai https://${GITHUB_REPOSITORY_OWNER}.github.io/THEAI/"
-            echo "helm repo update"
-            echo '```'
-          } >> RELEASE_NOTES.md
+            cat changelog_section.md
+            cat <<EOF
+
+          ---
+
+          ## Docker images
+
+          Published on GitHub Container Registry:
+
+          - Backend: [${REPO_LC}/backend](https://github.com/users/${OWNER}/packages/container/package/${REPO_LC}%2Fbackend)
+          - Frontend: [${REPO_LC}/frontend](https://github.com/users/${OWNER}/packages/container/package/${REPO_LC}%2Ffrontend)
+
+          ${FENCE}bash
+          docker pull ghcr.io/${IMAGE_BASE}/backend:latest
+          docker pull ghcr.io/${IMAGE_BASE}/frontend:latest
+          ${FENCE}
+
+          ## Helm
+
+          ${FENCE}bash
+          helm repo add theai https://${OWNER}.github.io/THEAI/
+          helm repo update
+          ${FENCE}
+          EOF
+            if [ -n "${PREV}" ]; then
+              echo
+              echo "**Full Changelog**: https://github.com/${GITHUB_REPOSITORY}/compare/${PREV}...${TAG}"
+            fi
+          } > RELEASE_NOTES.md
+
+          cat RELEASE_NOTES.md
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           name: THEAI ${{ steps.version.outputs.version }}
           body_path: RELEASE_NOTES.md
-          files: CHANGELOG.md
-          fail_on_unmatched_files: true
           draft: false
           prerelease: ${{ steps.version.outputs.prerelease == 'true' }}
 
@@ -83,7 +118,7 @@ jobs:
           {
             echo "## Release ${GITHUB_REF_NAME}"
             echo
-            echo "- Version: \`${{ steps.version.outputs.version }}\`"
-            echo "- Pre-release: \`${{ steps.version.outputs.prerelease }}\`"
+            echo "- Version: ${{ steps.version.outputs.version }}"
+            echo "- Pre-release: ${{ steps.version.outputs.prerelease }}"
             echo "- ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/tag/${GITHUB_REF_NAME}"
           } >> "$GITHUB_STEP_SUMMARY"
