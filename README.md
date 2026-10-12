@@ -16,16 +16,17 @@ A modern, professional server monitoring & vulnerability CVE. Monitor your serve
 ## Demo
 
 ### Login page
-<img width="1862" height="902" alt="theai-login-page" src="https://github.com/user-attachments/assets/cf5a313d-9750-4ebd-8397-0d8d7cfb8ec6" />
+<img width="1910" height="907" alt="image" src="https://github.com/user-attachments/assets/ca43eeb6-9e43-498e-8854-3391d4688a56" />
 
-### Dashboard
-<img width="1915" height="909" alt="image" src="https://github.com/user-attachments/assets/a11d0670-d24f-4526-b6c4-174b4a988d6e" />
+### Vulnerability - CVE 
+<img width="1910" height="910" alt="image" src="https://github.com/user-attachments/assets/d43a86ad-373c-4a73-a4c1-fd1f00d005ea" />
 
-### Server view
-<img width="1903" height="907" alt="image" src="https://github.com/user-attachments/assets/a3206f01-6172-46c6-93fd-eb82a8dbe0c9" />
+### THEAI Agent - Metric
+<img width="1912" height="907" alt="image" src="https://github.com/user-attachments/assets/c9067b67-b10e-45a1-a597-9976e18d9769" />
 
-### Security Dashboard 
-<img width="1909" height="909" alt="image" src="https://github.com/user-attachments/assets/6d1ce4a7-312b-43c4-b58d-ef846cd34a43" />
+### THEAI Agent - Enroll
+<img width="1912" height="909" alt="image" src="https://github.com/user-attachments/assets/a2724435-ba83-432b-959b-d07e30ff7bbe" />
+
 
 ## Features
 
