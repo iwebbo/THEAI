@@ -1,0 +1,89 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-*'
+
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve version
+        id: version
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          if [[ "${VERSION}" == *-* ]]; then
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Notes de la release : uniquement les commits depuis le tag précédent
+      - name: Generate release notes
+        uses: orhun/git-cliff-action@v3
+        with:
+          config: cliff.toml
+          args: --latest --strip header
+        env:
+          OUTPUT: RELEASE_NOTES.md
+
+      # Changelog complet, joint à la release en pièce jointe
+      - name: Generate full changelog
+        uses: orhun/git-cliff-action@v3
+        with:
+          config: cliff.toml
+        env:
+          OUTPUT: CHANGELOG.md
+
+      - name: Append install info to release notes
+        run: |
+          {
+            echo
+            echo "---"
+            echo
+            echo "### Helm"
+            echo
+            echo '```bash'
+            echo "helm repo add theai https://${GITHUB_REPOSITORY_OWNER}.github.io/THEAI/"
+            echo "helm repo update"
+            echo '```'
+          } >> RELEASE_NOTES.md
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: THEAI ${{ steps.version.outputs.version }}
+          body_path: RELEASE_NOTES.md
+          files: CHANGELOG.md
+          fail_on_unmatched_files: true
+          draft: false
+          prerelease: ${{ steps.version.outputs.prerelease == 'true' }}
+
+      - name: Summary
+        run: |
+          {
+            echo "## Release ${GITHUB_REF_NAME}"
+            echo
+            echo "- Version: \`${{ steps.version.outputs.version }}\`"
+            echo "- Pre-release: \`${{ steps.version.outputs.prerelease }}\`"
+            echo "- ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/tag/${GITHUB_REF_NAME}"
+          } >> "$GITHUB_STEP_SUMMARY"
