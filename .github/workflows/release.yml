@@ -47,12 +47,12 @@ jobs:
       #     OUTPUT: RELEASE_NOTES.md
 
       # Changelog complet, joint à la release en pièce jointe
-      - name: Generate full changelog
-        uses: orhun/git-cliff-action@v3
-        with:
-          config: cliff.toml
-        env:
-          OUTPUT: CHANGELOG.md
+      # - name: Generate full changelog
+      #   uses: orhun/git-cliff-action@v3
+      #   with:
+      #     config: cliff.toml
+      #   env:
+      #     OUTPUT: CHANGELOG.md
 
       - name: Append install info to release notes
         run: |
