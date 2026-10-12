@@ -37,14 +37,14 @@ jobs:
             echo "prerelease=false" >> "$GITHUB_OUTPUT"
           fi
 
-      # Notes de la release : uniquement les commits depuis le tag précédent
-      - name: Generate release notes
-        uses: orhun/git-cliff-action@v3
-        with:
-          config: cliff.toml
-          args: --latest --strip header
-        env:
-          OUTPUT: RELEASE_NOTES.md
+      # # Notes de la release : uniquement les commits depuis le tag précédent
+      # - name: Generate release notes
+      #   uses: orhun/git-cliff-action@v3
+      #   with:
+      #     config: cliff.toml
+      #     args: --latest --strip header
+      #   env:
+      #     OUTPUT: RELEASE_NOTES.md
 
       # Changelog complet, joint à la release en pièce jointe
       - name: Generate full changelog
