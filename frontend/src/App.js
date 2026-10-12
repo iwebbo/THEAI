@@ -11,6 +11,8 @@ import ServerFormPage from './pages/ServerFormPage';
 import SettingsPage from './pages/SettingsPage';
 import Loading from './components/common/Loading';
 import SecurityDashboardPage from './pages/SecurityDashboardPage';
+import CvePage from './pages/CvePage';
+import DashboardsPage from './pages/DashboardsPage';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -150,6 +152,28 @@ function App() {
             <ProtectedRoute>
               <Layout user={user} onLogout={handleLogout}>
                 <SecurityDashboardPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/cve"
+          element={
+            <ProtectedRoute>
+              <Layout user={user} onLogout={handleLogout}>
+                <CvePage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/dashboards"
+          element={
+            <ProtectedRoute>
+              <Layout user={user} onLogout={handleLogout}>
+                <DashboardsPage />
               </Layout>
             </ProtectedRoute>
           }

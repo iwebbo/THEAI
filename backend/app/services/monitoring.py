@@ -21,13 +21,13 @@ class MonitoringService:
         try:
             # icmplib peut fonctionner en mode non-privileged avec NET_RAW
             host = await asyncio.to_thread(
-                icmp_ping, 
-                ip_address, 
-                count=2, 
+                icmp_ping,
+                ip_address,
+                count=2,
                 timeout=timeout,
                 privileged=False  # Mode non-root avec NET_RAW
             )
-            
+
             if host.is_alive:
                 return {
                     "status": ServerStatus.ONLINE.value,
@@ -48,7 +48,7 @@ class MonitoringService:
             }
 
     @staticmethod
-    async def check_http(hostname: str, port: Optional[int] = None, path: str = "/", 
+    async def check_http(hostname: str, port: Optional[int] = None, path: str = "/",
                         use_https: bool = False, timeout: int = 5) -> Dict[str, Any]:
         """
         Vérifie la connectivité HTTP/HTTPS à un serveur
@@ -57,15 +57,15 @@ class MonitoringService:
         protocol = "https" if use_https else "http"
         if port is None:
             port = 443 if use_https else 80
-        
+
         url = f"{protocol}://{hostname}:{port}{path}"
-        
+
         try:
             start_time = time.time()
             async with httpx.AsyncClient() as client:
                 response = await client.get(url, timeout=timeout, follow_redirects=True)
             response_time = int((time.time() - start_time) * 1000)  # ms
-            
+
             if response.status_code < 400:
                 return {
                     "status": ServerStatus.ONLINE.value,
@@ -100,10 +100,10 @@ class MonitoringService:
         """
         client = paramiko.SSHClient()
         client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        
+
         try:
             start_time = time.time()
-            
+
             # Choose authentication method
             connect_params = {
                 "hostname": hostname,
@@ -112,33 +112,33 @@ class MonitoringService:
                 "allow_agent": False,
                 "look_for_keys": False
             }
-            
+
             if username:
                 connect_params["username"] = username
-                
+
                 if password:
                     connect_params["password"] = password
                 elif key_path:
                     connect_params["key_filename"] = key_path
-            
+
             # For simple connectivity test, use the transport directly
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.settimeout(timeout)
             sock.connect((hostname, port))
-            
+
             # If credentials provided, attempt full authentication
             if username and (password or key_path):
                 transport = paramiko.Transport(sock)
                 transport.start_client()
-                
+
                 if password:
                     transport.auth_password(username, password)
                 elif key_path:
                     key = paramiko.RSAKey.from_private_key_file(key_path)
                     transport.auth_publickey(username, key)
-            
+
             response_time = int((time.time() - start_time) * 1000)  # ms
-            
+
             return {
                 "status": ServerStatus.ONLINE.value,
                 "response_time": response_time,
@@ -166,30 +166,30 @@ class MonitoringService:
     async def check_tcp(hostname: str, port: int, timeout: int = 5) -> Dict[str, Any]:
         """
         Vérifie la connectivité TCP sur un port spécifique
-        
+
         Args:
             hostname: Hostname ou IP du serveur
             port: Port TCP à vérifier
             timeout: Timeout en secondes
-            
+
         Returns:
             Dict avec status, response_time et message
         """
         try:
             start_time = time.time()
-            
+
             # Créer une socket TCP
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.settimeout(timeout)
-            
+
             # Tenter de se connecter
             result = sock.connect_ex((hostname, port))
-            
+
             response_time = int((time.time() - start_time) * 1000)  # ms
-            
+
             # Fermer la socket
             sock.close()
-            
+
             if result == 0:
                 return {
                     "status": ServerStatus.ONLINE.value,
@@ -202,7 +202,7 @@ class MonitoringService:
                     "response_time": None,
                     "message": f"TCP port {port} is closed or filtered"
                 }
-                
+
         except socket.timeout:
             return {
                 "status": ServerStatus.OFFLINE.value,
@@ -222,6 +222,51 @@ class MonitoringService:
                 "message": f"TCP check error: {str(e)}"
             }
 
+    @staticmethod
+    def check_agent(server_id: int) -> Dict[str, Any]:
+        """
+        Statut déduit du dernier heartbeat de l'agent : en ligne si moins de 2 intervalles.
+        Un agent jamais enrôlé donne 'unknown' (et non 'offline', pour éviter de fausses alertes).
+        """
+        from core.database import SessionLocal
+        from models.agent import Agent
+        from services.agent_service import is_fresh, utcnow
+
+        db = SessionLocal()
+        try:
+            agent = db.query(Agent).filter(Agent.server_id == server_id).first()
+            if agent is None or agent.enrolled_at is None or agent.api_key_hash is None:
+                return {
+                    "status": ServerStatus.UNKNOWN.value,
+                    "response_time": None,
+                    "message": "Agent not enrolled yet"
+                }
+            if agent.last_seen is None:
+                return {
+                    "status": ServerStatus.OFFLINE.value,
+                    "response_time": None,
+                    "message": "Agent enrolled but no heartbeat received yet"
+                }
+            age = int((utcnow() - agent.last_seen).total_seconds())
+            if is_fresh(agent.last_seen, agent.interval_seconds):
+                return {
+                    "status": ServerStatus.ONLINE.value,
+                    "response_time": None,
+                    "message": f"Agent heartbeat received {age}s ago"
+                }
+            return {
+                "status": ServerStatus.OFFLINE.value,
+                "response_time": None,
+                "message": f"Agent heartbeat lost (last seen {age}s ago)"
+            }
+        except Exception as e:
+            return {
+                "status": ServerStatus.UNKNOWN.value,
+                "response_time": None,
+                "message": f"Agent check error: {str(e)}"
+            }
+        finally:
+            db.close()
 
     @staticmethod
     async def check_server(server: Server) -> ServerCheck:
@@ -229,22 +274,26 @@ class MonitoringService:
         Vérifie l'état d'un serveur selon les protocoles configurés
         """
         results = []
-        protocols = server.protocols.split(',')
-        
+        protocols = [p.strip() for p in (server.protocols or "").split(',') if p.strip()]
+
         for protocol in protocols:
-            if protocol == MonitoringProtocol.ICMP.value:
+            if protocol == MonitoringProtocol.AGENT.value:
+                result = await asyncio.to_thread(MonitoringService.check_agent, server.id)
+                results.append(result)
+
+            elif protocol == MonitoringProtocol.ICMP.value:
                 result = await MonitoringService.check_icmp(server.ip_address)
                 results.append(result)
-            
+
             elif protocol == MonitoringProtocol.HTTP.value:
                 result = await MonitoringService.check_http(
-                    server.hostname, 
+                    server.hostname,
                     port=server.http_port,
                     path=server.http_path,
                     use_https=server.use_https
                 )
                 results.append(result)
-            
+
             elif protocol == MonitoringProtocol.SSH.value:
                 result = await MonitoringService.check_ssh(
                     server.hostname,
@@ -253,32 +302,36 @@ class MonitoringService:
                     password=server.ssh_password,
                     key_path=server.ssh_key_path
                 )
+                results.append(result)
+
             elif protocol == MonitoringProtocol.TCP.value:
                 result = await MonitoringService.check_tcp(
-                server.hostname,
-                port=server.tcp_port,
-                timeout=server.tcp_timeout
+                    server.hostname,
+                    port=server.tcp_port,
+                    timeout=server.tcp_timeout
                 )
                 results.append(result)
-        
-        # Aggregate results - a server is considered online if at least one protocol is online
+
+        # Agrégation : en ligne si au moins une vérification réussit (l'agent est la source
+        # principale, ICMP/HTTP/SSH/TCP servent de secours ou de complément).
         online_results = [r for r in results if r["status"] == ServerStatus.ONLINE.value]
-        
+        offline_results = [r for r in results if r["status"] == ServerStatus.OFFLINE.value]
+        messages = [r["message"] for r in results]
+        message = " | ".join(messages) if messages else "No monitoring protocol configured"
+
         if online_results:
-            # Server is online if at least one protocol check is successful
             status = ServerStatus.ONLINE.value
             # Use the fastest response time from successful checks
             response_times = [r["response_time"] for r in online_results if r["response_time"] is not None]
             response_time = min(response_times) if response_times else None
-            messages = [r["message"] for r in results]
-            message = " | ".join(messages)
-        else:
-            # All protocol checks failed
+        elif offline_results:
             status = ServerStatus.OFFLINE.value
             response_time = None
-            messages = [r["message"] for r in results]
-            message = " | ".join(messages)
-        
+        else:
+            # Rien de concluant (ex. agent pas encore enrôlé) : statut inconnu
+            status = ServerStatus.UNKNOWN.value
+            response_time = None
+
         return ServerCheck(
             id=server.id,
             status=status,

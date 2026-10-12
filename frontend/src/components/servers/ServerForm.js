@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Save, X, Server, Globe, Activity, Lock, Network, 
+import {
+  Save, X, Server, Globe, Activity, Lock, Network,
   Eye, EyeOff, ArrowLeft, CheckCircle
 } from 'lucide-react';
 import serverApi from '../../services/api';
@@ -18,7 +18,8 @@ const ServerForm = ({ serverId }) => {
     ip_address: '',
     description: '',
     enabled: true,
-    protocols: 'icmp',
+    // L'agent est le mode recommandé ; ICMP reste actif comme contrôle de secours.
+    protocols: 'agent,icmp',
 
     // HTTP settings
     http_port: 80,
@@ -37,6 +38,7 @@ const ServerForm = ({ serverId }) => {
   });
 
   const [protocolOptions, setProtocolOptions] = useState({
+    agent: true,
     icmp: true,
     http: false,
     ssh: false,
@@ -81,8 +83,9 @@ const ServerForm = ({ serverId }) => {
         tcp_timeout: serverData.tcp_timeout || 5
       });
 
-      const protocols = serverData.protocols.split(',');
+      const protocols = (serverData.protocols || '').split(',');
       setProtocolOptions({
+        agent: protocols.includes('agent'),
         icmp: protocols.includes('icmp'),
         http: protocols.includes('http'),
         ssh: protocols.includes('ssh'),
@@ -129,10 +132,16 @@ const ServerForm = ({ serverId }) => {
     try {
       if (isEditMode) {
         await serverApi.updateServer(serverId, formData);
+        navigate('/servers');
       } else {
-        await serverApi.createServer(formData);
+        const response = await serverApi.createServer(formData);
+        // Avec l'agent, on ouvre la fiche du serveur : le jeton d'installation s'y génère.
+        if (protocolOptions.agent && response.data?.id) {
+          navigate(`/servers/${response.data.id}`);
+        } else {
+          navigate('/servers');
+        }
       }
-      navigate('/servers');
     } catch (err) {
       setError('Error saving server: ' + (err.response?.data?.detail || err.message));
       setSaving(false);
@@ -241,6 +250,14 @@ const ServerForm = ({ serverId }) => {
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
             <ProtocolCheckbox
+              label="THEAI Agent (recommended)"
+              name="agent"
+              checked={protocolOptions.agent}
+              onChange={handleProtocolChange}
+              description="Metrics, inventory, listening ports and CVE correlation. Outbound HTTPS only, no open port."
+            />
+
+            <ProtocolCheckbox
               label="ICMP (Ping)"
               name="icmp"
               checked={protocolOptions.icmp}
@@ -272,6 +289,14 @@ const ServerForm = ({ serverId }) => {
               description="TCP port connectivity"
             />
           </div>
+
+          {protocolOptions.agent && (
+            <p style={{ marginTop: '1rem', fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
+              The server is reported online while the agent sends heartbeats; the other checks
+              selected here remain active as a fallback. After saving, an install token is generated
+              on the server page.
+            </p>
+          )}
         </div>
 
         {/* HTTP Configuration */}

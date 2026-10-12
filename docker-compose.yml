@@ -1,48 +1,120 @@
-version: '3.8'
+name: theai
+
+# Noms de services alignes sur nginx.conf (theai-backend, theai-grafana) et .env (POSTGRES_SERVER=db).
+# Variables a ajouter dans .env : GRAFANA_ADMIN_PASSWORD (obligatoire), GRAFANA_ADMIN_USER, NVD_API_KEY (optionnels).
+# Le schema `cve` est cree par le backend au demarrage ; l'ingestor l'attend.
+#
+# Agent : theai-agent-build compile l'agent pour tous les OS et publie les binaires dans le volume
+# agent_dist, servi par le frontend sous /downloads/agent/. Variables optionnelles (.env) :
+#   AGENT_VERSION (defaut 1.0.0), OSV_ENABLED (true), VULN_SCAN_INTERVAL_HOURS (12),
+#   AGENT_DEFAULT_INTERVAL (30), AGENT_METRICS_RETENTION_DAYS (30).
+# Le backend a besoin d'un acces sortant vers api.osv.dev pour la correlation CVE des agents.
 
 services:
   db:
     image: postgres:15-alpine
-    restart: always
+    restart: unless-stopped
     environment:
-      - POSTGRES_DB=${POSTGRES_DB:-server_monitoring}
-      - POSTGRES_USER=${POSTGRES_USER:-postgres}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-server_monitoring}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"] #test
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
 
-  backend:
-    build: ./backend
-    restart: always
-    env_file:
-      - ./.env 
+  theai-grafana:
+    image: grafana/grafana:11.2.0
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?Definir GRAFANA_ADMIN_PASSWORD dans .env}
+      GF_SERVER_ROOT_URL: ${PUBLIC_URL:-http://localhost:8080}/grafana/
+      GF_SERVER_SERVE_FROM_SUB_PATH: "true"
+      GF_AUTH_ANONYMOUS_ENABLED: "true"      # lecture seule, necessaire pour l'iframe THEAI
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_SECURITY_ALLOW_EMBEDDING: "true"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      # Variables lues par provisioning/datasources.yml
+      POSTGRES_SERVER: db
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      POSTGRES_DB: ${POSTGRES_DB:-server_monitoring}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./charts/theai/files/grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
+      - ./charts/theai/files/grafana/providers.yml:/etc/grafana/provisioning/dashboards/providers.yml:ro
+      - ./charts/theai/files/grafana/dashboards:/etc/grafana/dashboards:ro
     depends_on:
       db:
         condition: service_healthy
-    ports:
-      - "8000:8000"
-    cap_add:
-      - NET_RAW        # For ping and nmap
-      - NET_ADMIN  # Network steps process
-    volumes:
-      - scan_results:/app/scan_results
-      - ./backend/app:/app
 
-  frontend:
-    build: ./frontend
-    restart: always
+  theai-ingestor:
+    build: ./ingestor
+    restart: unless-stopped
+    command: ["serve"]
+    environment:
+      POSTGRES_SERVER: db
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      POSTGRES_DB: ${POSTGRES_DB:-server_monitoring}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      NVD_API_KEY: ${NVD_API_KEY:-}
+      INGEST_DAILY_HOUR_UTC: ${INGEST_DAILY_HOUR_UTC:-3}
+      ENABLE_EMAIL_ALERTS: ${ENABLE_EMAIL_ALERTS:-false}
+      ALERT_EMAILS: ${ALERT_EMAILS:-}
+      SMTP_SERVER: ${SMTP_SERVER:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USERNAME: ${SMTP_USERNAME:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM_EMAIL: ${SMTP_FROM_EMAIL:-}
+      SMTP_USE_TLS: ${SMTP_USE_TLS:-true}
     depends_on:
-      - backend
+      db:
+        condition: service_healthy
+      theai-backend:
+        condition: service_started
+
+  theai-backend:
+    build: ./backend
+    restart: unless-stopped
+    env_file: .env
+    cap_add:
+      - NET_RAW          # ping / nmap
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Compile l'agent (Linux, Windows, AIX, FreeBSD, Solaris, macOS), copie dans agent_dist puis s'arrete.
+  theai-agent-build:
+    build:
+      context: ./agent
+      args:
+        VERSION: ${AGENT_VERSION:-1.0.0}
+    restart: "no"
+    volumes:
+      - agent_dist:/out
+
+  theai-frontend:
+    build: ./frontend
+    restart: unless-stopped
     ports:
-      - "80:80"
+      - "8080:80"
+    volumes:
+      - agent_dist:/usr/share/nginx/agent-dist:ro
+    depends_on:
+      theai-backend:
+        condition: service_started
+      theai-grafana:
+        condition: service_started
+      theai-agent-build:
+        condition: service_completed_successfully
 
 volumes:
   postgres_data:
-  scan_results:
+  grafana_data:
+  agent_dist:

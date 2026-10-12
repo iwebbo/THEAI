@@ -9,6 +9,7 @@ class MonitoringProtocol(enum.Enum):
     HTTP = "http"  # HTTP/HTTPS
     SSH = "ssh"    # SSH
     TCP = "tcp"    # TCP Port
+    AGENT = "agent"  # Agent THEAI (heartbeat poussé par l'agent)
 
 class ServerStatus(enum.Enum):
     ONLINE = "online"
@@ -17,38 +18,38 @@ class ServerStatus(enum.Enum):
 
 class Server(Base):
     __tablename__ = "servers"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False)
     hostname = Column(String(255), nullable=False)
     ip_address = Column(String(15), nullable=False)
     description = Column(Text, nullable=True)
-    
+
     # Monitoring configuration
     enabled = Column(Boolean, default=True)
     protocols = Column(Text, nullable=False, default="icmp")  # Comma-separated list of protocols
-    
+
     # For HTTP monitoring
     http_port = Column(Integer, nullable=True)
     http_path = Column(String(255), default="/")
     use_https = Column(Boolean, default=False)
-    
+
     # For SSH monitoring
     ssh_port = Column(Integer, nullable=True, default=22)
     ssh_username = Column(String(255), nullable=True)
     ssh_password = Column(String(255), nullable=True)
     ssh_key_path = Column(String(255), nullable=True)
-    
+
     # For TCP monitoring
     tcp_port = Column(Integer, nullable=True)
     tcp_timeout = Column(Integer, nullable=True, default=5)  # Timeout in seconds
-    
+
     # Status information
     status = Column(String(20), default=ServerStatus.UNKNOWN.value)
     last_check = Column(DateTime, nullable=True)
     last_status_change = Column(DateTime, nullable=True)
     response_time = Column(Integer, nullable=True)  # in milliseconds
-    
+
     # Timestamps
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())

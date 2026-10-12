@@ -95,6 +95,54 @@ postgres:
   user: admindb
   password: "changeMe123!"
 
+#Grafana
+grafana:
+  enabled: true
+  name: grafana
+  image:
+    repository: grafana/grafana
+    tag: "11.2.0"
+    pullPolicy: IfNotPresent
+  rootUrl: "http://localhost:8080/grafana/"
+  anonymousViewer: true
+  service:
+    type: ClusterIP
+    port: 3000
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+#Ingestor
+ingestor:
+  enabled: true
+  name: ingestor
+  image:
+    repository: ghcr.io/iwebbo/theai/ingestor
+    tag: ""
+    pullPolicy: IfNotPresent
+  schedule: "0 3 * * *"     # UTC
+  mode: auto
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "50m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+# AgentGO
+agent:
+  enabled: true
+  image:
+    repository: ghcr.io/iwebbo/theai/agent
+    tag: ""
+    pullPolicy: IfNotPresent
+
+
 secrets:
   create: true
   name: theai-secret
@@ -115,6 +163,10 @@ secrets:
     DEFAULT_ADMIN_USERNAME: "admin"
     DEFAULT_ADMIN_PASSWORD: "AdminPass123"
     DEFAULT_ADMIN_EMAIL: "admin@theai.local"
+    CHECK_HISTORY_RETENTION_DAYS: "30"
+    NVD_API_KEY: ""
+    GRAFANA_ADMIN_USER: "admin"
+    GRAFANA_ADMIN_PASSWORD: "changeMeGrafana123!"
 
 configmap:
   create: true

@@ -130,70 +130,109 @@ Système de monitoring automatique
         # Corps du message en HTML
         html_body = f"""
         <html lang="en">
-        <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #1a202c;">
-            <table role="presentation" style="width: 100%; border-collapse: collapse;">
+        <head>
+            <meta charset="UTF-8">
+            <title>Monitoring Alert</title>
+        </head>
+        <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #09090b;">
+            <!-- Wrapper Table to center everything -->
+            <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color: #09090b;">
                 <tr>
-                    <td style="padding: 40px 20px;">
-                        <!-- Main Container -->
-                        <table role="presentation" style="max-width: 600px; margin: 0 auto; background-color: #2d3748; border-radius: 16px; border: 1px solid #4a5568; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);">
+                    <td align="center" style="padding: 40px 20px;">
+                        
+                        <!-- Main Container (Centered with margin: 0 auto and max-width) -->
+                        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="width: 100%; max-width: 600px; margin: 0 auto; background-color: #121215; border-radius: 12px; border: 1px solid #27272a;">
                             
                             <!-- Header -->
                             <tr>
-                                <td style="padding: 40px 30px; text-align: center;">
-                                    <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #fc8181 0%, #f56565 100%); border-radius: 50%; margin: 0 auto 20px; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(252, 129, 129, 0.4);">
-                                        <span style="font-size: 56px;">⚠️</span>
-                                    </div>
-                                    <h1 style="color: #f7fafc; margin: 0; font-size: 32px; font-weight: 700; letter-spacing: -0.5px;">
-                                        SERVER OFFLINE
-                                    </h1>
-                                    <p style="color: #cbd5e0; margin: 12px 0 0; font-size: 16px;">
-                                        Critical infrastructure alert
-                                    </p>
-                                </td>
-                            </tr>
-                            
-                            <!-- Status Banner -->
-                            <tr>
-                                <td style="padding: 0 30px 30px;">
-                                    <div style="background: linear-gradient(135deg, rgba(252, 129, 129, 0.15) 0%, rgba(245, 101, 101, 0.15) 100%); border: 2px solid #fc8181; border-radius: 12px; padding: 20px; text-align: center;">
-                                        <p style="margin: 0; color: #feb2b2; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
-                                            🔴 STATUS: DOWN
-                                        </p>
-                                    </div>
-                                </td>
-                            </tr>
-                            
-                            <!-- Server Information Grid -->
-                            <tr>
-                                <td style="padding: 0 30px 30px;">
-                                    <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                                <td align="center" style="padding: 40px 30px 20px 30px;">
+                                    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
                                         <tr>
-                                            <td style="width: 50%; padding: 20px; background-color: #4a5568; border-radius: 12px; vertical-align: top;" colspan="1">
-                                                <p style="margin: 0 0 8px; color: #cbd5e0; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Server</p>
-                                                <p style="margin: 0; color: #f7fafc; font-size: 18px; font-weight: 700;">{server_name}</p>
-                                            </td>
-                                            <td style="width: 10px;"></td>
-                                            <td style="width: 50%; padding: 20px; background-color: #4a5568; border-radius: 12px; vertical-align: top;">
-                                                <p style="margin: 0 0 8px; color: #cbd5e0; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">IP Address</p>
-                                                <p style="margin: 0; color: #f7fafc; font-size: 16px; font-weight: 600; font-family: 'Courier New', monospace;">{server_ip}</p>
+                                            <td align="center">
+                                                <div style="width: 80px; height: 80px; background-color: #1e293b; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.4); text-align: center; line-height: 80px;">
+                                                    <span style="font-size: 36px; vertical-align: middle;">⚠️</span>
+                                                </div>
+                                                <h1 style="color: #f4f4f5; margin: 0; font-size: 28px; font-weight: 700;">
+                                                    SERVER OFFLINE
+                                                </h1>
+                                                <p style="color: #a1a1aa; margin: 8px 0 0; font-size: 14px;">
+                                                    Critical infrastructure alert
+                                                </p>
                                             </td>
                                         </tr>
                                     </table>
                                 </td>
                             </tr>
                             
+                            <!-- Status Banner -->
                             <tr>
-                                <td style="padding: 0 30px 30px;">
-                                    <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                                <td align="center" style="padding: 0 30px 25px 30px;">
+                                    <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0">
                                         <tr>
-                                            <td style="width: 50%; padding: 20px; background-color: #4a5568; border-radius: 12px; vertical-align: top;">
-                                                <p style="margin: 0 0 8px; color: #cbd5e0; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Hostname</p>
-                                                <p style="margin: 0; color: #f7fafc; font-size: 14px; font-family: 'Courier New', monospace;">{server_hostname}</p>
+                                            <td align="center" style="background-color: #1e293b; border-radius: 8px; padding: 16px 24px;">
+                                                <p style="margin: 0; color: #fca5a5; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+                                                    🔴 Status: Down
+                                                </p>
                                             </td>
-                                            <td style="width: 10px;"></td>
-                                            <td style="width: 50%; padding: 20px; background-color: #4a5568; border-radius: 12px; vertical-align: top;">
-                                                <p style="margin: 0 0 8px; color: #cbd5e0; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Detection Time</p>
-                                                <p style="margin: 0; color: #f7fafc; font-size: 14px; font-weight: 600;">{datetime.now().strftime('%d/%m/%Y à %H:%M:%S')}</p>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            
+                            <!-- Server Information -->
+                            <tr>
+                                <td align="center" style="padding: 0 25px 20px 25px;">
+                                    <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0">
+                                        <tr>
+                                            <td style="padding: 0 5px 0 0; width: 50%;" valign="top">
+                                                <div style="background-color: #1e293b; border-radius: 8px; padding: 20px;">
+                                                    <p style="margin: 0 0 6px; color: #71717a; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                                        Server
+                                                    </p>
+                                                    <p style="margin: 0; color: #f4f4f5; font-size: 16px; font-weight: 600;">
+                                                        {server_name}
+                                                    </p>
+                                                </div>
+                                            </td>
+                                            <td style="padding: 0 0 0 5px; width: 50%;" valign="top">
+                                                <div style="background-color: #1e293b; border-radius: 8px; padding: 20px;">
+                                                    <p style="margin: 0 0 6px; color: #71717a; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                                        IP Address
+                                                    </p>
+                                                    <p style="margin: 0; color: #f4f4f5; font-size: 16px; font-weight: 600; font-family: 'Courier New', monospace;">
+                                                        {server_ip}
+                                                    </p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            
+                            <!-- Additional Info -->
+                            <tr>
+                                <td align="center" style="padding: 0 25px 25px 25px;">
+                                    <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0">
+                                        <tr>
+                                            <td style="padding: 0 5px 0 0; width: 50%;" valign="top">
+                                                <div style="background-color: #1e293b; border-radius: 8px; padding: 20px;">
+                                                    <p style="margin: 0 0 6px; color: #71717a; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                                        Hostname
+                                                    </p>
+                                                    <p style="margin: 0; color: #f4f4f5; font-size: 14px; font-family: 'Courier New', monospace;">
+                                                        {server_hostname}
+                                                    </p>
+                                                </div>
+                                            </td>
+                                            <td style="padding: 0 0 0 5px; width: 50%;" valign="top">
+                                                <div style="background-color: #1e293b; border-radius: 8px; padding: 20px;">
+                                                    <p style="margin: 0 0 6px; color: #71717a; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                                        Detected At
+                                                    </p>
+                                                    <p style="margin: 0; color: #f4f4f5; font-size: 14px; font-weight: 600;">
+                                                        {datetime.now().strftime('%d/%m/%Y à %H:%M:%S')}
+                                                    </p>
+                                                </div>
                                             </td>
                                         </tr>
                                     </table>
@@ -202,29 +241,36 @@ Système de monitoring automatique
                             
                             <!-- Error Details -->
                             <tr>
-                                <td style="padding: 0 30px 30px;">
-                                    <div style="background-color: #4a5568; border-left: 4px solid #fc8181; border-radius: 8px; padding: 20px;">
-                                        <p style="margin: 0 0 10px; color: #f7fafc; font-size: 14px; font-weight: 600;">
-                                            💥 Error Message
-                                        </p>
-                                        <p style="margin: 0; color: #feb2b2; font-size: 13px; font-family: 'Courier New', monospace; line-height: 1.6;">
-                                            {error_message}.
-                                        </p>
-                                    </div>
+                                <td align="center" style="padding: 0 25px 25px 25px;">
+                                    <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0">
+                                        <tr>
+                                            <td>
+                                                <div style="background-color: #1e293b; border-left: 3px solid #fca5a5; border-radius: 6px; padding: 20px;">
+                                                    <p style="margin: 0 0 10px; color: #f4f4f5; font-size: 13px; font-weight: 600;">
+                                                        💥 Error Message
+                                                    </p>
+                                                    <p style="margin: 0; color: #a1a1aa; font-size: 12px; line-height: 1.6;">
+                                                        {error_message}
+                                                    </p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
                                 </td>
-                            </tr>        
+                            </tr>
+                            
                             <!-- Action Buttons -->
                             <tr>
-                                <td style="padding: 0 30px 30px;">
-                                    <table role="presentation" style="width: 100%;">
+                                <td align="center" style="padding: 0 25px 35px 25px;">
+                                    <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0">
                                         <tr>
-                                            <td style="width: 50%; padding-right: 5px;">
-                                                <a href="#" style="display: block; background: linear-gradient(135deg, #fc8181 0%, #f56565 100%); color: #ffffff; text-decoration: none; padding: 14px; border-radius: 8px; font-weight: 600; font-size: 14px; text-align: center; box-shadow: 0 4px 12px rgba(252, 129, 129, 0.3);">
+                                            <td align="center" style="padding: 0 5px 0 0; width: 50%;">
+                                                <a href="#" style="display: block; background-color: #6366f1; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; font-size: 13px; text-align: center;">
                                                     View Dashboard
                                                 </a>
                                             </td>
-                                            <td style="width: 50%; padding-left: 5px;">
-                                                <a href="#" style="display: block; background-color: #4a5568; color: #f7fafc; text-decoration: none; padding: 14px; border-radius: 8px; font-weight: 600; font-size: 14px; text-align: center; border: 1px solid #718096;">
+                                            <td align="center" style="padding: 0 0 0 5px; width: 50%;">
+                                                <a href="#" style="display: block; background-color: #1e293b; color: #f4f4f5; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; font-size: 13px; text-align: center; border: 1px solid #3f3f46;">
                                                     View Logs
                                                 </a>
                                             </td>
@@ -233,43 +279,53 @@ Système de monitoring automatique
                                 </td>
                             </tr>
                             
-                            <!-- Footer -->
+                            <!-- Footer Inside Card -->
                             <tr>
-                                <td style="background-color: #1a202c; padding: 30px; text-align: center; border-top: 1px solid #4a5568; border-radius: 0 0 16px 16px;">
-                                    <div style="margin-bottom: 12px;">
-                                        <svg width="40" height="40" viewBox="0 0 100 100" style="display: inline-block;">
-                                            <polygon points="50,10 80,30 80,70 50,90 20,70 20,30" fill="#3b82f6" stroke="none"/>
-                                            <g fill="white" stroke="white" stroke-width="3">
-                                                <line x1="35" y1="35" x2="65" y2="65"/>
-                                                <line x1="65" y1="35" x2="35" y2="65"/>
-                                                <line x1="50" y1="25" x2="50" y2="75"/>
-                                                <line x1="30" y1="50" x2="70" y2="50"/>
-                                            </g>
-                                        </svg>
-                                    </div>
-                                    <p style="margin: 0 0 5px; color: #e2e8f0; font-size: 14px; font-weight: 600;">
-                                        THEAI Monitoring
-                                    </p>
-                                    <p style="margin: 0; color: #a0aec0; font-size: 11px;">
-                                        Automated Infrastructure Monitoring
-                                    </p>
+                                <td align="center" style="padding: 0 25px 40px 25px;">
+                                    <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0">
+                                        <tr>
+                                            <td align="center">
+                                                <div style="margin-bottom: 12px;">
+                                                    <svg width="40" height="40" viewBox="0 0 100 100" style="display: inline-block;">
+                                                        <polygon points="50,10 80,30 80,70 50,90 20,70 20,30" fill="#6366f1" stroke="none"/>
+                                                        <g fill="white" stroke="white" stroke-width="3">
+                                                            <line x1="35" y1="35" x2="65" y2="65"/>
+                                                            <line x1="65" y1="35" x2="35" y2="65"/>
+                                                            <line x1="50" y1="25" x2="50" y2="75"/>
+                                                            <line x1="30" y1="50" x2="70" y2="50"/>
+                                                        </g>
+                                                    </svg>
+                                                </div>
+                                                <p style="margin: 0 0 4px; color: #a1a1aa; font-size: 13px; font-weight: 600;">
+                                                    THEAI Monitoring
+                                                </p>
+                                                <p style="margin: 0; color: #71717a; font-size: 11px;">
+                                                    Automated Infrastructure Monitoring
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    </table>
                                 </td>
                             </tr>
                             
                         </table>
                         
-                        <!-- Disclaimer -->
-                        <table role="presentation" style="max-width: 600px; margin: 20px auto 0;">
+                    </td>
+                </tr>
+                
+                <!-- Disclaimer -->
+                <tr>
+                    <td align="center" style="padding: 0 20px 40px 20px;">
+                        <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 0 auto;">
                             <tr>
-                                <td style="text-align: center; padding: 0 30px;">
-                                    <p style="margin: 0; color: #a0aec0; font-size: 11px; line-height: 1.6;">
+                                <td align="center">
+                                    <p style="margin: 0; color: #71717a; font-size: 11px; line-height: 1.6;">
                                         This is an automated alert from THEAI Monitoring System.<br>
                                         Please do not reply to this email.
                                     </p>
                                 </td>
                             </tr>
                         </table>
-                        
                     </td>
                 </tr>
             </table>
@@ -325,155 +381,202 @@ Système de monitoring automatique
         # Corps du message en HTML (COMPLET)
         html_body = f"""
         <html lang="en">
-        <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #1a202c;">
-            <table role="presentation" style="width: 100%; border-collapse: collapse;">
+        <head>
+            <meta charset="UTF-8">
+            <title>Monitoring Alert</title>
+        </head>
+        <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #09090b;">
+            <!-- Wrapper Table to center everything -->
+            <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color: #09090b;">
                 <tr>
-                    <td style="padding: 40px 20px;">
-                        <!-- Main Container -->
-                        <table role="presentation" style="max-width: 600px; margin: 0 auto; background-color: #2d3748; border-radius: 16px; border: 1px solid #4a5568; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);">
+                    <td align="center" style="padding: 40px 20px;">
+                        
+                        <!-- Main Container (Centered with margin: 0 auto and max-width) -->
+                        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="width: 100%; max-width: 600px; margin: 0 auto; background-color: #121215; border-radius: 12px; border: 1px solid #27272a;">
                             
                             <!-- Header -->
                             <tr>
-                                <td style="padding: 40px 30px; text-align: center;">
-                                    <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #68d391 0%, #48bb78 100%); border-radius: 50%; margin: 0 auto 20px; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(104, 211, 145, 0.4);">
-                                        <span style="font-size: 56px;">✅</span>
-                                    </div>
-                                    <h1 style="color: #f7fafc; margin: 0; font-size: 32px; font-weight: 700; letter-spacing: -0.5px;">
-                                        SERVER RECOVERED
-                                    </h1>
-                                    <p style="color: #cbd5e0; margin: 12px 0 0; font-size: 16px;">
-                                        System is back online and operational
-                                    </p>
+                                <td align="center" style="padding: 40px 30px 20px 30px;">
+                                    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                                        <tr>
+                                            <td align="center">
+                                                <div style="width: 80px; height: 80px; background-color: #1e293b; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.4); text-align: center; line-height: 80px;">
+                                                    <span style="font-size: 36px; vertical-align: middle;">✅</span>
+                                                </div>
+                                                <h1 style="color: #f4f4f5; margin: 0; font-size: 28px; font-weight: 700;">
+                                                    SERVER RECOVERED
+                                                </h1>
+                                                <p style="color: #a1a1aa; margin: 8px 0 0; font-size: 14px;">
+                                                    Critical infrastructure alert
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    </table>
                                 </td>
                             </tr>
                             
                             <!-- Status Banner -->
                             <tr>
-                                <td style="padding: 0 30px 30px;">
-                                    <div style="background: linear-gradient(135deg, rgba(104, 211, 145, 0.15) 0%, rgba(72, 187, 120, 0.15) 100%); border: 2px solid #68d391; border-radius: 12px; padding: 20px; text-align: center;">
-                                        <p style="margin: 0; color: #9ae6b4; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
-                                            🟢 STATUS: ONLINE
-                                        </p>
-                                    </div>
-                                </td>
-                            </tr>
-                            
-                            <!-- Server Information Grid -->
-                            <tr>
-                                <td style="padding: 0 30px 30px;">
-                                    <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                                <td align="center" style="padding: 0 30px 25px 30px;">
+                                    <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0">
                                         <tr>
-                                            <td style="width: 50%; padding: 20px; background-color: #4a5568; border-radius: 12px; vertical-align: top;" colspan="1">
-                                                <p style="margin: 0 0 8px; color: #cbd5e0; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Server</p>
-                                                <p style="margin: 0; color: #f7fafc; font-size: 18px; font-weight: 700;">{server_name}</p>
-                                            </td>
-                                            <td style="width: 10px;"></td>
-                                            <td style="width: 50%; padding: 20px; background-color: #4a5568; border-radius: 12px; vertical-align: top;">
-                                                <p style="margin: 0 0 8px; color: #cbd5e0; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">IP Address</p>
-                                                <p style="margin: 0; color: #f7fafc; font-size: 16px; font-weight: 600; font-family: 'Courier New', monospace;">{server_ip}</p>
+                                            <td align="center" style="background-color: #1e293b; border-radius: 8px; padding: 16px 24px;">
+                                                <p style="margin: 0; color: #fca5a5; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+                                                    🟢 STATUS: ONLINE
+                                                </p>
                                             </td>
                                         </tr>
                                     </table>
                                 </td>
                             </tr>
                             
+                            <!-- Server Information -->
                             <tr>
-                                <td style="padding: 0 30px 30px;">
-                                    <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                                <td align="center" style="padding: 0 25px 20px 25px;">
+                                    <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0">
                                         <tr>
-                                            <td style="width: 50%; padding: 20px; background-color: #4a5568; border-radius: 12px; vertical-align: top;">
-                                                <p style="margin: 0 0 8px; color: #cbd5e0; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Hostname</p>
-                                                <p style="margin: 0; color: #f7fafc; font-size: 14px; font-family: 'Courier New', monospace;">{server_hostname}</p>
+                                            <td style="padding: 0 5px 0 0; width: 50%;" valign="top">
+                                                <div style="background-color: #1e293b; border-radius: 8px; padding: 20px;">
+                                                    <p style="margin: 0 0 6px; color: #71717a; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                                        Server
+                                                    </p>
+                                                    <p style="margin: 0; color: #f4f4f5; font-size: 16px; font-weight: 600;">
+                                                        {server_name}
+                                                    </p>
+                                                </div>
                                             </td>
-                                            <td style="width: 10px;"></td>
-                                            <td style="width: 50%; padding: 20px; background-color: #4a5568; border-radius: 12px; vertical-align: top;">
-                                                <p style="margin: 0 0 8px; color: #cbd5e0; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Response Time</p>
-                                                <p style="margin: 0; color: #9ae6b4; font-size: 18px; font-weight: 700;">{response_time}ms</p>
+                                            <td style="padding: 0 0 0 5px; width: 50%;" valign="top">
+                                                <div style="background-color: #1e293b; border-radius: 8px; padding: 20px;">
+                                                    <p style="margin: 0 0 6px; color: #71717a; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                                        IP Address
+                                                    </p>
+                                                    <p style="margin: 0; color: #f4f4f5; font-size: 16px; font-weight: 600; font-family: 'Courier New', monospace;">
+                                                        {server_ip}
+                                                    </p>
+                                                </div>
                                             </td>
                                         </tr>
                                     </table>
                                 </td>
                             </tr>
                             
-                            <!-- Recovery Details -->
+                            <!-- Additional Info -->
                             <tr>
-                                <td style="padding: 0 30px 30px;">
-                                    <div style="background-color: #4a5568; border-left: 4px solid #68d391; border-radius: 8px; padding: 20px;">
-                                        <p style="margin: 0 0 10px; color: #f7fafc; font-size: 14px; font-weight: 600;">
-                                            ✓ Recovery Information
-                                        </p>
-                                        <p style="margin: 0; color: #9ae6b4; font-size: 13px; line-height: 1.6;">
-                                            Server has been successfully restored and is responding normally to health checks. All services are operational.
-                                        </p>
-                                    </div>
-                                </td>
-                            </tr>
-                            
-                            <!-- Recovery Stats -->
-                            <tr>
-                                <td style="padding: 0 30px 30px;">
-                                    <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                                <td align="center" style="padding: 0 25px 25px 25px;">
+                                    <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0">
                                         <tr>
-                                            <td style="width: 33.33%; padding: 16px; background-color: rgba(104, 211, 145, 0.1); border-radius: 8px; text-align: center;">
-                                                <p style="margin: 0 0 6px; color: #cbd5e0; font-size: 11px; text-transform: uppercase;">Recovery</p>
-                                                <p style="margin: 0; color: #9ae6b4; font-size: 20px; font-weight: 700;">{datetime.now().strftime('%d/%m/%Y à %H:%M:%S')}</p>
+                                            <td style="padding: 0 5px 0 0; width: 50%;" valign="top">
+                                                <div style="background-color: #1e293b; border-radius: 8px; padding: 20px;">
+                                                    <p style="margin: 0 0 6px; color: #71717a; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                                        Hostname
+                                                    </p>
+                                                    <p style="margin: 0; color: #f4f4f5; font-size: 14px; font-family: 'Courier New', monospace;">
+                                                        {server_hostname}
+                                                    </p>
+                                                </div>
                                             </td>
-                                            <td style="width: 5px;"></td>
-                                            <td style="width: 33.33%; padding: 16px; background-color: rgba(104, 211, 145, 0.1); border-radius: 8px; text-align: center;">
-                                                <p style="margin: 0 0 6px; color: #cbd5e0; font-size: 11px; text-transform: uppercase;">Status</p>
-                                                <p style="margin: 0; color: #9ae6b4; font-size: 20px; font-weight: 700;">100%</p>
+                                            <td style="padding: 0 0 0 5px; width: 50%;" valign="top">
+                                                <div style="background-color: #1e293b; border-radius: 8px; padding: 20px;">
+                                                    <p style="margin: 0 0 6px; color: #71717a; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                                        Detected At
+                                                    </p>
+                                                    <p style="margin: 0; color: #f4f4f5; font-size: 14px; font-weight: 600;">
+                                                        {datetime.now().strftime('%d/%m/%Y à %H:%M:%S')}
+                                                    </p>
+                                                </div>
                                             </td>
                                         </tr>
                                     </table>
                                 </td>
                             </tr>
                             
-                            <!-- Action Button -->
+                            <!-- Error Details -->
                             <tr>
-                                <td style="padding: 0 30px 30px; text-align: center;">
-                                    <a href="#" style="display: inline-block; background: linear-gradient(135deg, #68d391 0%, #48bb78 100%); color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 14px; box-shadow: 0 4px 12px rgba(104, 211, 145, 0.3);">
-                                        View Dashboard
-                                    </a>
+                                <td align="center" style="padding: 0 25px 25px 25px;">
+                                    <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0">
+                                        <tr>
+                                            <td>
+                                                <div style="background-color: #1e293b; border-left: 3px solid #fca5a5; border-radius: 6px; padding: 20px;">
+                                                    <p style="margin: 0 0 10px; color: #f4f4f5; font-size: 13px; font-weight: 600;">
+                                                        💥 Error Message
+                                                    </p>
+                                                    <p style="margin: 0; color: #a1a1aa; font-size: 12px; line-height: 1.6;">
+                                                        {error_message}
+                                                    </p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
                                 </td>
                             </tr>
                             
-                            <!-- Footer -->
+                            <!-- Action Buttons -->
                             <tr>
-                                <td style="background-color: #1a202c; padding: 30px; text-align: center; border-top: 1px solid #4a5568; border-radius: 0 0 16px 16px;">
-                                    <div style="margin-bottom: 12px;">
-                                        <svg width="40" height="40" viewBox="0 0 100 100" style="display: inline-block;">
-                                            <polygon points="50,10 80,30 80,70 50,90 20,70 20,30" fill="#3b82f6" stroke="none"/>
-                                            <g fill="white" stroke="white" stroke-width="3">
-                                                <line x1="35" y1="35" x2="65" y2="65"/>
-                                                <line x1="65" y1="35" x2="35" y2="65"/>
-                                                <line x1="50" y1="25" x2="50" y2="75"/>
-                                                <line x1="30" y1="50" x2="70" y2="50"/>
-                                            </g>
-                                        </svg>
-                                    </div>
-                                    <p style="margin: 0 0 5px; color: #e2e8f0; font-size: 14px; font-weight: 600;">
-                                        THEAI Monitoring
-                                    </p>
-                                    <p style="margin: 0; color: #a0aec0; font-size: 11px;">
-                                        Automated Infrastructure Monitoring
-                                    </p>
+                                <td align="center" style="padding: 0 25px 35px 25px;">
+                                    <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0">
+                                        <tr>
+                                            <td align="center" style="padding: 0 5px 0 0; width: 50%;">
+                                                <a href="#" style="display: block; background-color: #6366f1; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; font-size: 13px; text-align: center;">
+                                                    View Dashboard
+                                                </a>
+                                            </td>
+                                            <td align="center" style="padding: 0 0 0 5px; width: 50%;">
+                                                <a href="#" style="display: block; background-color: #1e293b; color: #f4f4f5; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; font-size: 13px; text-align: center; border: 1px solid #3f3f46;">
+                                                    View Logs
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            
+                            <!-- Footer Inside Card -->
+                            <tr>
+                                <td align="center" style="padding: 0 25px 40px 25px;">
+                                    <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0">
+                                        <tr>
+                                            <td align="center">
+                                                <div style="margin-bottom: 12px;">
+                                                    <svg width="40" height="40" viewBox="0 0 100 100" style="display: inline-block;">
+                                                        <polygon points="50,10 80,30 80,70 50,90 20,70 20,30" fill="#6366f1" stroke="none"/>
+                                                        <g fill="white" stroke="white" stroke-width="3">
+                                                            <line x1="35" y1="35" x2="65" y2="65"/>
+                                                            <line x1="65" y1="35" x2="35" y2="65"/>
+                                                            <line x1="50" y1="25" x2="50" y2="75"/>
+                                                            <line x1="30" y1="50" x2="70" y2="50"/>
+                                                        </g>
+                                                    </svg>
+                                                </div>
+                                                <p style="margin: 0 0 4px; color: #a1a1aa; font-size: 13px; font-weight: 600;">
+                                                    THEAI Monitoring
+                                                </p>
+                                                <p style="margin: 0; color: #71717a; font-size: 11px;">
+                                                    Automated Infrastructure Monitoring
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    </table>
                                 </td>
                             </tr>
                             
                         </table>
                         
-                        <!-- Disclaimer -->
-                        <table role="presentation" style="max-width: 600px; margin: 20px auto 0;">
+                    </td>
+                </tr>
+                
+                <!-- Disclaimer -->
+                <tr>
+                    <td align="center" style="padding: 0 20px 40px 20px;">
+                        <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 0 auto;">
                             <tr>
-                                <td style="text-align: center; padding: 0 30px;">
-                                    <p style="margin: 0; color: #a0aec0; font-size: 11px; line-height: 1.6;">
+                                <td align="center">
+                                    <p style="margin: 0; color: #71717a; font-size: 11px; line-height: 1.6;">
                                         This is an automated alert from THEAI Monitoring System.<br>
                                         Please do not reply to this email.
                                     </p>
                                 </td>
                             </tr>
                         </table>
-                        
                     </td>
                 </tr>
             </table>

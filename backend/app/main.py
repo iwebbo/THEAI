@@ -13,11 +13,20 @@ sys.path.append(current_dir)
 from api.routes.server import router as servers_router
 from api.routes.security import router as security_router
 from api.routes.settings import router as settings_router
+from api.routes.cve import router as cve_router
+from api.routes.metrics import router as metrics_router
+from api.routes.agent import agent_router, agents_router
 from core.config import settings
 from core.database import Base, engine
+from core.cve_schema import ensure_cve_schema
 from core.user import init_database
 from tasks.scheduler import start_scheduler
+from services.agent_vulns import start_agent_jobs
 from api.routes.auth import router as auth_router
+
+# Enregistre les tables d'historique et d'agent avant create_all
+import models.check_history  # noqa: F401
+import models.agent  # noqa: F401
 
 # Configuration du logging
 logging.basicConfig(level=logging.INFO)
@@ -25,6 +34,12 @@ logger = logging.getLogger(__name__)
 
 # Création des tables dans la base de données
 Base.metadata.create_all(bind=engine)
+
+# Schéma CVE (SQL idempotent : installation neuve ou mise à jour d'une base existante)
+try:
+    ensure_cve_schema()
+except Exception as e:
+    logger.error(f"Failed to create CVE schema: {e}")
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -47,12 +62,17 @@ app.include_router(servers_router, prefix=f"{settings.API_V1_STR}/servers", tags
 app.include_router(settings_router, prefix=f"{settings.API_V1_STR}/settings", tags=["settings"])
 app.include_router(security_router, prefix=f"{settings.API_V1_STR}/security", tags=["security"])
 app.include_router(auth_router, prefix=f"{settings.API_V1_STR}/auth", tags=["authentication"])
+app.include_router(cve_router, prefix=f"{settings.API_V1_STR}/cve", tags=["cve"])
+app.include_router(metrics_router, prefix=f"{settings.API_V1_STR}/metrics", tags=["metrics"])
+# Agent : routes appelées par les agents (clé API) et par l'interface (JWT)
+app.include_router(agent_router, prefix=f"{settings.API_V1_STR}/agent", tags=["agent"])
+app.include_router(agents_router, prefix=f"{settings.API_V1_STR}/agents", tags=["agents"])
 
 @app.on_event("startup")
 async def startup_event():
     """Événement exécuté au démarrage de l'application"""
     print("Starting THEAI Monitoring Platform")
-    
+
     try:
         init_database()
         logger.info(f"Default admin user available: {settings.DEFAULT_ADMIN_USERNAME}")
@@ -61,7 +81,10 @@ async def startup_event():
 
     # Démarrer le scheduler de monitoring
     start_scheduler()
-    
+
+    # Démarrer les tâches de fond de l'agent (analyse CVE via OSV, purge des métriques)
+    start_agent_jobs()
+
     # Vérifier les outils de sécurité disponibles
     await check_security_tools()
 
@@ -74,7 +97,9 @@ def root():
         "features": {
             "monitoring": True,
             "security_scanning": True,
-            "vulnerability_detection": True
+            "vulnerability_detection": True,
+            "cve_intelligence": True,
+            "agent": True
         }
     }
 
@@ -90,14 +115,14 @@ def health_check():
 async def check_security_tools():
     """Vérifie la disponibilité des outils de sécurité"""
     import subprocess
-    
+
     tools = {
         "nmap": False,
         "ping": False,
         "dns": False,
         "ssl": True  # Toujours disponible via Python
     }
-    
+
     # Vérifier nmap
     try:
         result = subprocess.run(["nmap", "--version"], capture_output=True, text=True)
@@ -106,7 +131,7 @@ async def check_security_tools():
             print("✅ Nmap is available")
     except:
         print("⚠️ Nmap not found - port scanning will be limited")
-    
+
     # Vérifier ping
     try:
         result = subprocess.run(["ping", "-c", "1", "127.0.0.1"], capture_output=True)
@@ -115,7 +140,7 @@ async def check_security_tools():
             print("✅ Ping is available")
     except:
         print("⚠️ Ping not found - ICMP checks will be limited")
-    
+
     # Vérifier DNS
     try:
         import dns.resolver
@@ -123,7 +148,7 @@ async def check_security_tools():
         print("✅ DNS module is available")
     except:
         print("⚠️ DNS module not available - DNS checks will be limited")
-    
+
     return tools
 
 if __name__ == "__main__":

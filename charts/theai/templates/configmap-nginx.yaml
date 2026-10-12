@@ -1,4 +1,4 @@
-# charts/theai/templates/configmap-frontend-nginx.yaml
+# charts/theai/templates/configmap-nginx.yaml
 {{- if .Values.frontend.enabled }}
 apiVersion: v1
 kind: ConfigMap
@@ -35,7 +35,8 @@ data:
         tcp_nopush on;
         tcp_nodelay on;
         keepalive_timeout 65;
-        client_max_body_size {{ (.Values.frontend.nginx | default dict).clientMaxBodySize | default "10m" }};
+        # Les inventaires de paquets des agents peuvent depasser quelques Mo
+        client_max_body_size {{ (.Values.frontend.nginx | default dict).clientMaxBodySize | default "20m" }};
 
         gzip on;
         gzip_types text/plain text/css application/json application/javascript text/xml;
@@ -50,6 +51,13 @@ data:
             keepalive 16;
         }
 
+        {{- if .Values.grafana.enabled }}
+
+        upstream grafana {
+            server {{ include "theai.name" . }}-grafana:{{ .Values.grafana.service.port }};
+        }
+        {{- end }}
+
         server {
             listen {{ .Values.frontend.service.targetPort }};
             server_name _;
@@ -58,6 +66,18 @@ data:
             location / {
                 try_files $uri $uri/ /index.html;
             }
+
+            {{- if .Values.agent.enabled }}
+
+            # Binaires + scripts d'installation de l'agent (copies par l'initContainer agent-dist).
+            # Doit exister AVANT le fallback SPA, sinon /downloads/agent/install.sh renvoie index.html.
+            location /downloads/agent/ {
+                alias /usr/share/nginx/agent-dist/;
+                default_type application/octet-stream;
+                autoindex off;
+                add_header Cache-Control "no-cache" always;
+            }
+            {{- end }}
 
             location /api {
                 proxy_pass http://api;
@@ -73,6 +93,19 @@ data:
                 proxy_send_timeout 120s;
                 proxy_read_timeout 120s;
             }
+            {{- if .Values.grafana.enabled }}
+
+            location /grafana/ {
+                proxy_pass http://grafana;
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection $connection_upgrade;
+                proxy_set_header Host $http_host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
+            }
+            {{- end }}
         }
     }
 {{- end }}

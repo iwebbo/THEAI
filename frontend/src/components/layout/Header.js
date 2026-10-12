@@ -1,222 +1,128 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import { LogOut, User, ChevronDown } from 'lucide-react';
-import logoPng from '../../assets/logo.png';
+
+const getPageLabel = (pathname) => {
+  const parts = pathname.split('/').filter(Boolean);
+  if (parts.length === 0) return 'Dashboard';
+
+  const [root, second, third] = parts;
+
+  if (root === 'servers') {
+    if (!second) return 'Servers';
+    if (second === 'new') return 'Add server';
+    if (second === 'edit') return 'Edit server';
+    if (third === 'security') return 'Security';
+    return 'Server detail';
+  }
+  if (root === 'cve') return 'Vulnerabilities';
+  if (root === 'dashboards') return 'Grafana';
+  if (root === 'settings') return 'Settings';
+  return root;
+};
+
+const getCrumbs = (pathname) => {
+  const parts = pathname.split('/').filter(Boolean);
+  const crumbs = ['Workspace'];
+  if (parts[0] === 'servers' && parts.length > 1) crumbs.push('Servers');
+  crumbs.push(getPageLabel(pathname));
+  return crumbs;
+};
 
 const Header = ({ user, onLogout }) => {
-  const [showUserMenu, setShowUserMenu] = useState(false);
+  const { pathname } = useLocation();
+  const [open, setOpen] = useState(false);
+  const menuRef = useRef(null);
+
+  // Fermeture du menu : clic extérieur ou Échap
+  useEffect(() => {
+    if (!open) return undefined;
+
+    const onMouseDown = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) setOpen(false);
+    };
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+
+    document.addEventListener('mousedown', onMouseDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', onMouseDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [open]);
+
+  const crumbs = getCrumbs(pathname);
 
   return (
-    <header
-      style={{
-        backgroundColor: 'var(--bg-primary)',
-        borderBottom: '1px solid var(--border-light)',
-        boxShadow: 'var(--shadow-sm)',
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 1000,
-        width: '100%'
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          height: '64px',
-          width: '100%',
-          padding: '0 1.5rem'
-        }}
-      >
-        {/* Logo THEAI */}
-        <Link
-          to="/"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.75rem',
-            textDecoration: 'none',
-            color: 'var(--text-primary)',
-            transition: 'opacity 200ms'
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.8')}
-          onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
-        >
-          <div
-            style={{
-              position: 'relative',
-              width: '115px',
-              height: '115px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              overflow: 'hidden'
-            }}
+    <header className="topbar">
+      <div className="crumbs">
+        {crumbs.map((crumb, index) => {
+          const isLast = index === crumbs.length - 1;
+          return (
+            <React.Fragment key={`${crumb}-${index}`}>
+              {index > 0 && <span style={{ color: 'var(--gray-400)' }}>/</span>}
+              <span className={isLast ? 'crumb-current' : undefined}>{crumb}</span>
+            </React.Fragment>
+          );
+        })}
+      </div>
+
+      {user && (
+        <div className="user-menu-wrap" ref={menuRef}>
+          <button
+            type="button"
+            className={`user-btn${open ? ' open' : ''}`}
+            onClick={() => setOpen((v) => !v)}
+            aria-haspopup="menu"
+            aria-expanded={open}
           >
-            <img
-              src={logoPng}
-              alt="THEAI"
+            <div className="user-avatar">{user.username?.charAt(0).toUpperCase() || 'U'}</div>
+            <span>{user.username}</span>
+            <ChevronDown
+              size={14}
               style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'contain'
+                color: 'var(--text-muted)',
+                transition: 'transform 150ms',
+                transform: open ? 'rotate(180deg)' : 'rotate(0deg)'
               }}
             />
-          </div>
-        </Link>
+          </button>
 
-        {/* User Menu */}
-        {user && (
-          <div style={{ position: 'relative' }}>
-            <button
-              onClick={() => setShowUserMenu(!showUserMenu)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                padding: '0.5rem 1rem',
-                backgroundColor: showUserMenu ? 'var(--gray-50)' : 'transparent',
-                border: '1px solid var(--border-light)',
-                borderRadius: 'var(--radius-lg)',
-                cursor: 'pointer',
-                transition: 'all 200ms',
-                fontSize: '0.875rem',
-                fontWeight: 500,
-                color: 'var(--text-primary)'
-              }}
-              onMouseEnter={(e) => {
-                if (!showUserMenu) {
-                  e.currentTarget.style.backgroundColor = 'var(--gray-50)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!showUserMenu) {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                }
-              }}
-            >
-              <div
-                style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '50%',
-                  backgroundColor: 'var(--primary-100)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'var(--primary-700)',
-                  fontWeight: 600
-                }}
-              >
-                {user.username?.charAt(0).toUpperCase() || 'U'}
-              </div>
-              <span>{user.username}</span>
-              <ChevronDown
-                size={16}
-                style={{
-                  transition: 'transform 200ms',
-                  transform: showUserMenu ? 'rotate(180deg)' : 'rotate(0deg)'
-                }}
-              />
-            </button>
-
-            {/* Dropdown Menu */}
-            {showUserMenu && (
-              <div
-                className="animate-fadeIn"
-                style={{
-                  position: 'absolute',
-                  top: 'calc(100% + 0.5rem)',
-                  right: 0,
-                  minWidth: '200px',
-                  backgroundColor: 'var(--bg-primary)',
-                  border: '1px solid var(--border-light)',
-                  borderRadius: 'var(--radius-lg)',
-                  boxShadow: 'var(--shadow-lg)',
-                  padding: '0.5rem',
-                  zIndex: 50
-                }}
-                onMouseLeave={() => setShowUserMenu(false)}
-              >
-                {/* User Info */}
-                <div
-                  style={{
-                    padding: '0.75rem',
-                    borderBottom: '1px solid var(--border-light)',
-                    marginBottom: '0.5rem'
-                  }}
-                >
-                  <div
-                    style={{
-                      fontSize: '0.875rem',
-                      fontWeight: 600,
-                      color: 'var(--text-primary)',
-                      marginBottom: '0.25rem'
-                    }}
-                  >
-                    {user.username}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: '0.75rem',
-                      color: 'var(--text-tertiary)'
-                    }}
-                  >
-                    {user.email || 'No email'}
-                  </div>
-                  {user.is_admin && (
-                    <span
-                      className="badge badge-primary"
-                      style={{
-                        marginTop: '0.5rem',
-                        fontSize: '0.625rem'
-                      }}
-                    >
-                      <User size={10} />
-                      Admin
-                    </span>
-                  )}
+          {open && (
+            <div className="user-dropdown animate-fadeIn" role="menu">
+              <div className="user-dropdown-info">
+                <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                  {user.username}
                 </div>
-
-                {/* Logout Button */}
-                <button
-                  onClick={() => {
-                    setShowUserMenu(false);
-                    onLogout();
-                  }}
-                  style={{
-                    width: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    padding: '0.75rem',
-                    backgroundColor: 'transparent',
-                    border: 'none',
-                    borderRadius: 'var(--radius-md)',
-                    cursor: 'pointer',
-                    fontSize: '0.875rem',
-                    color: 'var(--error-600)',
-                    fontWeight: 500,
-                    transition: 'background-color 200ms',
-                    textAlign: 'left'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = 'var(--error-50)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                  }}
-                >
-                  <LogOut size={16} />
-                  Logout
-                </button>
+                <div style={{ fontSize: '0.6875rem', color: 'var(--text-muted)', marginTop: '0.125rem' }}>
+                  {user.email || 'No email'}
+                </div>
+                {user.is_admin && (
+                  <span className="badge badge-primary" style={{ marginTop: '0.5rem' }}>
+                    <User size={10} />
+                    Admin
+                  </span>
+                )}
               </div>
-            )}
-          </div>
-        )}
-      </div>
+
+              <button
+                type="button"
+                className="dropdown-item danger"
+                role="menuitem"
+                onClick={() => {
+                  setOpen(false);
+                  onLogout();
+                }}
+              >
+                <LogOut size={14} />
+                Logout
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </header>
   );
 };

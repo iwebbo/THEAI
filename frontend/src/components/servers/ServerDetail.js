@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
+import {
   ArrowLeft, RefreshCw, Edit, Trash2, Server as ServerIcon,
   Globe, Cpu, Clock, Shield, CheckCircle, XCircle, Activity
 } from 'lucide-react';
@@ -8,6 +8,7 @@ import serverApi from '../../services/api';
 import StatusBadge from '../common/StatusBadge';
 import Loading from '../common/Loading';
 import Alert from '../common/Alert';
+import AgentPanel from './AgentPanel';
 import moment from 'moment';
 
 const ServerDetail = ({ serverId }) => {
@@ -278,6 +279,9 @@ const ServerDetail = ({ serverId }) => {
         )}
       </div>
 
+      {/* THEAI Agent : enrôlement, métriques, inventaire, ports, vulnérabilités */}
+      {server.protocols?.split(',').includes('agent') && <AgentPanel serverId={serverId} />}
+
       {/* Security Quick Access */}
       <div className="card" style={{ marginTop: '1.5rem', backgroundColor: 'var(--warning-50)', borderColor: 'var(--warning-200)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -306,9 +310,9 @@ const ServerDetail = ({ serverId }) => {
 // Composant helper pour afficher les informations
 const InfoItem = ({ label, value, icon: Icon, valueColor }) => (
   <div>
-    <p style={{ 
-      fontSize: '0.75rem', 
-      color: 'var(--text-tertiary)', 
+    <p style={{
+      fontSize: '0.75rem',
+      color: 'var(--text-tertiary)',
       marginBottom: '0.25rem',
       textTransform: 'uppercase',
       letterSpacing: '0.05em',
@@ -319,10 +323,10 @@ const InfoItem = ({ label, value, icon: Icon, valueColor }) => (
       {Icon && <Icon size={12} />}
       {label}
     </p>
-    <p style={{ 
-      fontSize: '0.875rem', 
-      fontWeight: 500, 
-      color: valueColor || 'var(--text-primary)' 
+    <p style={{
+      fontSize: '0.875rem',
+      fontWeight: 500,
+      color: valueColor || 'var(--text-primary)'
     }}>
       {value}
     </p>

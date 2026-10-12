@@ -1,11 +1,21 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, LogIn, AlertCircle } from 'lucide-react';
+import { User, Lock, LogIn, AlertCircle, Sun, Moon } from 'lucide-react';
 import axios from 'axios';
-import logoPng from '../assets/logo.png';
+import useTheme from '../hooks/useTheme';
+
+const iconStyle = {
+  position: 'absolute',
+  left: '0.75rem',
+  top: '50%',
+  transform: 'translateY(-50%)',
+  color: 'var(--text-muted)',
+  pointerEvents: 'none'
+};
 
 const LoginPage = ({ onLogin }) => {
   const navigate = useNavigate();
+  const { theme, toggle } = useTheme();
   const [formData, setFormData] = useState({
     username: '',
     password: ''
@@ -36,7 +46,7 @@ const LoginPage = ({ onLogin }) => {
       localStorage.setItem('access_token', access_token);
       localStorage.setItem('user', JSON.stringify(user));
 
-      // Configurer axios pour les futures requÃªtes
+      // Configurer axios pour les futures requêtes
       axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
 
       // Callback pour informer l'app du login
@@ -53,130 +63,56 @@ const LoginPage = ({ onLogin }) => {
     }
   };
 
+  const ThemeIcon = theme === 'dark' ? Moon : Sun;
+
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #14121c 0%, #241b38 50%, #3d2a63 100%)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '1rem',
-        position: 'relative',
-        overflow: 'hidden'
-      }}
-    >
-      {/* Animated Background Elements */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '-10%',
-          right: '-5%',
-          width: '500px',
-          height: '500px',
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(168,85,247,0.18) 0%, transparent 70%)',
-          animation: 'float 6s ease-in-out infinite'
-        }}
-      />
-      <div
-        style={{
-          position: 'absolute',
-          bottom: '-10%',
-          left: '-5%',
-          width: '400px',
-          height: '400px',
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(168,85,247,0.18) 0%, transparent 70%)',
-          animation: 'float 8s ease-in-out infinite reverse'
-        }}
-      />
-
-      <style>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-20px); }
-        }
-      `}</style>
-
-      {/* Login Card */}
-      <div
-        className="animate-fadeIn"
-        style={{
-          backgroundColor: 'var(--bg-primary)',
-          borderRadius: '1.5rem',
-          boxShadow: 'var(--shadow-xl)',
-          padding: '3rem',
-          width: '100%',
-          maxWidth: '440px',
-          position: 'relative',
-          zIndex: 1
-        }}
+    <div className="auth-page">
+      <button
+        type="button"
+        className="btn btn-ghost btn-sm auth-theme"
+        onClick={toggle}
+        aria-label="Toggle theme"
+        title="Toggle theme"
       >
-        {/* Logo */}
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div
-            style={{
-              position: 'relative',
-              width: '300px',
-              height: '300px',
-              margin: '0 auto',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-          >
-            <img
-              src={logoPng}
-              alt="THEAI"
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'contain'
-              }}
-            />
+        <ThemeIcon size={16} />
+      </button>
+
+      <div className="auth-card animate-fadeIn">
+        {/* Brand */}
+        <div className="sidebar-brand" style={{ padding: 0, marginBottom: '1.75rem' }}>
+          <div className="brand-mark">AI</div>
+          <div>
+            <span className="brand-title">THEAI</span>
+            <span className="brand-sub">Monitoring Platform</span>
           </div>
-          <h1
-            style={{
-              fontSize: '1.875rem',
-              fontWeight: 700,
-              color: 'var(--text-primary)',
-              marginTop: '1rem',
-              marginBottom: '0.5rem'
-            }}
-          >
-            Welcome Back
-          </h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
-            Sign in to access your monitoring dashboard
-          </p>
         </div>
 
-        {/* Error Alert */}
+        <h1 style={{ fontSize: '1.25rem', marginBottom: '0.25rem' }}>Sign in</h1>
+        <p style={{ fontSize: '0.8125rem', marginBottom: '1.5rem' }}>
+          Access your monitoring dashboard
+        </p>
+
+        {/* Error */}
         {error && (
           <div
             className="animate-fadeIn"
             style={{
               display: 'flex',
               alignItems: 'flex-start',
-              gap: '0.75rem',
-              padding: '1rem',
-              backgroundColor: 'var(--error-50)',
+              gap: '0.625rem',
+              padding: '0.75rem',
+              backgroundColor: 'var(--error-100)',
               border: '1px solid var(--error-200)',
-              borderRadius: 'var(--radius-lg)',
-              marginBottom: '1.5rem'
+              borderRadius: 'var(--radius-btn)',
+              marginBottom: '1.25rem'
             }}
           >
-            <AlertCircle size={20} style={{ color: 'var(--error-600)', flexShrink: 0 }} />
-            <p style={{ fontSize: '0.875rem', color: 'var(--error-700)', margin: 0 }}>
-              {error}
-            </p>
+            <AlertCircle size={16} style={{ color: 'var(--error-600)', flexShrink: 0, marginTop: '0.125rem' }} />
+            <p style={{ fontSize: '0.8125rem', color: 'var(--error-600)', margin: 0 }}>{error}</p>
           </div>
         )}
 
-        {/* Login Form */}
         <form onSubmit={handleSubmit}>
-          {/* Username Field */}
           <div className="form-group">
             <label className="form-label" htmlFor="username">
               Username
@@ -189,25 +125,15 @@ const LoginPage = ({ onLogin }) => {
                 value={formData.username}
                 onChange={handleInputChange}
                 required
+                autoComplete="username"
                 className="form-input"
                 placeholder="Enter your username"
-                style={{ paddingLeft: '2.75rem' }}
+                style={{ paddingLeft: '2.5rem' }}
               />
-              <Mail
-                size={18}
-                style={{
-                  position: 'absolute',
-                  left: '1rem',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: 'var(--text-tertiary)',
-                  pointerEvents: 'none'
-                }}
-              />
+              <User size={16} style={iconStyle} />
             </div>
           </div>
 
-          {/* Password Field */}
           <div className="form-group">
             <label className="form-label" htmlFor="password">
               Password
@@ -220,45 +146,29 @@ const LoginPage = ({ onLogin }) => {
                 value={formData.password}
                 onChange={handleInputChange}
                 required
+                autoComplete="current-password"
                 className="form-input"
                 placeholder="Enter your password"
-                style={{ paddingLeft: '2.75rem' }}
+                style={{ paddingLeft: '2.5rem' }}
               />
-              <Lock
-                size={18}
-                style={{
-                  position: 'absolute',
-                  left: '1rem',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: 'var(--text-tertiary)',
-                  pointerEvents: 'none'
-                }}
-              />
+              <Lock size={16} style={iconStyle} />
             </div>
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
             className="btn btn-primary"
-            style={{
-              width: '100%',
-              marginTop: '1rem',
-              padding: '0.875rem',
-              fontSize: '1rem',
-              fontWeight: 600
-            }}
+            style={{ width: '100%', marginTop: '0.5rem', padding: '0.625rem' }}
           >
             {loading ? (
               <>
                 <div
                   className="animate-spin"
                   style={{
-                    width: '20px',
-                    height: '20px',
-                    border: '2px solid white',
+                    width: '16px',
+                    height: '16px',
+                    border: '2px solid currentColor',
                     borderTopColor: 'transparent',
                     borderRadius: '50%'
                   }}
@@ -267,23 +177,22 @@ const LoginPage = ({ onLogin }) => {
               </>
             ) : (
               <>
-                <LogIn size={20} />
+                <LogIn size={16} />
                 Sign In
               </>
             )}
           </button>
         </form>
 
-        {/* Footer */}
         <div
           style={{
-            marginTop: '2rem',
-            paddingTop: '1.5rem',
-            borderTop: '1px solid var(--border-light)',
+            marginTop: '1.5rem',
+            paddingTop: '1rem',
+            borderTop: '1px solid var(--border-color)',
             textAlign: 'center'
           }}
         >
-          <p style={{ fontSize: '0.813rem', color: 'var(--text-tertiary)' }}>
+          <p className="font-mono" style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>
             THEAI Monitoring Platform v1.2
           </p>
         </div>

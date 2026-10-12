@@ -1,6 +1,6 @@
 # THEAI Changelog
 
-## Version v.1.1.10 - [12/10/2026]
+## Version v.1.1.15 - [12/10/2026]
 
 We are excited to announce a major update focusing on enhanced monitoring capabilities, improved data ingestion reliability, and significant architectural enhancements for integration with Grafana.
 
