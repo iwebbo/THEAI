@@ -1,0 +1,62 @@
+{{- if .Values.ingestor.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "theai.name" . }}-ingestor
+  labels:
+    {{- include "theai.labels" . | nindent 4 }}
+    app: {{ include "theai.name" . }}-ingestor
+spec:
+  schedule: {{ .Values.ingestor.schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      activeDeadlineSeconds: 10800
+      template:
+        metadata:
+          labels:
+            {{- include "theai.selectorLabels" . | nindent 12 }}
+            app: {{ include "theai.name" . }}-ingestor
+        spec:
+          restartPolicy: Never
+          {{- if .Values.serviceAccount.create }}
+          serviceAccountName: {{ .Values.serviceAccount.name }}
+          {{- end }}
+          {{- with .Values.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.podSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          containers:
+            - name: ingestor
+              image: "{{ .Values.ingestor.image.repository }}:{{ .Values.ingestor.image.tag }}"
+              imagePullPolicy: {{ .Values.ingestor.image.pullPolicy }}
+              args: [{{ .Values.ingestor.mode | quote }}]
+              {{- with .Values.securityContext }}
+              securityContext:
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
+              env:
+                {{- range $key := list "POSTGRES_SERVER" "POSTGRES_PORT" "POSTGRES_DB" "POSTGRES_USER" "POSTGRES_PASSWORD" "NVD_API_KEY" "ENABLE_EMAIL_ALERTS" "ALERT_EMAILS" "SMTP_SERVER" "SMTP_PORT" "SMTP_USERNAME" "SMTP_PASSWORD" "SMTP_FROM_EMAIL" "SMTP_USE_TLS" }}
+                - name: {{ $key }}
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ $.Values.secrets.name }}
+                      key: {{ $key }}
+                      optional: true
+                {{- end }}
+              resources:
+                {{- toYaml .Values.ingestor.resources | nindent 16 }}
+              volumeMounts:
+                - name: tmp
+                  mountPath: /tmp
+          volumes:
+            - name: tmp
+              emptyDir: {}
+{{- end }}

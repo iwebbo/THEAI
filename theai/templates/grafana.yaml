@@ -1,0 +1,166 @@
+{{- if .Values.grafana.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "theai.name" . }}-grafana-provisioning
+  labels:
+    {{- include "theai.labels" . | nindent 4 }}
+data:
+  datasources.yml: |-
+    {{- .Files.Get "files/grafana/datasources.yml" | nindent 4 }}
+  providers.yml: |-
+    {{- .Files.Get "files/grafana/providers.yml" | nindent 4 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "theai.name" . }}-grafana-dashboards
+  labels:
+    {{- include "theai.labels" . | nindent 4 }}
+data:
+  {{- range $path, $_ := .Files.Glob "files/grafana/dashboards/*.json" }}
+  {{ base $path }}: |-
+    {{- $.Files.Get $path | nindent 4 }}
+  {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "theai.name" . }}-grafana
+  labels:
+    {{- include "theai.labels" . | nindent 4 }}
+    app: {{ include "theai.name" . }}-grafana
+spec:
+  type: {{ .Values.grafana.service.type }}
+  ports:
+    - name: http
+      port: {{ .Values.grafana.service.port }}
+      targetPort: http
+      protocol: TCP
+  selector:
+    app: {{ include "theai.name" . }}-grafana
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "theai.name" . }}-grafana
+  labels:
+    {{- include "theai.labels" . | nindent 4 }}
+    app: {{ include "theai.name" . }}-grafana
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: {{ include "theai.name" . }}-grafana
+  template:
+    metadata:
+      labels:
+        {{- include "theai.selectorLabels" . | nindent 8 }}
+        app: {{ include "theai.name" . }}-grafana
+      annotations:
+        checksum/provisioning: {{ (.Files.Glob "files/grafana/*").AsConfig | sha256sum }}
+        checksum/secret: {{ toYaml .Values.secrets.data | sha256sum }}
+    spec:
+      {{- if .Values.serviceAccount.create }}
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      {{- end }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      # Utilisateur grafana de l'image officielle = uid 472
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 472
+        runAsGroup: 472
+        fsGroup: 472
+      containers:
+        - name: grafana
+          image: "{{ .Values.grafana.image.repository }}:{{ .Values.grafana.image.tag }}"
+          imagePullPolicy: {{ .Values.grafana.image.pullPolicy }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          env:
+            - name: GF_SERVER_ROOT_URL
+              value: {{ .Values.grafana.rootUrl | quote }}
+            - name: GF_SERVER_SERVE_FROM_SUB_PATH
+              value: "true"
+            - name: GF_AUTH_ANONYMOUS_ENABLED
+              value: {{ .Values.grafana.anonymousViewer | quote }}
+            - name: GF_AUTH_ANONYMOUS_ORG_ROLE
+              value: Viewer
+            - name: GF_SECURITY_ALLOW_EMBEDDING
+              value: "true"
+            - name: GF_ANALYTICS_REPORTING_ENABLED
+              value: "false"
+            - name: GF_SECURITY_ADMIN_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.name }}
+                  key: GRAFANA_ADMIN_USER
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.name }}
+                  key: GRAFANA_ADMIN_PASSWORD
+            # Variables lues par datasources.yml (uniquement ce dont Grafana a besoin)
+            {{- range $key := list "POSTGRES_SERVER" "POSTGRES_PORT" "POSTGRES_DB" "POSTGRES_USER" "POSTGRES_PASSWORD" }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.secrets.name }}
+                  key: {{ $key }}
+            {{- end }}
+          readinessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 20
+          resources:
+            {{- toYaml .Values.grafana.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/grafana
+            - name: provisioning
+              mountPath: /etc/grafana/provisioning/datasources/datasources.yml
+              subPath: datasources.yml
+              readOnly: true
+            - name: provisioning
+              mountPath: /etc/grafana/provisioning/dashboards/providers.yml
+              subPath: providers.yml
+              readOnly: true
+            - name: dashboards
+              mountPath: /etc/grafana/dashboards
+              readOnly: true
+      volumes:
+        - name: data
+          emptyDir: {}
+        - name: provisioning
+          configMap:
+            name: {{ include "theai.name" . }}-grafana-provisioning
+        - name: dashboards
+          configMap:
+            name: {{ include "theai.name" . }}-grafana-dashboards
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

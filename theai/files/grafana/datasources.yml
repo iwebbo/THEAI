@@ -1,0 +1,21 @@
+apiVersion: 1
+
+# Les valeurs ${...} sont lues dans l'environnement du conteneur Grafana :
+# memes noms que le backend (POSTGRES_*), donc identique en compose et en Helm.
+# Une seule datasource : le monitoring (public.*) et les CVE (schema cve) sont dans la meme base.
+datasources:
+  - name: THEAI Postgres
+    uid: theai-postgres
+    type: postgres
+    access: proxy
+    url: ${POSTGRES_SERVER}:${POSTGRES_PORT}
+    user: ${POSTGRES_USER}
+    isDefault: true
+    editable: false
+    jsonData:
+      database: ${POSTGRES_DB}
+      sslmode: disable
+      postgresVersion: 1500
+      timescaledb: false
+    secureJsonData:
+      password: ${POSTGRES_PASSWORD}

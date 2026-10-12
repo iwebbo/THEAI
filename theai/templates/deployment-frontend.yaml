@@ -31,6 +31,29 @@ spec:
       securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- if .Values.agent.enabled }}
+      # Pas un service : conteneur ephemere qui copie les binaires de l'agent dans un emptyDir puis se termine.
+      # L'agent lui-meme tourne sur les serveurs surveilles, pas dans le cluster.
+      initContainers:
+        - name: agent-dist
+          image: "{{ .Values.agent.image.repository }}:{{ .Values.agent.image.tag | default .Values.frontend.image.tag }}"
+          imagePullPolicy: {{ .Values.agent.image.pullPolicy }}
+          command: ["sh", "-c", "cp -f /dist/* /out/ && ls -l /out"]
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          resources:
+            requests:
+              memory: "16Mi"
+              cpu: "10m"
+            limits:
+              memory: "64Mi"
+              cpu: "100m"
+          volumeMounts:
+            - name: agent-dist
+              mountPath: /out
+      {{- end }}
       containers:
         - name: frontend
           image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}"
@@ -65,12 +88,21 @@ spec:
               readOnly: true
             - name: tmp
               mountPath: /tmp
+            {{- if .Values.agent.enabled }}
+            - name: agent-dist
+              mountPath: /usr/share/nginx/agent-dist
+              readOnly: true
+            {{- end }}
       volumes:
         - name: nginx-config
           configMap:
             name: {{ include "theai.fullname" . }}-frontend-nginx
         - name: tmp
           emptyDir: {}
+        {{- if .Values.agent.enabled }}
+        - name: agent-dist
+          emptyDir: {}
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

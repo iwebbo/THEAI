@@ -1,0 +1,189 @@
+{
+  "uid": "theai-cve",
+  "title": "THEAI - CVE Intelligence",
+  "tags": ["theai", "cve"],
+  "schemaVersion": 39,
+  "version": 2,
+  "editable": false,
+  "refresh": "5m",
+  "time": { "from": "now-1y", "to": "now" },
+  "description": "Le selecteur de temps filtre sur la date de PUBLICATION des CVE (cve.entries.published).",
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "CVE published (period)",
+      "gridPos": { "h": 4, "w": 5, "x": 0, "y": 0 },
+      "datasource": { "type": "postgres", "uid": "theai-postgres" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "postgres", "uid": "theai-postgres" },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "SELECT count(*) AS cve FROM cve.entries WHERE $__timeFilter(published)"
+        }
+      ],
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "blue" } }, "overrides": [] },
+      "options": { "colorMode": "value", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false } }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Actively exploited (KEV)",
+      "gridPos": { "h": 4, "w": 5, "x": 5, "y": 0 },
+      "datasource": { "type": "postgres", "uid": "theai-postgres" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "postgres", "uid": "theai-postgres" },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "SELECT count(*) AS kev FROM cve.entries WHERE kev AND $__timeFilter(published)"
+        }
+      ],
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "red" } }, "overrides": [] },
+      "options": { "colorMode": "value", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false } }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Critical (CVSS >= 9)",
+      "gridPos": { "h": 4, "w": 5, "x": 10, "y": 0 },
+      "datasource": { "type": "postgres", "uid": "theai-postgres" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "postgres", "uid": "theai-postgres" },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "SELECT count(*) AS critical FROM cve.entries WHERE cvss_base >= 9 AND $__timeFilter(published)"
+        }
+      ],
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "orange" } }, "overrides": [] },
+      "options": { "colorMode": "value", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false } }
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "EPSS >= 0.10",
+      "gridPos": { "h": 4, "w": 5, "x": 15, "y": 0 },
+      "datasource": { "type": "postgres", "uid": "theai-postgres" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "postgres", "uid": "theai-postgres" },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "SELECT count(*) AS epss_high FROM cve.entries WHERE epss_score >= 0.1 AND $__timeFilter(published)"
+        }
+      ],
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "yellow" } }, "overrides": [] },
+      "options": { "colorMode": "value", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false } }
+    },
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "Last successful ingestion",
+      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 0 },
+      "datasource": { "type": "postgres", "uid": "theai-postgres" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "postgres", "uid": "theai-postgres" },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "SELECT (extract(epoch FROM max(run_at)) * 1000)::bigint AS last_ingest FROM cve.ingest_runs WHERE success"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "dateTimeFromNow", "color": { "mode": "fixed", "fixedColor": "green" } }, "overrides": [] },
+      "options": { "colorMode": "value", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false } }
+    },
+    {
+      "id": 6,
+      "type": "piechart",
+      "title": "By severity",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 4 },
+      "datasource": { "type": "postgres", "uid": "theai-postgres" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "postgres", "uid": "theai-postgres" },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "SELECT severity, count(*) AS cve FROM cve.entries WHERE severity IS NOT NULL AND $__timeFilter(published) GROUP BY severity ORDER BY cve DESC"
+        }
+      ],
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "options": {
+        "pieType": "donut",
+        "legend": { "displayMode": "table", "placement": "right", "values": ["value"] },
+        "reduceOptions": { "values": true, "calcs": [], "fields": "/^cve$/" },
+        "tooltip": { "mode": "single" }
+      }
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "CVE published over time",
+      "gridPos": { "h": 8, "w": 16, "x": 8, "y": 4 },
+      "datasource": { "type": "postgres", "uid": "theai-postgres" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "postgres", "uid": "theai-postgres" },
+          "format": "time_series",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "SELECT $__timeGroupAlias(published, $__interval), count(*) AS cve FROM cve.entries WHERE $__timeFilter(published) GROUP BY 1 ORDER BY 1"
+        }
+      ],
+      "fieldConfig": { "defaults": { "custom": { "drawStyle": "bars", "fillOpacity": 60 } }, "overrides": [] },
+      "options": { "legend": { "displayMode": "hidden" }, "tooltip": { "mode": "single" } }
+    },
+    {
+      "id": 8,
+      "type": "table",
+      "title": "Top 20 exploitation probability (EPSS)",
+      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 12 },
+      "datasource": { "type": "postgres", "uid": "theai-postgres" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "postgres", "uid": "theai-postgres" },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "SELECT cve_id, epss_score, cvss_base, severity, kev FROM cve.entries WHERE epss_score IS NOT NULL AND $__timeFilter(published) ORDER BY epss_score DESC, cvss_base DESC NULLS LAST LIMIT 20"
+        }
+      ],
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "options": { "showHeader": true }
+    },
+    {
+      "id": 9,
+      "type": "table",
+      "title": "Top 20 actively exploited (KEV) by CVSS",
+      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 12 },
+      "datasource": { "type": "postgres", "uid": "theai-postgres" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "postgres", "uid": "theai-postgres" },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "SELECT cve_id, cvss_base, epss_score, kev_date_added, kev_ransomware FROM cve.entries WHERE kev AND $__timeFilter(published) ORDER BY cvss_base DESC NULLS LAST, epss_score DESC NULLS LAST LIMIT 20"
+        }
+      ],
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "options": { "showHeader": true }
+    }
+  ]
+}
