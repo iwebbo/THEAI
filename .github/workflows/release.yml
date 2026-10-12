@@ -88,6 +88,8 @@ jobs:
           ${FENCE}bash
           docker pull ghcr.io/${IMAGE_BASE}/backend:latest
           docker pull ghcr.io/${IMAGE_BASE}/frontend:latest
+
+          Guide install : https://github.com/${OWNER}/THEAI
           ${FENCE}
 
           ## Helm
@@ -95,6 +97,8 @@ jobs:
           ${FENCE}bash
           helm repo add theai https://${OWNER}.github.io/THEAI/
           helm repo update
+
+          Guide install : https://${OWNER}.github.io/THEAI/
           ${FENCE}
           EOF
             if [ -n "${PREV}" ]; then
