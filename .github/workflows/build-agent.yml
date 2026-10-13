@@ -15,7 +15,7 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}/agent
+  IMAGE_NAME: ghcr.io/iwebbo/theai/agent
 
 jobs:
   build:
