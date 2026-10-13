@@ -41,6 +41,9 @@ helm upgrade --install theai theai/theai \
       DEFAULT_ADMIN_USERNAME: "admin"
       DEFAULT_ADMIN_PASSWORD: "AdminPass123"
       DEFAULT_ADMIN_EMAIL: "admin@theai.local"
+      NVD_API_KEY: ""
+      GRAFANA_ADMIN_USER: "admin"
+      GRAFANA_ADMIN_PASSWORD: "changeMeGrafana123!"
 
 ```
 
