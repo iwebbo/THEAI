@@ -35,7 +35,7 @@ jobs:
     - name: Generate version
       id: version
       run: |
-        VERSION="1.1.5"
+        VERSION="1.1.5" ## REFAIRE ICI LIKE AGENTRAGIO
         echo "version=${VERSION}" >> $GITHUB_OUTPUT
         echo "date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_OUTPUT
 
@@ -45,6 +45,7 @@ jobs:
         sed -i "s/appVersion: .*/appVersion: \"${{ steps.version.outputs.version }}\"/" charts/theai/Chart.yaml
         sed -i "s|{{ github_username }}|${{ github.repository_owner }}|g" charts/theai/Chart.yaml
         sed -i "s|{{ github_username }}|${{ github.repository_owner }}|g" charts/theai/values.yaml
+        sed -i -E '/theai-(backend|frontend|ingestor)$/{n;s/tag:.*/tag: "'"${{ steps.version.outputs.version }}"'"/}' charts/theai/values.yaml
         cat charts/theai/Chart.yaml
 
     - name: Lint Helm chart

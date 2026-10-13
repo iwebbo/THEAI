@@ -14,7 +14,7 @@ backend:
   name: backend
   image:
     repository: ghcr.io/iwebbo/theai/backend
-    tag: "latest"  # GitHub Actions update ce tag
+    tag: ""
     pullPolicy: IfNotPresent
   
   replicas: 1
@@ -44,7 +44,7 @@ frontend:
   name: frontend
   image:
     repository: ghcr.io/iwebbo/theai/frontend
-    tag: "latest"
+    tag: ""
     pullPolicy: IfNotPresent
   
   replicas: 1
