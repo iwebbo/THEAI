@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Lock, LogIn, AlertCircle, Sun, Moon } from 'lucide-react';
+import { User, Lock, Mail, LogIn, UserPlus, AlertCircle, Sun, Moon } from 'lucide-react';
 import axios from 'axios';
 import useTheme from '../hooks/useTheme';
 
@@ -13,11 +13,21 @@ const iconStyle = {
   pointerEvents: 'none'
 };
 
+// Normalise les erreurs FastAPI (string ou liste de validations 422)
+const extractError = (err, fallback) => {
+  const detail = err.response?.data?.detail;
+  if (typeof detail === 'string') return detail;
+  if (Array.isArray(detail)) return detail.map((d) => d.msg).join(', ');
+  return fallback;
+};
+
 const LoginPage = ({ onLogin }) => {
   const navigate = useNavigate();
   const { theme, toggle } = useTheme();
+  const [isRegister, setIsRegister] = useState(false);
   const [formData, setFormData] = useState({
     username: '',
+    email: '',
     password: ''
   });
   const [loading, setLoading] = useState(false);
@@ -29,8 +39,24 @@ const LoginPage = ({ onLogin }) => {
       ...prev,
       [name]: value
     }));
-    // Clear error when user starts typing
     if (error) setError('');
+  };
+
+  const toggleMode = () => {
+    setIsRegister((prev) => !prev);
+    setError('');
+  };
+
+  const doLogin = async (username, password) => {
+    const response = await axios.post('/api/v1/auth/login', { username, password });
+    const { access_token, user } = response.data;
+
+    localStorage.setItem('access_token', access_token);
+    localStorage.setItem('user', JSON.stringify(user));
+    axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+
+    if (onLogin) onLogin(user, access_token);
+    navigate('/');
   };
 
   const handleSubmit = async (e) => {
@@ -39,31 +65,30 @@ const LoginPage = ({ onLogin }) => {
     setError('');
 
     try {
-      const response = await axios.post('/api/v1/auth/login', formData);
-      const { access_token, user } = response.data;
-
-      // Stocker le token
-      localStorage.setItem('access_token', access_token);
-      localStorage.setItem('user', JSON.stringify(user));
-
-      // Configurer axios pour les futures requêtes
-      axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
-
-      // Callback pour informer l'app du login
-      if (onLogin) {
-        onLogin(user, access_token);
+      if (isRegister) {
+        await axios.post('/api/v1/auth/register', {
+          username: formData.username,
+          email: formData.email,
+          password: formData.password
+        });
       }
-
-      // Rediriger vers le dashboard
-      navigate('/');
+      await doLogin(formData.username, formData.password);
     } catch (err) {
-      setError(err.response?.data?.detail || 'Login failed. Please check your credentials.');
+      setError(
+        extractError(
+          err,
+          isRegister
+            ? 'Registration failed. Please check your information.'
+            : 'Login failed. Please check your credentials.'
+        )
+      );
     } finally {
       setLoading(false);
     }
   };
 
   const ThemeIcon = theme === 'dark' ? Moon : Sun;
+  const SubmitIcon = isRegister ? UserPlus : LogIn;
 
   return (
     <div className="auth-page">
@@ -78,18 +103,16 @@ const LoginPage = ({ onLogin }) => {
       </button>
 
       <div className="auth-card animate-fadeIn">
-        {/* Brand */}
-        <div className="sidebar-brand" style={{ padding: 0, marginBottom: '1.75rem' }}>
-          <div className="brand-mark">AI</div>
-          <div>
-            <span className="brand-title">THEAI</span>
-            <span className="brand-sub">Monitoring Platform</span>
-          </div>
+        {/* Logo */}
+        <div className="auth-logo" style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
+          <img src="/logo.png" alt="THEAI" style={{ maxHeight: '48px', maxWidth: '100%' }} />
         </div>
 
-        <h1 style={{ fontSize: '1.25rem', marginBottom: '0.25rem' }}>Sign in</h1>
+        <h1 style={{ fontSize: '1.25rem', marginBottom: '0.25rem' }}>
+          {isRegister ? 'Create your account' : 'Sign in'}
+        </h1>
         <p style={{ fontSize: '0.8125rem', marginBottom: '1.5rem' }}>
-          Access your monitoring dashboard
+          {isRegister ? 'Start monitoring your servers' : 'Access your monitoring dashboard'}
         </p>
 
         {/* Error */}
@@ -134,6 +157,29 @@ const LoginPage = ({ onLogin }) => {
             </div>
           </div>
 
+          {isRegister && (
+            <div className="form-group">
+              <label className="form-label" htmlFor="email">
+                Email
+              </label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  required
+                  autoComplete="email"
+                  className="form-input"
+                  placeholder="Enter your email"
+                  style={{ paddingLeft: '2.5rem' }}
+                />
+                <Mail size={16} style={iconStyle} />
+              </div>
+            </div>
+          )}
+
           <div className="form-group">
             <label className="form-label" htmlFor="password">
               Password
@@ -146,7 +192,7 @@ const LoginPage = ({ onLogin }) => {
                 value={formData.password}
                 onChange={handleInputChange}
                 required
-                autoComplete="current-password"
+                autoComplete={isRegister ? 'new-password' : 'current-password'}
                 className="form-input"
                 placeholder="Enter your password"
                 style={{ paddingLeft: '2.5rem' }}
@@ -173,15 +219,26 @@ const LoginPage = ({ onLogin }) => {
                     borderRadius: '50%'
                   }}
                 />
-                Signing in...
+                {isRegister ? 'Creating account...' : 'Signing in...'}
               </>
             ) : (
               <>
-                <LogIn size={16} />
-                Sign In
+                <SubmitIcon size={16} />
+                {isRegister ? 'Create account' : 'Sign In'}
               </>
             )}
           </button>
+
+          <div style={{ textAlign: 'center', marginTop: '0.75rem' }}>
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm"
+              style={{ border: 'none' }}
+              onClick={toggleMode}
+            >
+              {isRegister ? 'Already have an account? Sign in' : "Don't have an account? Register"}
+            </button>
+          </div>
         </form>
 
         <div

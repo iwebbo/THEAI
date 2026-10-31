@@ -186,6 +186,106 @@ def _get_server_or_404(db: Session, server_id: int) -> Server:
     return server
 
 
+def _agent_row(a: Agent) -> dict:
+    """Table agents. Ni token_hash ni api_key_hash ne sont exposés."""
+    enrolled = a.enrolled_at is not None and a.api_key_hash is not None
+    return {
+        "id": a.id,
+        "server_id": a.server_id,
+        "enrolled": enrolled,
+        "online": enrolled and svc.is_fresh(a.last_seen, a.interval_seconds),
+        "pending_token": (
+            a.token_hash is not None
+            and a.token_expires_at is not None
+            and a.token_expires_at > svc.utcnow()
+        ),
+        "token_expires_at": svc.iso(a.token_expires_at),
+        "enrolled_at": svc.iso(a.enrolled_at),
+        "last_seen": svc.iso(a.last_seen),
+        "interval_seconds": a.interval_seconds,
+        "agent_version": a.agent_version,
+        "agent_hostname": a.agent_hostname,
+        "os_family": a.os_family,
+        "arch": a.arch,
+        "remote_ip": a.remote_ip,
+        "created_at": svc.iso(a.created_at),
+    }
+
+
+def _inventory_row(i: AgentInventory, with_packages: bool = False) -> dict:
+    """Table agent_inventory. Les paquets (JSONB volumineux) sont exclus par défaut."""
+    row = {
+        "server_id": i.server_id,
+        "pkg_hash": i.pkg_hash,
+        "os_family": i.os_family,
+        "os_id": i.os_id,
+        "os_version": i.os_version,
+        "os_pretty": i.os_pretty,
+        "kernel": i.kernel,
+        "arch": i.arch,
+        "package_count": i.package_count,
+        "collected_at": svc.iso(i.collected_at),
+        "ports": i.ports or [],
+        "ports_updated_at": svc.iso(i.ports_updated_at),
+        "ecosystem": i.ecosystem,
+        "vuln_status": i.vuln_status,
+        "vuln_checked_at": svc.iso(i.vuln_checked_at),
+        "vuln_error": i.vuln_error,
+        "vuln_count": i.vuln_count,
+    }
+    if with_packages:
+        row["packages"] = i.packages or []
+    return row
+
+
+@agents_router.get("")
+def list_agents(
+    limit: int = Query(100, ge=1, le=500),
+    offset: int = Query(0, ge=0, le=100000),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Liste de la table agents (tous serveurs)."""
+    total = db.query(Agent).count()
+    rows = db.query(Agent).order_by(Agent.id).offset(offset).limit(limit).all()
+    return {"total": total, "items": [_agent_row(a) for a in rows]}
+
+
+@agents_router.get("/inventory")
+def list_inventories(
+    limit: int = Query(100, ge=1, le=500),
+    offset: int = Query(0, ge=0, le=100000),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Liste de la table agent_inventory (sans la liste des paquets)."""
+    total = db.query(AgentInventory).count()
+    rows = (
+        db.query(AgentInventory)
+        .order_by(AgentInventory.server_id)
+        .offset(offset)
+        .limit(limit)
+        .all()
+    )
+    return {"total": total, "items": [_inventory_row(i) for i in rows]}
+
+
+@agents_router.get("/servers/{server_id}/record")
+def agent_record(
+    server_id: int,
+    packages: bool = Query(False, description="Inclure la liste complète des paquets"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Lignes brutes agents + agent_inventory pour un serveur."""
+    _get_server_or_404(db, server_id)
+    agent = db.query(Agent).filter(Agent.server_id == server_id).first()
+    inv = db.get(AgentInventory, server_id)
+    return {
+        "agent": _agent_row(agent) if agent else None,
+        "inventory": _inventory_row(inv, with_packages=packages) if inv else None,
+    }
+
 def _vuln_row(r) -> dict:
     m = r._mapping
     return {

@@ -920,3 +920,34 @@ tbody tr:hover {
   .topbar { padding: 0 1rem; }
   .content-area { padding: 1rem; }
 }
+
+/* ---------- Sidebar : sub menu ---------- */
+.nav-group-toggle {
+  width: 100%;
+  font-family: inherit;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+.nav-group-toggle.has-active {
+  color: var(--text-primary);
+}
+.nav-group-toggle.has-active svg {
+  color: var(--accent-soft);
+}
+.nav-chevron {
+  margin-left: auto;
+  transition: transform 150ms;
+}
+.nav-sublist {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin: 0.25rem 0 0.25rem 1.125rem;
+  padding-left: 0.5rem;
+  border-left: 1px solid var(--border-color);
+}
+.nav-sublink {
+  padding: 0.375rem 0.625rem;
+}

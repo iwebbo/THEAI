@@ -18,6 +18,9 @@ const getPageLabel = (pathname) => {
   if (root === 'cve') return 'Vulnerabilities';
   if (root === 'dashboards') return 'Grafana';
   if (root === 'settings') return 'Settings';
+  if (root === 'overview') return 'Overview';
+  if (root === 'sla') return 'SLA';
+  if (root === 'agents') return second === 'inventory' ? 'Agent inventory' : 'Agents';
   return root;
 };
 

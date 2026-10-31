@@ -13,6 +13,10 @@ import Loading from './components/common/Loading';
 import SecurityDashboardPage from './pages/SecurityDashboardPage';
 import CvePage from './pages/CvePage';
 import DashboardsPage from './pages/DashboardsPage';
+import SLA from './pages/SLA';
+import AgentList from './pages/AgentList';
+import AgentInventory from './pages/AgentInventory';
+import Overview from './pages/Overview';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -185,6 +189,50 @@ function App() {
             <ProtectedRoute>
               <Layout user={user} onLogout={handleLogout}>
                 <SettingsPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/overview"
+          element={
+            <ProtectedRoute>
+              <Layout user={user} onLogout={handleLogout}>
+                <Overview />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/sla"
+          element={
+            <ProtectedRoute>
+              <Layout user={user} onLogout={handleLogout}>
+                <SLA />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/agents"
+          element={
+            <ProtectedRoute>
+              <Layout user={user} onLogout={handleLogout}>
+                <AgentList />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/agents/inventory"
+          element={
+            <ProtectedRoute>
+              <Layout user={user} onLogout={handleLogout}>
+                <AgentInventory />
               </Layout>
             </ProtectedRoute>
           }

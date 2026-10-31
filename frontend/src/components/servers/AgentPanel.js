@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -9,7 +9,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-import { Cpu, Shield, RefreshCw, Network, Trash2, Activity } from 'lucide-react';
+import { Cpu, Shield, RefreshCw, Network, Trash2, Activity, Package } from 'lucide-react';
 import moment from 'moment';
 import agentApi from '../../services/agentApi';
 import Alert from '../common/Alert';
@@ -90,6 +90,120 @@ const severityColor = (sev) => {
     case 'low': return ['#dcfce7', '#166534'];
     default: return ['#e5e7eb', '#374151'];
   }
+};
+
+const PKG_PAGE = 200;
+
+/* Liste des paquets : chargée à l'ouverture seulement (peut contenir des milliers
+   de lignes), donc hors du refresh périodique de 20 s. */
+const PackageList = ({ serverId, total, collectedAt }) => {
+  const [open, setOpen] = useState(false);
+  const [packages, setPackages] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState(null);
+  const [query, setQuery] = useState('');
+  const [limit, setLimit] = useState(PKG_PAGE);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    let cancelled = false;
+    setLoading(true);
+    agentApi
+      .getPackages(serverId)
+      .then((res) => {
+        if (cancelled) return;
+        const d = res.data;
+        setPackages(Array.isArray(d) ? d : d?.packages || d?.items || []);
+        setErr(null);
+      })
+      .catch((e) => {
+        if (!cancelled) setErr('Packages: ' + (e.response?.data?.detail || e.message));
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open, serverId, collectedAt]);
+
+  useEffect(() => {
+    setLimit(PKG_PAGE);
+  }, [query]);
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const list = q
+      ? packages.filter((p) => `${p.name || ''} ${p.version || ''}`.toLowerCase().includes(q))
+      : packages;
+    return [...list].sort((a, b) => String(a.name).localeCompare(String(b.name)));
+  }, [packages, query]);
+
+  const hasArch = packages.some((p) => p.arch);
+  const hasSource = packages.some((p) => p.source && p.source !== p.name);
+
+  return (
+    <div style={{ marginTop: '0.75rem' }}>
+      <button type="button" className="btn btn-ghost btn-sm" onClick={() => setOpen((o) => !o)}>
+        <Package size={14} /> {open ? 'Hide packages' : `Show packages${total ? ` (${total})` : ''}`}
+      </button>
+
+      {open && (
+        <div style={{ marginTop: '0.5rem' }}>
+          <input
+            type="search"
+            className="form-input"
+            placeholder="Filter by package name or version (e.g. docker, kube, postgres)"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            style={{ width: '100%', maxWidth: '420px' }}
+          />
+          {!loading && !err && (
+            <span style={{ marginLeft: '0.75rem', fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
+              {filtered.length} / {packages.length}
+            </span>
+          )}
+
+          {loading && <p style={{ fontSize: '0.8125rem', color: 'var(--text-tertiary)', marginTop: '0.5rem' }}>Loading packages...</p>}
+          {err && <Alert type="error" message={err} />}
+
+          {!loading && !err && (
+            filtered.length === 0 ? (
+              <p style={{ fontSize: '0.8125rem', color: 'var(--text-tertiary)', marginTop: '0.5rem' }}>No package found.</p>
+            ) : (
+              <div style={{ maxHeight: '360px', overflow: 'auto', marginTop: '0.5rem', border: '1px solid var(--border-light)', borderRadius: 'var(--radius-md)' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8125rem' }}>
+                  <thead>
+                    <tr style={{ textAlign: 'left', color: 'var(--text-tertiary)' }}>
+                      {['Name', 'Version', hasArch && 'Arch', hasSource && 'Source'].filter(Boolean).map((h) => (
+                        <th key={h} style={{ position: 'sticky', top: 0, background: 'var(--bg-primary, #fff)', padding: '0.375rem 0.5rem' }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filtered.slice(0, limit).map((p, i) => (
+                      <tr key={`${p.name}-${p.version}-${p.arch}-${i}`} style={{ borderTop: '1px solid var(--border-light)' }}>
+                        <td style={{ padding: '0.25rem 0.5rem' }}>{p.name}</td>
+                        <td className="font-mono" style={{ padding: '0.25rem 0.5rem' }}>{p.version || '-'}</td>
+                        {hasArch && <td style={{ padding: '0.25rem 0.5rem' }}>{p.arch || '-'}</td>}
+                        {hasSource && <td style={{ padding: '0.25rem 0.5rem' }}>{p.source || '-'}</td>}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )
+          )}
+
+          {filtered.length > limit && (
+            <button type="button" className="btn btn-ghost btn-sm" style={{ marginTop: '0.5rem' }} onClick={() => setLimit(limit + PKG_PAGE)}>
+              Show more ({filtered.length - limit} remaining)
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
 };
 
 const AgentPanel = ({ serverId }) => {
@@ -306,6 +420,7 @@ const AgentPanel = ({ serverId }) => {
                 {inv.os_pretty || 'Unknown OS'} · kernel {inv.kernel || 'n/a'} · {inv.package_count} packages
                 {inv.collected_at ? ` · collected ${moment(inv.collected_at).fromNow()}` : ''}
               </p>
+              <PackageList serverId={serverId} total={inv.package_count} collectedAt={inv.collected_at} />
             </div>
           )}
 

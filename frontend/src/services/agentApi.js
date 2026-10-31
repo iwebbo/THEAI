@@ -25,6 +25,13 @@ const agentApi = {
   refreshVulns: (serverId) => agentClient.post(`/agents/servers/${serverId}/vulns/refresh`),
   getAllVulns: (limit = 100, offset = 0) =>
     agentClient.get('/agents/vulns', { params: { limit, offset } }),
+  getPackages: (serverId) => agentClient.get(`/agents/servers/${serverId}/packages`),
+  listAgents: (limit = 100, offset = 0) =>
+    agentClient.get('/agents', { params: { limit, offset } }),
+  listInventories: (limit = 100, offset = 0) =>
+    agentClient.get('/agents/inventory', { params: { limit, offset } }),
+  getRecord: (serverId, packages = false) =>
+    agentClient.get(`/agents/servers/${serverId}/record`, { params: { packages } }),
 };
 
 export default agentApi;

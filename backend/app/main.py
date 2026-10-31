@@ -16,6 +16,7 @@ from api.routes.settings import router as settings_router
 from api.routes.cve import router as cve_router
 from api.routes.metrics import router as metrics_router
 from api.routes.agent import agent_router, agents_router
+from api.routes.http_synthetic import router as http_synthetic_router
 from core.config import settings
 from core.database import Base, engine
 from core.cve_schema import ensure_cve_schema
@@ -27,6 +28,7 @@ from api.routes.auth import router as auth_router
 # Enregistre les tables d'historique et d'agent avant create_all
 import models.check_history  # noqa: F401
 import models.agent  # noqa: F401
+import models.http_synthetic
 
 # Configuration du logging
 logging.basicConfig(level=logging.INFO)
@@ -64,9 +66,11 @@ app.include_router(security_router, prefix=f"{settings.API_V1_STR}/security", ta
 app.include_router(auth_router, prefix=f"{settings.API_V1_STR}/auth", tags=["authentication"])
 app.include_router(cve_router, prefix=f"{settings.API_V1_STR}/cve", tags=["cve"])
 app.include_router(metrics_router, prefix=f"{settings.API_V1_STR}/metrics", tags=["metrics"])
+app.include_router(http_synthetic_router, prefix=f"{settings.API_V1_STR}/http-synthetic", tags=["http-synthetic"])
 # Agent : routes appelées par les agents (clé API) et par l'interface (JWT)
 app.include_router(agent_router, prefix=f"{settings.API_V1_STR}/agent", tags=["agent"])
 app.include_router(agents_router, prefix=f"{settings.API_V1_STR}/agents", tags=["agents"])
+
 
 @app.on_event("startup")
 async def startup_event():
