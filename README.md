@@ -12,7 +12,7 @@ A modern, professional server monitoring & vulnerability CVE. Monitor your serve
 ![Docker](https://img.shields.io/badge/Docker-0078D6?style=for-the-badge&logo=Docker&logoColor=black)
 ![GO](https://img.shields.io/badge/GO-0078D6?style=for-the-badge&logo=GO&logoColor=black)
 ---
-[![Version](https://img.shields.io/badge/Version-v1.1.86-blue?style=for-the-badge&logo=github)](http://gitea.aecoding.local:3000/kiki/AgentRAG.io/releases/tag/v1.1.86)
+[![Version](https://img.shields.io/badge/Version-v1.1.27-blue?style=for-the-badge&logo=github)](https://github.com/iwebbo/THEAI/releases/tag/v1.1.27)
 ---
 
 ## Features
