@@ -12,25 +12,13 @@ A modern, professional server monitoring & vulnerability CVE. Monitor your serve
 ![Docker](https://img.shields.io/badge/Docker-0078D6?style=for-the-badge&logo=Docker&logoColor=black)
 ![GO](https://img.shields.io/badge/GO-0078D6?style=for-the-badge&logo=GO&logoColor=black)
 ---
-
-## Demo
-
-### Login page
-<img width="1910" height="907" alt="image" src="https://github.com/user-attachments/assets/ca43eeb6-9e43-498e-8854-3391d4688a56" />
-
-### Vulnerability - CVE 
-<img width="1910" height="910" alt="image" src="https://github.com/user-attachments/assets/d43a86ad-373c-4a73-a4c1-fd1f00d005ea" />
-
-### THEAI Agent - Metric
-<img width="1912" height="907" alt="image" src="https://github.com/user-attachments/assets/c9067b67-b10e-45a1-a597-9976e18d9769" />
-
-### THEAI Agent - Enroll
-<img width="1912" height="909" alt="image" src="https://github.com/user-attachments/assets/a2724435-ba83-432b-959b-d07e30ff7bbe" />
-
+[![Version](https://img.shields.io/badge/Version-v1.1.86-blue?style=for-the-badge&logo=github)](http://gitea.aecoding.local:3000/kiki/AgentRAG.io/releases/tag/v1.1.86)
+---
 
 ## Features
 
 ### Current Features
+- **HTTPS Monitor** : HTTPS/TLS and Certificate checks
 - **Multi-Protocol Monitoring**: Support for ICMP (ping), TCP, HTTP/HTTPS, and SSH monitoring
 - **Agent Monitoring**: Optional Go agent (Linux, Windows, AIX, BSD, macOS) pushing metrics, inventory and open ports over HTTPS
 - **CVE Correlation**: Installed packages matched against OSV.dev (Debian, Ubuntu, Alpine), sorted by KEV, EPSS, CVSS
@@ -39,7 +27,6 @@ A modern, professional server monitoring & vulnerability CVE. Monitor your serve
 - **Server Management**: Add, edit, delete, and configure servers to monitor
 - **Automated Checks**: Periodic server health checks with configurable intervals
 - **Status Tracking**: Visual status indicators and response time monitoring
-- **Modern UI**: Professional interface with customizable themes
 - **Settings Panel**: Configure monitoring intervals, alerts, and preferences
 - **Dockerized Deployment**: Complete containerized setup with Docker Compose
 - **Authentication System**: JWT-based login with environment-configured default user
@@ -53,115 +40,31 @@ A modern, professional server monitoring & vulnerability CVE. Monitor your serve
 - **Response Time Tracking**: Monitor and track server response times
 - **Status History**: Track server status changes over time
 
+---
+### Demo
+> **Screenshot** : 
 
-## Agent
+[![Demo Badge](https://img.shields.io/badge/Demo-blue?style=for-the-badge&logo=github)](doc/screenshot/doc.md)
 
-The agent is an optional static Go binary installed on the monitored server. It only makes **outbound HTTPS** calls to THEAI (nothing listens on the host, no remote command execution).
+### Vulnerability
+> **Documentation of Vulnerability** :
 
-### What it does
-- **Heartbeat + metrics** every ~30s: CPU, memory, swap, load, disks, network, uptime
-- **Inventory**: OS info and installed packages (sent only when changed)
-- **Open ports**: listening ports and processes (sent only when changed)
-- **Status**: a server is `online` while its last heartbeat is recent, `unknown` until the agent is enrolled
+[![Vulnerability Badge](https://img.shields.io/badge/Vuln-red?style=for-the-badge&logo=security)](doc/vulnerability/doc.md)
 
-### Add an agent in the UI
-1. **Servers > Add Server**, tick **Agent** (default: `agent` + `icmp`; ICMP/TCP/HTTP/SSH checks can still be combined). The IP is only used by the active checks, the agent does not need it.
-2. Open the server page, **Agent** panel: generate a one-time **enrollment token**.
-3. Run the displayed command on the target (token is exchanged for a per-server API key stored hashed in DB, config is written locally with restricted permissions).
+### Agents
+> **Documentation of Agents** : 
 
-Linux / Unix:
-```bash
-curl -fsSL https://<theai-url>/downloads/agent/install.sh | sudo THEAI_URL=https://<theai-url> THEAI_TOKEN=<token> sh
-```
+[![Agents Badge](https://img.shields.io/badge/Agent-green?style=for-the-badge&logo=robot)](doc/agents/install.md)
 
-Windows (PowerShell as Administrator):
-```powershell
-$env:THEAI_URL='https://<theai-url>'; $env:THEAI_TOKEN='<token>'; iwr "$env:THEAI_URL/downloads/agent/install.ps1" -UseBasicParsing | iex
-```
+### HTTPS Monitor
+> **Documentation of HTTPS Monitor** : 
 
-Internal CA: set `THEAI_CA_FILE=/path/ca.pem` (HTTP is refused unless `THEAI_ALLOW_HTTP=1`). Binaries and scripts are served by the frontend under `/downloads/agent/` (checksums in `SHA256SUMS`).
+[![Shield Badge](https://img.shields.io/badge/Security-blue?style=for-the-badge&logo=shield)](doc/https_monitor/doc.md)
 
-### Vulnerabilities
-- Source: **OSV.dev** (Debian, Ubuntu, Alpine). Source package + source version are queried, patched versions are taken into account.
-- Ordered by **KEV**, then **EPSS**, then **CVSS** (NVD / KEV / EPSS from the ingestor are used for enrichment only).
-- Re-scan from the UI, or automatically every `VULN_SCAN_INTERVAL_HOURS`.
-- Debian data includes CVEs with no fix yet: the count can be high on a fresh host.
-- Other OS: inventory only (no correlation).
+### API
+> **Documentation of API** :
 
-### Coverage by OS
-
-| OS | Metrics | Ports | Inventory | CVE correlation |
-|---|---|---|---|---|
-| Linux Debian / Ubuntu / Alpine | full | yes (+ process if root) | dpkg / apk | **yes** (OSV) |
-| Linux RPM (RHEL, Rocky, SUSE...) | full | yes | rpm | no (inventory only) |
-| Windows | CPU, RAM, disks, network (load: n/a) | yes | installed software | no |
-| AIX | best effort (vmstat, df, uptime) | yes | lslpp, rpm | no |
-| FreeBSD / Solaris / macOS | best effort | yes | pkg (FreeBSD) | no |
-
-## Vulnerability Scanning & Security Assessment
-
-### Overview
-The platform now includes comprehensive vulnerability scanning capabilities to detect and report security issues across your monitored servers. The system provides two scanning approaches: **Quick Scan** for rapid security assessments and **Full Security Scan** for detailed vulnerability analysis.
-
-### Quick Scan Features
-Quick scans provide immediate security checks with minimal overhead:
-
-- **Critical Ports Detection**: Identifies dangerous open ports that pose security risks
-  - Detects: Telnet (23), NetBIOS (139), SMB (445), RDP (3389), VNC (5900), Redis (6379), Elasticsearch (9200), MongoDB (27017)
-  - Categorizes risks by severity level (Critical, High, Medium, Low)
-  
-- **SSL/TLS Security Check**: Validates HTTPS protocol configuration
-  - Detects outdated SSL/TLS versions (SSLv2, SSLv3, TLSv1, TLSv1.1)
-  - Recommends upgrade to TLS 1.2 or higher
-  - Provides certificate validation information
-  
-- **Real-time Results**: Synchronous execution with immediate feedback
-  - Response time: Typically 5-15 seconds per server
-  - Ideal for periodic monitoring and quick security audits
-
-### Full Security Scan Features
-Comprehensive vulnerability assessments for in-depth security analysis:
-
-- **Advanced Port Scanning**: Extended port analysis and service detection
-- **Protocol Vulnerability Detection**: Identifies protocol-specific weaknesses
-- **Technology Stack Assessment**: Detects and analyzes installed services and versions
-- **Detailed Vulnerability Reporting**: Complete vulnerability descriptions with severity ratings
-  - Critical: Immediate action required
-  - High: Must be addressed shortly
-  - Medium: Should be resolved in planned maintenance
-  - Low: Informational, address when possible
-- **Background Execution**: Asynchronous scanning for large-scale deployments
-- **Comprehensive Recommendations**: Actionable remediation steps for each vulnerability
-
-### Vulnerability Severity Levels
-
-| Severity | Impact | Example |
-|----------|--------|---------|
-| **Critical** | Immediate compromise risk | Unencrypted dangerous services |
-| **High** | Significant security exposure | Weak SSL/TLS, exposed database ports |
-| **Medium** | Moderate security concern | Outdated services, unnecessary open ports |
-| **Low** | Minor security issue | Informational findings |
-
-### Security Check Details
-
-#### Dangerous Ports Analysis
-The system monitors and flags potentially dangerous open ports:
-- **SMB (445)**: Windows file sharing protocol - common attack vector
-- **RDP (3389)**: Remote Desktop - frequent brute-force target
-- **MongoDB (27017)**: Database - often exposed without authentication
-- **Redis (6379)**: Cache service - frequently misconfigured
-- **Elasticsearch (9200)**: Search engine - can expose sensitive data
-- **Telnet (23)**: Unencrypted remote access - obsolete and dangerous
-- **NetBIOS (139)**: Windows networking - legacy protocol with vulnerabilities
-- **VNC (5900)**: Remote access - weak authentication protocols
-
-#### SSL/TLS Validation
-Ensures secure web communication:
-- Detects minimum TLS version in use
-- Flags obsolete protocols (SSL 2.0, 3.0, TLS 1.0, 1.1)
-- Validates certificate chain
-- Recommends modern TLS 1.2+ with strong cipher suites
-
+[![API Badge](https://img.shields.io/badge/API-orange?style=for-the-badge&logo=code)](docs/api/doc.md)
 
 ## Prerequisites
 
@@ -275,7 +178,7 @@ docker run -d \
 -v $(pwd)/charts/theai/files/grafana/dashboards:/etc/grafana/dashboards:ro \
 grafana/grafana:11.2.0
 ```
-### Run the Frontend
+### Run Ingestor
  
 ```bash
 docker run -d \
@@ -291,7 +194,7 @@ docker run -d \
 ghcr.io/iwebbo/theai/ingestor:latest serve
 ```
 
-### Run the Frontend
+### Run Frontend
  
 ```bash
 docker run -d \
@@ -302,28 +205,6 @@ docker run -d \
 -v theai-agent-dist:/usr/share/nginx/agent-dist:ro \
 ghcr.io/iwebbo/theai/frontend:latest
 ```
-
-## API Documentation
-
-Access the interactive API documentation at:
-- **Swagger UI**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
-
-### Key Endpoints
-- `GET /api/v1/servers` - List all servers
-- `POST /api/v1/servers` - Create new server
-- `GET /api/v1/servers/{id}/check` - Check server status
-- `GET /api/v1/servers/check/all` - Check all servers
-- `POST /api/v1/auth/login` - User authentication
-- `GET /api/v1/auth/me` - Get current user info
-- `POST /api/v1/agents/servers/{id}/enrollment` - Generate an enrollment token (JWT)
-- `GET /api/v1/agents/servers/{id}` - Agent status and details (JWT)
-- `GET /api/v1/agents/servers/{id}/metrics` - Metrics history (JWT)
-- `GET /api/v1/agents/servers/{id}/packages` - Installed packages (JWT)
-- `GET /api/v1/agents/servers/{id}/vulns` - Vulnerabilities (JWT)
-- `POST /api/v1/agents/servers/{id}/vulns/refresh` - Trigger a re-scan (JWT)
-- `DELETE /api/v1/agents/servers/{id}` - Remove the agent (JWT)
-- `POST /api/v1/agent/enroll`, `/heartbeat`, `/inventory`, `/ports` - Called by the agent (one-time token, then agent API key)
 
 **Permission denied for ping**:
 ```bash

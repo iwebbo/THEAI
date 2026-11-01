@@ -105,7 +105,7 @@ const LoginPage = ({ onLogin }) => {
       <div className="auth-card animate-fadeIn">
         {/* Logo */}
         <div className="auth-logo" style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
-          <img src="/logo.png" alt="THEAI" style={{ maxHeight: '48px', maxWidth: '100%' }} />
+          <img src="/logo.png" alt="THEAI" style={{ maxHeight: '148px', maxWidth: '100%' }} />
         </div>
 
         <h1 style={{ fontSize: '1.25rem', marginBottom: '0.25rem' }}>

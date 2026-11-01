@@ -5,8 +5,8 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy.orm import Session
 
-from core.database import get_db                      # <- à adapter si besoin
-from core.security import get_current_user            # <- à adapter (dépendance JWT existante)
+from core.database import get_db
+from api.routes.auth import get_current_user
 from models.http_synthetic import HttpSyntheticCheck
 from models.server import Server
 from schemas.http_synthetic import HttpSyntheticCheckRequest, HttpSyntheticCheckResponse

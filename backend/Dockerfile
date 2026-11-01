@@ -2,6 +2,12 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
+
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates && rm -rf /var/lib/apt/lists/*
+COPY myCA.crt /usr/local/share/ca-certificates/aecoding-ca.crt
+RUN update-ca-certificates
+ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     python3-dev \

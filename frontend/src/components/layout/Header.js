@@ -21,6 +21,7 @@ const getPageLabel = (pathname) => {
   if (root === 'overview') return 'Overview';
   if (root === 'sla') return 'SLA';
   if (root === 'agents') return second === 'inventory' ? 'Agent inventory' : 'Agents';
+  if (root === 'https-monitor') return second === 'new' ? 'Add target' : second === 'target' ? 'Target detail' : 'HTTPS Monitor';
   return root;
 };
 

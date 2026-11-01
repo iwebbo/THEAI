@@ -14,6 +14,8 @@ import {
   Timer,
   Cpu,
   Package,
+  Globe,
+  Lock,
   HardDrive,
   ChevronDown
 } from 'lucide-react';
@@ -45,12 +47,19 @@ const MENU_ITEMS = [
       { path: '/agents/inventory', label: 'Inventory', icon: Package }
     ]
   },
+  {
+    label: 'HTTPS Monitor',
+    icon: Globe,
+    children: [
+      { path: '/https-monitor', label: 'Targets', icon: Lock },
+      { path: '/https-monitor/new', label: 'Add Target', icon: PlusCircle }
+    ]
+  },
   { path: '/cve', label: 'Vulnerabilities', icon: ShieldAlert },
   { path: '/dashboards', label: 'Grafana', icon: Activity },
   { path: '/settings', label: 'Settings', icon: Settings }
 ];
 
-// Liste à plat de toutes les routes (items simples + enfants des groupes)
 const FLAT_ITEMS = MENU_ITEMS.flatMap((item) => (item.children ? item.children : [item]));
 
 const matchesPath = (pathname, itemPath) =>
@@ -61,9 +70,8 @@ const matchesPath = (pathname, itemPath) =>
 const Sidebar = () => {
   const { pathname } = useLocation();
   const { theme, toggle } = useTheme();
-  const [openGroups, setOpenGroups] = useState({ Main: true, Server: true, Agent: true });
+  const [openGroups, setOpenGroups] = useState({ Main: true, Server: true, Agent: true, 'HTTPS Monitor': true });
 
-  // Un seul item actif : le chemin le plus spécifique (ex. /servers/new l'emporte sur /servers, /agents/inventory sur /agents)
   const activePath = FLAT_ITEMS
     .filter((item) => matchesPath(pathname, item.path))
     .sort((a, b) => b.path.length - a.path.length)[0]?.path;
@@ -96,7 +104,6 @@ const Sidebar = () => {
     <aside className="sidebar">
       <div>
         <Link to="/" className="sidebar-brand">
-          <div className="brand-mark">AI</div>
           <div className="brand-text">
             <span className="brand-title">THEAI.io</span>
             <span className="brand-sub">v1.0.0</span>

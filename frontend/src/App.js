@@ -17,6 +17,9 @@ import SLA from './pages/SLA';
 import AgentList from './pages/AgentList';
 import AgentInventory from './pages/AgentInventory';
 import Overview from './pages/Overview';
+import HttpsMonitor from './components/https_monitor/HttpsMonitor';
+import HttpsTargetForm from './components/https_monitor/HttpsTargetForm';
+import HttpsTargetDetail from './components/https_monitor/HttpsTargetDetail';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -233,6 +236,37 @@ function App() {
             <ProtectedRoute>
               <Layout user={user} onLogout={handleLogout}>
                 <AgentInventory />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/https-monitor"
+          element={
+            <ProtectedRoute>
+              <Layout user={user} onLogout={handleLogout}>
+                <HttpsMonitor />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/https-monitor/new"
+          element={
+            <ProtectedRoute>
+              <Layout user={user} onLogout={handleLogout}>
+                <HttpsTargetForm />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/https-monitor/target"
+          element={
+            <ProtectedRoute>
+              <Layout user={user} onLogout={handleLogout}>
+                <HttpsTargetDetail />
               </Layout>
             </ProtectedRoute>
           }
