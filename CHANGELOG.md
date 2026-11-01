@@ -1,6 +1,6 @@
 # THEAI Changelog
 
-## Version v1.1.17 - [01/11/2026]
+## Version v1.1.27 - [01/11/2026]
 
 Adds feature HTTPS Monitor
 
