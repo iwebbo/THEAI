@@ -3,17 +3,14 @@ entries:
   theai:
   - apiVersion: v2
     appVersion: 1.1.5
-    created: "2026-10-13T22:36:23.665898502Z"
+    created: "2026-11-07T19:04:13.359992179Z"
     description: THEAI - Monitoring & Vulnerability Platform
-    digest: 6fcaa5801e8c5c4bc3913a7fdf46e8226ea91a30e2db4bbd3c9db36fe572e589
+    digest: e64de41ca43881f57ed1e2d291b6c4f6491789d4aaf04e61ccf9b921ede8da87
     home: https://github.com/iwebbo/theai
     keywords:
     - theai
     - monitoring
     - kubernetes
-    - THEAI Agent
-    - CVE
-    - Vulnerability
     maintainers:
     - email: aecodinglocal@gmail.com
       name: DevOps Team
@@ -24,4 +21,4 @@ entries:
     urls:
     - https://iwebbo.github.io/THEAI/theai-1.1.5.tgz
     version: 1.1.5
-generated: "2026-10-13T22:36:23.664794883Z"
+generated: "2026-11-07T19:04:13.35885967Z"

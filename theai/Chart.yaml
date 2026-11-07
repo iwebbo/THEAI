@@ -8,9 +8,6 @@ keywords:
   - theai
   - monitoring
   - kubernetes
-  - THEAI Agent
-  - CVE
-  - Vulnerability
 home: https://github.com/iwebbo/theai
 sources:
   - https://github.com/iwebbo/theai
