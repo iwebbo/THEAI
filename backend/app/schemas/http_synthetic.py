@@ -13,7 +13,7 @@ class HttpSyntheticCheckRequest(BaseModel):
     verify_tls: bool = Field(True, description="Valider la chaîne de confiance pour la requête HTTP")
     follow_redirects: bool = True
     probe_protocols: bool = Field(True, description="Tester le support TLS 1.0/1.1/1.2/1.3")
-    save: bool = Field(True, description="Stocker le résultat en base")
+    save: bool = Field(True, description="Stocker le résultat en base (crée/retrouve la cible et rattache le check)")
 
     @model_validator(mode="after")
     def _need_target(self):
@@ -27,6 +27,7 @@ class HttpSyntheticCheckResponse(BaseModel):
 
     id: Optional[int] = None
     server_id: Optional[int] = None
+    target_id: Optional[int] = None
     url: str
     scheme: str
     hostname: str

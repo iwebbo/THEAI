@@ -4,7 +4,8 @@ import './styles/main.css';
 import App from './App';
 import { initTheme } from './hooks/useTheme';
 
-// Applique data-theme (localStorage 'app-theme', dark par défaut) avant le premier rendu
+// Applique data-theme (localStorage 'app-theme' : dark | light | glass | glass-dark,
+// dark par défaut) avant le premier rendu
 initTheme();
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

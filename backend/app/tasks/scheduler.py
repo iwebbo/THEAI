@@ -14,6 +14,7 @@ from core.database import SessionLocal
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 async def check_all_servers_periodically(interval_seconds=300):
     """
     Vérifie périodiquement l'état de tous les serveurs actifs.
@@ -21,7 +22,7 @@ async def check_all_servers_periodically(interval_seconds=300):
     Args:
         interval_seconds: Intervalle entre les vérifications en secondes
     """
-    logger.info(f"🚀 Starting periodic server checking service (interval: {interval_seconds}s)")
+    logger.info(f" Starting periodic server checking service (interval: {interval_seconds}s)")
 
     while True:
         db = SessionLocal()
@@ -31,12 +32,12 @@ async def check_all_servers_periodically(interval_seconds=300):
 
             # Log de la configuration des alertes
             if email_config.enable_email_alerts and email_config.alert_emails:
-                logger.info(f"📧 Email alerts enabled for: {', '.join(email_config.alert_emails)}")
+                logger.info(f" Email alerts enabled for: {', '.join(email_config.alert_emails)}")
             else:
-                logger.info("📧 Email alerts are disabled or no recipients configured")
+                logger.info(" Email alerts are disabled or no recipients configured")
 
             active_servers = db.query(Server).filter(Server.enabled == True).all()
-            logger.info(f"🔍 Checking {len(active_servers)} active servers")
+            logger.info(f" Checking {len(active_servers)} active servers")
 
             for server in active_servers:
                 try:
@@ -60,30 +61,30 @@ async def check_all_servers_periodically(interval_seconds=300):
                     # Vérifier si le statut a changé
                     if old_status != new_status:
                         server.last_status_change = datetime.now()
-                        logger.info(f"🔄 STATUS CHANGE DETECTED for {server.name}: {old_status} -> {new_status}")
+                        logger.info(f" STATUS CHANGE DETECTED for {server.name}: {old_status} -> {new_status}")
 
                         # Envoyer des alertes email si configurées
                         await send_status_change_alert(server, old_status, check_result, email_config)
                     else:
-                        logger.debug(f"✅ No status change for {server.name} (remains {new_status})")
+                        logger.debug(f" No status change for {server.name} (remains {new_status})")
 
                 except Exception as e:
-                    logger.error(f"❌ Error checking server {server.name} ({server.hostname}): {e}")
+                    logger.error(f" Error checking server {server.name} ({server.hostname}): {e}")
 
             # Purge de l'historique au-delà de la rétention
             purge_history(db, settings.CHECK_HISTORY_RETENTION_DAYS)
 
             db.commit()
-            logger.info(f"✅ Completed checking {len(active_servers)} servers")
+            logger.info(f" Completed checking {len(active_servers)} servers")
 
         except Exception as e:
-            logger.error(f"❌ Error in server checking task: {e}")
+            logger.error(f" Error in server checking task: {e}")
             db.rollback()
         finally:
             db.close()
 
         # Attendre avant la prochaine vérification
-        logger.info(f"⏳ Waiting {interval_seconds} seconds before next check...")
+        logger.info(f" Waiting {interval_seconds} seconds before next check...")
         await asyncio.sleep(interval_seconds)
 
 async def send_status_change_alert(server, old_status, check_result, email_config):
@@ -96,22 +97,22 @@ async def send_status_change_alert(server, old_status, check_result, email_confi
         check_result: Résultat de la vérification (ServerCheck)
         email_config: Configuration email depuis la base de données
     """
-    logger.info(f"📧 send_status_change_alert called for {server.name}: {old_status} -> {check_result.status}")
+    logger.info(f" send_status_change_alert called for {server.name}: {old_status} -> {check_result.status}")
 
     # Vérifier si les alertes email sont activées
     if not email_config.enable_email_alerts:
-        logger.info(f"❌ Email alerts are DISABLED")
+        logger.info(f" Email alerts are DISABLED")
         return
 
     if not email_config.alert_emails:
-        logger.info(f"❌ No alert emails configured")
+        logger.info(f" No alert emails configured")
         return
 
-    logger.info(f"✅ Email alerts are enabled for: {', '.join(email_config.alert_emails)}")
+    logger.info(f" Email alerts are enabled for: {', '.join(email_config.alert_emails)}")
 
     # Vérifier les conditions d'alerte
     if old_status == "unknown":
-        logger.info(f"⏭️ Skipping email alert for server {server.name}: initial status change from unknown")
+        logger.info(f" Skipping email alert for server {server.name}: initial status change from unknown")
         return
 
     try:
@@ -147,15 +148,15 @@ async def send_status_change_alert(server, old_status, check_result, email_confi
             email_sent = True
 
             if success:
-                logger.info(f"✅ Recovery alert sent successfully for server {server.name}")
+                logger.info(f" Recovery alert sent successfully for server {server.name}")
             else:
-                logger.error(f"❌ Failed to send recovery alert for server {server.name}")
+                logger.error(f" Failed to send recovery alert for server {server.name}")
 
         if not email_sent:
-            logger.info(f"ℹ️ No email alert condition met for {server.name}: {old_status} -> {check_result.status}")
+            logger.info(f" No email alert condition met for {server.name}: {old_status} -> {check_result.status}")
 
     except Exception as e:
-        logger.error(f"❌ Exception in send_status_change_alert for server {server.name}: {e}")
+        logger.error(f" Exception in send_status_change_alert for server {server.name}: {e}")
         import traceback
         logger.error(traceback.format_exc())
 
@@ -164,6 +165,6 @@ def start_scheduler():
     Démarre le planificateur des tâches de vérification.
     Cette fonction doit être appelée au démarrage de l'application.
     """
-    logger.info("🚀 Initializing server monitoring scheduler")
+    logger.info(" Initializing server monitoring scheduler")
     # Intervalle réduit à 30 secondes pour les tests
     asyncio.create_task(check_all_servers_periodically(30))

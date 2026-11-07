@@ -3,7 +3,20 @@ import { useCallback, useSyncExternalStore } from 'react';
 const STORAGE_KEY = 'app-theme';
 const THEME_EVENT = 'app-theme-change';
 
-const normalize = (value) => (value === 'light' ? 'light' : 'dark');
+/** Valeurs de data-theme supportées. L'ordre définit le cycle de toggle(). */
+export const THEMES = ['dark', 'light', 'glass', 'glass-dark'];
+
+export const THEME_LABELS = {
+  dark: 'Sombre',
+  light: 'Clair',
+  glass: 'Glass clair',
+  'glass-dark': 'Glass sombre',
+};
+
+const DEFAULT_THEME = 'dark';
+
+// Toute valeur inconnue (ancienne valeur stockée, attribut absent) retombe sur dark.
+const normalize = (value) => (THEMES.includes(value) ? value : DEFAULT_THEME);
 
 const getTheme = () => normalize(document.documentElement.getAttribute('data-theme'));
 
@@ -35,9 +48,21 @@ export const applyTheme = (theme) => {
 };
 
 const useTheme = () => {
-  const theme = useSyncExternalStore(subscribe, getTheme, () => 'dark');
-  const toggle = useCallback(() => applyTheme(getTheme() === 'dark' ? 'light' : 'dark'), []);
-  return { theme, toggle, setTheme: applyTheme };
+  const theme = useSyncExternalStore(subscribe, getTheme, () => DEFAULT_THEME);
+
+  // Passe au thème suivant dans THEMES (dark → light → glass → glass-dark → dark…)
+  const toggle = useCallback(() => {
+    const current = getTheme();
+    applyTheme(THEMES[(THEMES.indexOf(current) + 1) % THEMES.length]);
+  }, []);
+
+  return {
+    theme,
+    label: THEME_LABELS[theme],
+    themes: THEMES,
+    toggle,
+    setTheme: applyTheme,
+  };
 };
 
 export default useTheme;

@@ -14,7 +14,7 @@ backend:
   name: backend
   image:
     repository: ghcr.io/iwebbo/theai/backend
-    tag: ""
+    tag: "latest"  # GitHub Actions update ce tag
     pullPolicy: IfNotPresent
   
   replicas: 1
@@ -44,7 +44,7 @@ frontend:
   name: frontend
   image:
     repository: ghcr.io/iwebbo/theai/frontend
-    tag: ""
+    tag: "latest"
     pullPolicy: IfNotPresent
   
   replicas: 1
@@ -184,7 +184,10 @@ podSecurityContext:
   runAsNonRoot: true
   runAsUser: 1000
   fsGroup: 1000
-
+  sysctls:
+    - name: net.ipv4.ping_group_range
+      value: "0 2147483647"
+      
 securityContext:
   allowPrivilegeEscalation: false
   capabilities:

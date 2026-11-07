@@ -1,20 +1,11 @@
-### Dasboard
-<img width="1896" height="900" alt="image" src="https://github.com/user-attachments/assets/850b9f03-40e3-44a8-9d8f-290665d9fbe2" />
+### Login page
+<img width="1910" height="907" alt="image" src="https://github.com/user-attachments/assets/ca43eeb6-9e43-498e-8854-3391d4688a56" />
 
-### Overview
-<img width="1894" height="907" alt="image" src="https://github.com/user-attachments/assets/6134dd87-b096-4e26-9060-c3879b66b824" />
+### Vulnerability - CVE 
+<img width="1910" height="910" alt="image" src="https://github.com/user-attachments/assets/d43a86ad-373c-4a73-a4c1-fd1f00d005ea" />
 
-### SLA
-<img width="1897" height="904" alt="image" src="https://github.com/user-attachments/assets/45455445-2f6e-4528-a769-9d18eeb8b2f8" />
+### THEAI Agent - Metric
+<img width="1912" height="907" alt="image" src="https://github.com/user-attachments/assets/c9067b67-b10e-45a1-a597-9976e18d9769" />
 
-### THEAI Agent - Table
-<img width="1894" height="907" alt="image" src="https://github.com/user-attachments/assets/e8482278-3b79-4f22-89ac-63f9dc0b8605" />
-
-### THEAI Agent - Inventory
-<img width="1895" height="905" alt="image" src="https://github.com/user-attachments/assets/381b0ed4-6a38-44d2-9119-55fd4a6623f4" />
-
-### HTTPS Monitor 
-<img width="1908" height="909" alt="image" src="https://github.com/user-attachments/assets/dd6c803d-3d31-4538-b7a8-ef3ca649b33a" />
-
-<img width="1907" height="908" alt="image" src="https://github.com/user-attachments/assets/f5992331-7c06-43ea-a63c-b99fda56a751" />
-
+### THEAI Agent - Enroll
+<img width="1912" height="909" alt="image" src="https://github.com/user-attachments/assets/a2724435-ba83-432b-959b-d07e30ff7bbe" />

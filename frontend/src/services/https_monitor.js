@@ -15,13 +15,20 @@ httpsClient.interceptors.request.use((config) => {
 });
 
 const httpsMonitorApi = {
-  // Check complet. payload : { url | server_id, save, verify_tls, follow_redirects, probe_protocols, method, timeout }
+
   runCheck: (payload) => httpsClient.post('/http-synthetic/check', payload),
 
-  // Historique : params { server_id, hostname, status, skip, limit (max 500) }, tri du plus récent au plus ancien
+  createTarget: (payload) => httpsClient.post('/http-synthetic/targets', payload),
+  listTargets: (params = {}) => httpsClient.get('/http-synthetic/targets', { params }),
+  getTarget: (id) => httpsClient.get(`/http-synthetic/targets/${id}`),
+  updateTarget: (id, payload) => httpsClient.put(`/http-synthetic/targets/${id}`, payload),
+  removeTarget: (id) => httpsClient.delete(`/http-synthetic/targets/${id}`),
+  checkTarget: (id) => httpsClient.post(`/http-synthetic/targets/${id}/check`),
+  checkAllTargets: () => httpsClient.post('/http-synthetic/targets/check-all'),
+  targetChecks: (id, params = {}) => httpsClient.get(`/http-synthetic/targets/${id}/checks`, { params }),
+
   list: (params = {}) => httpsClient.get('/http-synthetic/', { params }),
 
-  // Dernier résultat : params { server_id } ou { url }
   latest: (params) => httpsClient.get('/http-synthetic/latest', { params }),
 
   get: (id) => httpsClient.get(`/http-synthetic/${id}`),

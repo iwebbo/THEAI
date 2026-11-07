@@ -4,7 +4,7 @@
 
 # THEAI Monitoring & Vulnerability Platform
 
-A modern, professional server monitoring & vulnerability CVE. Monitor your servers in real-time using multiple protocols (ICMP, HTTP, SSH, TCP) or a lightweight outbound-only agent (metrics, inventory, open ports, CVE correlation) with an intuitive dashboard interface.
+A modern, professional server monitoring & vulnerability CVE. Monitor your servers in real-time using multiple protocols (ICMP, HTTP, SSH, TCP) or a lightweight outbound-only agent (metrics, inventory, open ports, CVE correlation) HTTPS Monitor (SSL/HTTPS Lifecycle) are now available.
 
 ![License](https://img.shields.io/badge/MIT-00599C?style=for-the-badge&logo=MIT&logoColor=black)
 ![Python](https://img.shields.io/badge/Python-4EAA25?style=for-the-badge&logo=Python&logoColor=black)
@@ -12,13 +12,13 @@ A modern, professional server monitoring & vulnerability CVE. Monitor your serve
 ![Docker](https://img.shields.io/badge/Docker-0078D6?style=for-the-badge&logo=Docker&logoColor=black)
 ![GO](https://img.shields.io/badge/GO-0078D6?style=for-the-badge&logo=GO&logoColor=black)
 ---
-[![Version](https://img.shields.io/badge/Version-v1.1.27-blue?style=for-the-badge&logo=github)](https://github.com/iwebbo/THEAI/releases/tag/v1.1.27)
+[![Version](https://img.shields.io/badge/Version-v1.1.28-blue?style=for-the-badge&logo=github)](https://github.com/iwebbo/THEAI/releases/tag/v1.1.28)
 ---
 
 ## Features
 
 ### Current Features
-- **HTTPS Monitor** : HTTPS/TLS and Certificate checks
+- **HTTPS Monitor** : HTTPS/TLS and Certificate checks (SSL/HTTPS Lifecyle)
 - **Multi-Protocol Monitoring**: Support for ICMP (ping), TCP, HTTP/HTTPS, and SSH monitoring
 - **Agent Monitoring**: Optional Go agent (Linux, Windows, AIX, BSD, macOS) pushing metrics, inventory and open ports over HTTPS
 - **CVE Correlation**: Installed packages matched against OSV.dev (Debian, Ubuntu, Alpine), sorted by KEV, EPSS, CVSS

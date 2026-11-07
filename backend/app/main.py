@@ -21,6 +21,7 @@ from core.config import settings
 from core.database import Base, engine
 from core.cve_schema import ensure_cve_schema
 from core.user import init_database
+from tasks.http_synthetic_scheduler import start_http_synthetic_scheduler
 from tasks.scheduler import start_scheduler
 from services.agent_vulns import start_agent_jobs
 from api.routes.auth import router as auth_router
@@ -29,6 +30,7 @@ from api.routes.auth import router as auth_router
 import models.check_history  # noqa: F401
 import models.agent  # noqa: F401
 import models.http_synthetic
+import models.http_synthetic_target
 
 # Configuration du logging
 logging.basicConfig(level=logging.INFO)
@@ -37,7 +39,7 @@ logger = logging.getLogger(__name__)
 # Création des tables dans la base de données
 Base.metadata.create_all(bind=engine)
 
-# Schéma CVE (SQL idempotent : installation neuve ou mise à jour d'une base existante)
+# Schéma CVE (SQL idempotent : Upgrade/scratch)
 try:
     ensure_cve_schema()
 except Exception as e:
@@ -47,7 +49,9 @@ app = FastAPI(
     title=settings.PROJECT_NAME,
     description="API pour le monitoring et la sécurité des serveurs",
     version=settings.PROJECT_VERSION,
-    openapi_url=f"{settings.API_V1_STR}/openapi.json"
+    openapi_url=f"{settings.API_V1_STR}/openapi.json",
+    docs_url="/api/docs",
+    redoc_url="/api/redoc",
 )
 
 # Configuration CORS
@@ -83,8 +87,9 @@ async def startup_event():
     except Exception as e:
         logger.error(f"Failed to initialize database: {e}")
 
-    # Démarrer le scheduler de monitoring
+    # Démarrer le scheduler de monitoring & http synthetic
     start_scheduler()
+    start_http_synthetic_scheduler()
 
     # Démarrer les tâches de fond de l'agent (analyse CVE via OSV, purge des métriques)
     start_agent_jobs()
@@ -132,26 +137,26 @@ async def check_security_tools():
         result = subprocess.run(["nmap", "--version"], capture_output=True, text=True)
         if result.returncode == 0:
             tools["nmap"] = True
-            print("✅ Nmap is available")
+            print(" Nmap is available")
     except:
-        print("⚠️ Nmap not found - port scanning will be limited")
+        print(" Nmap not found - port scanning will be limited")
 
     # Vérifier ping
     try:
         result = subprocess.run(["ping", "-c", "1", "127.0.0.1"], capture_output=True)
         if result.returncode == 0:
             tools["ping"] = True
-            print("✅ Ping is available")
+            print(" Ping is available")
     except:
-        print("⚠️ Ping not found - ICMP checks will be limited")
+        print(" Ping not found - ICMP checks will be limited")
 
     # Vérifier DNS
     try:
         import dns.resolver
         tools["dns"] = True
-        print("✅ DNS module is available")
+        print(" DNS module is available")
     except:
-        print("⚠️ DNS module not available - DNS checks will be limited")
+        print(" DNS module not available - DNS checks will be limited")
 
     return tools
 

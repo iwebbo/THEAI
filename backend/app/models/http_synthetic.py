@@ -13,6 +13,8 @@ class HttpSyntheticCheck(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     server_id = Column(Integer, ForeignKey("servers.id", ondelete="SET NULL"), nullable=True, index=True)
+    # NOUVEAU : cible (http_synthetic_targets) à l'origine du check. NULL = check ponctuel sans cible.
+    target_id = Column(Integer, ForeignKey("http_synthetic_targets.id", ondelete="SET NULL"), nullable=True, index=True)
 
     # Cible
     url = Column(String(2048), nullable=False)
@@ -67,4 +69,5 @@ class HttpSyntheticCheck(Base):
 
     __table_args__ = (
         Index("ix_http_synth_url_checked", "url", "checked_at"),
+        Index("ix_http_synth_target_checked", "target_id", "checked_at"),
     )

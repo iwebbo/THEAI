@@ -18,7 +18,7 @@ const serverUrl = (s) => {
   return `${https ? 'https' : 'http'}://${netloc}${s.http_path || '/'}`;
 };
 
-const EMPTY_OVERRIDES = { verify_tls: '', follow_redirects: '', probe_protocols: '', method: '', timeout: '' };
+const EMPTY_OVERRIDES = { verify_tls: '', follow_redirects: '', probe_protocols: '', method: '', timeout: '', interval_seconds: '' };
 
 const Field = ({ label, hint, children }) => (
   <div style={{ marginBottom: '1rem' }}>
@@ -39,6 +39,7 @@ const TriState = ({ value, onChange }) => (
 const HttpsTargetForm = () => {
   const [mode, setMode] = useState('url');
   const [url, setUrl] = useState('');
+  const [name, setName] = useState('');
   const [serverId, setServerId] = useState('');
   const [servers, setServers] = useState([]);
   const [save, setSave] = useState(true);
@@ -63,38 +64,72 @@ const HttpsTargetForm = () => {
     setError(null);
     setResult(null);
 
-    const payload = { save };
+    // Cible : URL (schéma ajouté si absent) ou serveur existant (URL déduite par le backend)
+    const target = {};
     if (mode === 'url') {
       const v = url.trim();
       if (!v) {
         setError('URL is required.');
         return;
       }
-      payload.url = withScheme(v);
+      target.url = withScheme(v);
     } else {
       if (!serverId) {
         setError('Select a server.');
         return;
       }
-      payload.server_id = Number(serverId);
+      target.server_id = Number(serverId);
     }
 
     // Seuls les réglages explicitement modifiés sont envoyés : le reste garde les défauts du backend
+    const options = {};
     ['verify_tls', 'follow_redirects', 'probe_protocols'].forEach((k) => {
-      if (overrides[k] !== '') payload[k] = overrides[k] === 'true';
+      if (overrides[k] !== '') options[k] = overrides[k] === 'true';
     });
-    if (overrides.method) payload.method = overrides.method;
+    if (overrides.method) options.method = overrides.method;
     if (overrides.timeout !== '') {
       const n = Number(overrides.timeout);
-      if (!Number.isNaN(n) && n > 0) payload.timeout = n;
+      if (!Number.isNaN(n) && n > 0) options.timeout = n;
+    }
+
+    // Test seul : check ponctuel, rien n'est stocké
+    if (!save) {
+      try {
+        setRunning(true);
+        const res = await httpsMonitorApi.runCheck({ ...target, ...options, save: false });
+        setResult({ check: res.data, saved: false });
+      } catch (err) {
+        setError(errMsg(err));
+      } finally {
+        setRunning(false);
+      }
+      return;
+    }
+
+    // Stockage : 1) création de la cible (table http_synthetic_targets), 2) premier check immédiat
+    const targetPayload = { ...target, ...options };
+    if (name.trim()) targetPayload.name = name.trim();
+    if (overrides.interval_seconds !== '') {
+      const n = Number(overrides.interval_seconds);
+      if (!Number.isNaN(n)) targetPayload.interval_seconds = n;
+    }
+
+    let created;
+    try {
+      setRunning(true);
+      created = (await httpsMonitorApi.createTarget(targetPayload)).data;
+    } catch (err) {
+      setError(err?.response?.status === 409 ? 'This target is already monitored.' : errMsg(err));
+      setRunning(false);
+      return;
     }
 
     try {
-      setRunning(true);
-      const res = await httpsMonitorApi.runCheck(payload);
-      setResult({ check: res.data, saved: save });
+      const res = await httpsMonitorApi.checkTarget(created.id);
+      setResult({ check: res.data, saved: true, targetId: created.id });
     } catch (err) {
-      setError(errMsg(err));
+      // La cible existe (le processor la checkera au prochain cycle) mais le premier check a échoué
+      setError(`Target saved (#${created.id}), but the first check failed: ${errMsg(err)}`);
     } finally {
       setRunning(false);
     }
@@ -104,6 +139,7 @@ const HttpsTargetForm = () => {
     setResult(null);
     setError(null);
     setUrl('');
+    setName('');
     setServerId('');
   };
 
@@ -171,6 +207,18 @@ const HttpsTargetForm = () => {
             </Field>
           )}
 
+          <Field label="Name (optional)" hint="Label of the stored target. Ignored for a test only.">
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              maxLength={255}
+              placeholder="My website"
+              className="form-input"
+              style={{ width: '100%', boxSizing: 'border-box' }}
+            />
+          </Field>
+
           <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem', marginBottom: '1rem' }}>
             <input type="checkbox" checked={save} onChange={(e) => setSave(e.target.checked)} />
             Store the result (creates the target and feeds history, SLA and alerts)
@@ -207,9 +255,22 @@ const HttpsTargetForm = () => {
                 <input
                   type="number"
                   min="1"
+                  max="60"
                   value={overrides.timeout}
                   onChange={(e) => setOverride('timeout', e.target.value)}
                   placeholder="Backend default"
+                  className="form-input"
+                  style={{ width: '100%', boxSizing: 'border-box' }}
+                />
+              </Field>
+              <Field label="Check interval (seconds)" hint="How often the processor checks a stored target (30 to 86400).">
+                <input
+                  type="number"
+                  min="30"
+                  max="86400"
+                  value={overrides.interval_seconds}
+                  onChange={(e) => setOverride('interval_seconds', e.target.value)}
+                  placeholder="Backend default (300)"
                   className="form-input"
                   style={{ width: '100%', boxSizing: 'border-box' }}
                 />

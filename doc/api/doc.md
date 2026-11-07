@@ -48,4 +48,12 @@ These endpoints are called by the agent, typically using a one-time token follow
 ## Synthetic Monitoring
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
-| `POST` | `/api/v1/synthetic/check` | Call the HTTPS Monitor |
+| **POST** | `/targets` | **Create a new target.** Sends the target details (URL, interval). |
+| **GET** | `/targets` | List all configured synthetic targets. |
+| **POST** | `/targets/{id}/check` | Manually trigger an immediate check for the specific target `{id}`. |
+| **GET** | `/targets/{id}` | Retrieve the current status, configuration details, and overall health of a specific target. |
+| **GET** | `/targets/{id}/checks` | Get the complete history of checks performed for target `{id}` (status code, duration, etc.). |
+| **POST** | `/check` | Execute a check in form/standalone mode. Can create/update a target if the `save: true` parameter is used. |
+| **PUT** | `/targets/{id}` | Modify the parameters of a target (e.g., disable it or change the interval). |
+| **POST** | `/targets/check-all` | Trigger checks simultaneously for all active targets in the system. |
+| **DELETE** | `/targets/{id}` | Completely delete a specific synthetic target. |

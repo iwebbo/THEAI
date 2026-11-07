@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap');
 
 /* ============================================================
    THEAI Monitoring - Muted Minimalist Design System
@@ -40,7 +41,8 @@
 
 /* ---------- Thème sombre (défaut) ---------- */
 :root,
-[data-theme="dark"] {
+[data-theme="dark"],
+[data-theme="glass-dark"] {
   color-scheme: dark;
 
   --bg-main: #09090b;
@@ -116,7 +118,8 @@
 }
 
 /* ---------- Thème clair ---------- */
-[data-theme="light"] {
+[data-theme="light"],
+[data-theme="glass"] {
   color-scheme: light;
 
   --bg-main: #f8fafc;
@@ -186,6 +189,108 @@
   --shadow-md: 0 4px 12px -2px rgba(15, 23, 42, 0.12);
   --shadow-lg: 0 10px 30px -10px rgba(15, 23, 42, 0.2);
   --shadow-xl: 0 20px 40px -12px rgba(15, 23, 42, 0.25);
+}
+
+/* ---------- Thème Glass clair (aecoding.io) ----------
+   Hérite des statuts / sévérités / graphiques / gris du thème clair,
+   surcharge surfaces, texte, accent (THEAI emerald), typo et rayons. */
+[data-theme="glass"] {
+  color-scheme: light;
+
+  --font-sans: 'DM Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'DM Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  --radius: 14px;
+  --radius-card: 14px;
+  --radius-btn: 11px;
+
+  --page-bg:
+    radial-gradient(900px 520px at 8% -8%, rgba(129, 140, 248, 0.38), transparent 62%),
+    radial-gradient(800px 520px at 96% 4%, rgba(45, 212, 191, 0.30), transparent 62%),
+    radial-gradient(900px 620px at 55% 104%, rgba(192, 132, 252, 0.26), transparent 62%),
+    #f3f5fb;
+
+  --bg-main: rgba(255, 255, 255, 0.50);
+  --bg-surface: rgba(255, 255, 255, 0.58);
+  --bg-surface-hover: rgba(255, 255, 255, 0.80);
+  --bg-sidebar: rgba(255, 255, 255, 0.45);
+  --bg-popover: #ffffff;
+  --border-color: rgba(15, 23, 42, 0.09);
+  --border-focus: rgba(15, 23, 42, 0.22);
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+
+  --accent-primary: #047857;
+  --accent-hover: #065f46;
+  --accent-text: #ffffff;
+  --accent-subtle: rgba(4, 120, 87, 0.10);
+  --accent-soft: #047857;
+  --accent-strong: #065f46;
+  --accent-stronger: #064e3b;
+
+  --shadow-xs: 0 1px 2px 0 rgba(60, 72, 140, 0.08);
+  --shadow-sm: 0 1px 3px 0 rgba(60, 72, 140, 0.12), 0 1px 2px 0 rgba(60, 72, 140, 0.06);
+  --shadow-md: 0 4px 12px -2px rgba(60, 72, 140, 0.14);
+  --shadow-lg: 0 10px 40px rgba(60, 72, 140, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  --shadow-xl: 0 20px 50px -12px rgba(60, 72, 140, 0.25);
+  --shadow-glass: 0 10px 40px rgba(60, 72, 140, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+/* ---------- Thème Glass sombre (aecoding.io) ----------
+   Hérite des statuts / sévérités / graphiques du thème sombre. */
+[data-theme="glass-dark"] {
+  color-scheme: dark;
+
+  --font-sans: 'DM Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'DM Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  --radius: 14px;
+  --radius-card: 14px;
+  --radius-btn: 11px;
+
+  --page-bg:
+    radial-gradient(900px 520px at 8% -8%, rgba(99, 102, 241, 0.40), transparent 62%),
+    radial-gradient(800px 520px at 96% 4%, rgba(20, 184, 166, 0.26), transparent 62%),
+    radial-gradient(900px 620px at 55% 104%, rgba(168, 85, 247, 0.24), transparent 62%),
+    #151b2f;
+
+  --bg-main: rgba(0, 0, 0, 0.18);
+  --bg-surface: rgba(255, 255, 255, 0.06);
+  --bg-surface-hover: rgba(255, 255, 255, 0.10);
+  --bg-sidebar: rgba(0, 0, 0, 0.25);
+  --bg-popover: #1b2238;
+  --border-color: rgba(255, 255, 255, 0.12);
+  --border-focus: rgba(255, 255, 255, 0.22);
+
+  --text-primary: #e8ecf7;
+  --text-secondary: #a3aec6;
+  --text-muted: #7c879f;
+
+  --accent-primary: #34d399;
+  --accent-hover: #6ee7b7;
+  --accent-text: #04130d;
+  --accent-subtle: rgba(52, 211, 153, 0.14);
+  --accent-soft: #34d399;
+  --accent-strong: #6ee7b7;
+  --accent-stronger: #a7f3d0;
+
+  --gray-50: rgba(255, 255, 255, 0.04);
+  --gray-100: rgba(255, 255, 255, 0.07);
+  --gray-200: rgba(255, 255, 255, 0.12);
+  --gray-300: rgba(255, 255, 255, 0.20);
+  --gray-400: #64708a;
+  --gray-500: #8a94ab;
+  --gray-600: #a3aec6;
+  --gray-700: #c5cde0;
+  --gray-800: #dce2f0;
+  --gray-900: #e8ecf7;
+
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.25);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --shadow-xl: 0 20px 40px -12px rgba(0, 0, 0, 0.6);
+  --shadow-glass: 0 10px 40px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 /* ---------- Alias des anciens tokens (dérivés des nouveaux) ---------- */
@@ -270,7 +375,9 @@ body {
   font-family: var(--font-sans);
   font-size: 0.875rem;
   line-height: 1.5;
-  background-color: var(--bg-main);
+  background: var(--page-bg, var(--bg-main));
+  background-attachment: fixed;
+  min-height: 100vh;
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -950,4 +1057,36 @@ tbody tr:hover {
 }
 .nav-sublink {
   padding: 0.375rem 0.625rem;
+}
+
+/* ============================================================
+   Thèmes Glass : surfaces translucides + flou d'arrière-plan
+   ============================================================ */
+[data-theme^="glass"] .app-shell {
+  background: transparent;
+}
+[data-theme^="glass"] .card,
+[data-theme^="glass"] .auth-card,
+[data-theme^="glass"] .user-dropdown {
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  backdrop-filter: blur(20px) saturate(160%);
+}
+[data-theme^="glass"] .card,
+[data-theme^="glass"] .auth-card {
+  box-shadow: var(--shadow-glass);
+}
+[data-theme^="glass"] .user-dropdown {
+  background: color-mix(in srgb, var(--bg-popover) 88%, transparent);
+}
+[data-theme^="glass"] select option {
+  background: var(--bg-popover);
+  color: var(--text-primary);
+}
+/* Repli sans backdrop-filter : fonds opaques pour garder la lisibilité */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  [data-theme^="glass"] .card,
+  [data-theme^="glass"] .auth-card,
+  [data-theme^="glass"] .user-dropdown {
+    background: var(--bg-popover);
+  }
 }
