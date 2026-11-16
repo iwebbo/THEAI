@@ -17,12 +17,14 @@ from api.routes.cve import router as cve_router
 from api.routes.metrics import router as metrics_router
 from api.routes.agent import agent_router, agents_router
 from api.routes.http_synthetic import router as http_synthetic_router
+from api.routes.version_checker import router as version_checker
 from core.config import settings
 from core.database import Base, engine
 from core.cve_schema import ensure_cve_schema
 from core.user import init_database
 from tasks.http_synthetic_scheduler import start_http_synthetic_scheduler
 from tasks.scheduler import start_scheduler
+from tasks.version_checker_scheduler import start_version_checker_scheduler
 from services.agent_vulns import start_agent_jobs
 from api.routes.auth import router as auth_router
 
@@ -31,6 +33,7 @@ import models.check_history  # noqa: F401
 import models.agent  # noqa: F401
 import models.http_synthetic
 import models.http_synthetic_target
+import models.version_checker
 
 # Configuration du logging
 logging.basicConfig(level=logging.INFO)
@@ -74,6 +77,7 @@ app.include_router(http_synthetic_router, prefix=f"{settings.API_V1_STR}/http-sy
 # Agent : routes appelées par les agents (clé API) et par l'interface (JWT)
 app.include_router(agent_router, prefix=f"{settings.API_V1_STR}/agent", tags=["agent"])
 app.include_router(agents_router, prefix=f"{settings.API_V1_STR}/agents", tags=["agents"])
+app.include_router(version_checker, prefix=f"{settings.API_V1_STR}/version-checker", tags=["version-checker"])
 
 
 @app.on_event("startup")
@@ -87,9 +91,10 @@ async def startup_event():
     except Exception as e:
         logger.error(f"Failed to initialize database: {e}")
 
-    # Démarrer le scheduler de monitoring & http synthetic
+    # Démarrer le scheduler de monitoring & http synthetic & version_checker
     start_scheduler()
     start_http_synthetic_scheduler()
+    start_version_checker_scheduler()
 
     # Démarrer les tâches de fond de l'agent (analyse CVE via OSV, purge des métriques)
     start_agent_jobs()

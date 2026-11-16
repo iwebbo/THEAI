@@ -57,3 +57,17 @@ These endpoints are called by the agent, typically using a one-time token follow
 | **PUT** | `/targets/{id}` | Modify the parameters of a target (e.g., disable it or change the interval). |
 | **POST** | `/targets/check-all` | Trigger checks simultaneously for all active targets in the system. |
 | **DELETE** | `/targets/{id}` | Completely delete a specific synthetic target. |
+
+## Version Checker
+
+| Application | Description & Authentication | JSON Payload (`-d`) |
+| :--- | :--- | :--- |
+| **SonarQube** | Public, optional token | `{"app_type":"sonarqube","url":"http://sonarqube.lan:9000"}` |
+| **Portainer** | Public, optional token (optional channel: `lts` \| `sts` \| `any`) | `{"app_type":"portainer","url":"https://portainer.lan:9443","verify_tls":false}` |
+| **Grafana** | Optional token | `{"app_type":"grafana","url":"https://grafana.lan:3000","verify_tls":true}` |
+| **Argo CD** | Public | `{"app_type":"argocd","url":"https://argocd.lan"}` |
+| **Wiki.js** | **MANDATORY Token** (API key) | `{"app_type":"wikijs","url":"https://wiki.lan","token":"<Wiki.js API key>"}` |
+| **Gitea** | Optional token | `{"app_type":"gitea","url":"http://gitea.lan:3000"}` |
+| **OpenSearch** | `username` + `password` authentication | `{"app_type":"opensearch","url":"https://opensearch.lan:9200","verify_tls":false,"username":"<user>","password":"<password>"}` |
+| **MinIO** | Token = JWT from `mc admin prometheus generate` (or empty if public) | `{"app_type":"minio","url":"http://minio.lan:9000"}` |
+| **Proxmox** | **MANDATORY Token** in format `user@realm!tokenid=<secret>` | `{"app_type":"proxmox","url":"https://proxmox.lan:8006","verify_tls":false,"token":"theai@pam!check=<secret>"}` |

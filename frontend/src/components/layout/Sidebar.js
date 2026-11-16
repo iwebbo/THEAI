@@ -17,7 +17,9 @@ import {
   Globe,
   Lock,
   HardDrive,
-  ChevronDown
+  ChevronDown,
+  PackageCheck,
+  ListChecks
 } from 'lucide-react';
 import useTheme from '../../hooks/useTheme';
 
@@ -53,6 +55,14 @@ const MENU_ITEMS = [
     children: [
       { path: '/https-monitor', label: 'Targets', icon: Lock },
       { path: '/https-monitor/new', label: 'Add Target', icon: PlusCircle }
+    ]
+  },
+  {
+    label: 'Versions',
+    icon: PackageCheck,
+    children: [
+      { path: '/version-checker', label: 'Version Checker', icon: ListChecks },
+      { path: '/version-checker/new', label: 'Add Instance', icon: PlusCircle }
     ]
   },
   { path: '/cve', label: 'Vulnerabilities', icon: ShieldAlert },

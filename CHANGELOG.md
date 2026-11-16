@@ -1,34 +1,38 @@
 # THEAI Changelog
 
-## Version v1.1.28 - [07/11/2026]
+## Version v1.1.29 - [15/11/2026]
 
-This release introduces comprehensive synthetic monitoring capabilities for both HTTP and HTTPS targets, alongside improvements to the frontend theming system.
+Adds a new Version Checker feature that enables users to check for available software updates through local registry checks and upstream source verification.
 
 ---
 
 ### New Features & Enhancements
 
-#### HTTP Synthetic Monitoring
-Added full backend support for defining and scheduling HTTP-based synthetic checks. This includes new models, services, and API routes.
+#### Version Checker API
+Implements backend REST endpoint with models, schemas, and service layer for version checking functionality.
 
-*   **New Target Model:** Introduced `http_synthetic_target` model to define monitoring targets.
-*   **API Routes Added:** Implemented dedicated API routes for handling HTTP synthetic data.
-*   **Scheduling Logic:** Added a new scheduler task specifically for running HTTP synthetic checks.
+*   **REST Endpoint:** New /version_checker route in app/api/routes/version_checker.py
+*   **Data Models:** VersionChecker model defines request/response structure
+*   **Schemas:** Pydantic schemas validate version check inputs and outputs
 
-#### HTTPS Target Management
-Enhanced the user interface and services to manage HTTPS monitoring targets.
+#### Version Checker Services
+Creates comprehensive service layer for different version checking strategies including local, upstream, registry, and crypto verification.
 
-*   **Target Form Component:** Updated `HttpsTargetForm.js` for defining HTTPS monitoring endpoints.
-*   **Frontend Service Layer:** Added dedicated service logic for handling HTTPS monitor operations.
+*   **Local Check:** checker_local.py checks installed version against configured target
+*   **Upstream Check:** checker_upstream.py fetches latest versions from official sources
+*   **Registry Check:** checker_registry.py queries package registries for available versions
+*   **Crypto Verification:** checker_crypto.py validates version signatures and integrity
 
-#### Theming System Update
-Implemented new theming capabilities across the application's frontend components.
+#### Version Checker Scheduler
+Adds background task scheduler to automatically check for updates at configured intervals.
 
-*   **Theme Hook Updated:** Updated `useTheme.js` to support theme switching logic.
-*   **Global Styling Changes:** Modified main CSS styles to accommodate new themes.
+*   **Scheduled Tasks:** version_checker_scheduler.py runs periodic update checks
+*   **Config Support:** checker_config.py stores scheduling preferences and settings
 
-**Fixes & Bug Resolutions**
+#### Version Checker UI
+Adds frontend pages for viewing version information and configuring update targets.
 
-*   **K8s Pod Monitoring Fix:** Fixed issues related to ICMP monitoring in non-root pods within the Helm/Kubernetes environment.
+*   **Version Page:** VersionCheckerPage.js displays current vs available versions
+*   **Target Form:** VersionTargetFormPage.js lets users configure update destinations
 
 ---

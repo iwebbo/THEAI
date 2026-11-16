@@ -4,7 +4,7 @@
 
 # THEAI Monitoring & Vulnerability Platform
 
-A modern, professional server monitoring & vulnerability CVE. Monitor your servers in real-time using multiple protocols (ICMP, HTTP, SSH, TCP) or a lightweight outbound-only agent (metrics, inventory, open ports, CVE correlation) HTTPS Monitor (SSL/HTTPS Lifecycle) are now available.
+A modern, professional server monitoring & vulnerability CVE. Monitor your servers in real-time using multiple protocols (ICMP, HTTP, SSH, TCP) or a lightweight outbound-only agent (metrics, inventory, open ports, CVE correlation), HTTPS Monitor (SSL/HTTPS Lifecycle) are now available.
 
 ![License](https://img.shields.io/badge/MIT-00599C?style=for-the-badge&logo=MIT&logoColor=black)
 ![Python](https://img.shields.io/badge/Python-4EAA25?style=for-the-badge&logo=Python&logoColor=black)
@@ -12,12 +12,13 @@ A modern, professional server monitoring & vulnerability CVE. Monitor your serve
 ![Docker](https://img.shields.io/badge/Docker-0078D6?style=for-the-badge&logo=Docker&logoColor=black)
 ![GO](https://img.shields.io/badge/GO-0078D6?style=for-the-badge&logo=GO&logoColor=black)
 ---
-[![Version](https://img.shields.io/badge/Version-v1.1.28-blue?style=for-the-badge&logo=github)](https://github.com/iwebbo/THEAI/releases/tag/v1.1.28)
+[![Version](https://img.shields.io/badge/Version-v1.1.29-blue?style=for-the-badge&logo=github)](http://gitea.aecoding.local:3000/kiki/THEAI/releases/tag/v1.1.29)
 ---
 
 ## Features
 
 ### Current Features
+- **Version Checker** : Checker versions available for (Wiki, Jenkins, Docker, Kube, ArgoCD, MinIO, SonarQube, Gitea, OpenSearch, Grafana)
 - **HTTPS Monitor** : HTTPS/TLS and Certificate checks (SSL/HTTPS Lifecyle)
 - **Multi-Protocol Monitoring**: Support for ICMP (ping), TCP, HTTP/HTTPS, and SSH monitoring
 - **Agent Monitoring**: Optional Go agent (Linux, Windows, AIX, BSD, macOS) pushing metrics, inventory and open ports over HTTPS
@@ -49,22 +50,27 @@ A modern, professional server monitoring & vulnerability CVE. Monitor your serve
 ### Vulnerability
 > **Documentation of Vulnerability** :
 
-[![Vulnerability Badge](https://img.shields.io/badge/Vuln-red?style=for-the-badge&logo=security)](doc/vulnerability/doc.md)
+[![Vulnerability Badge](https://img.shields.io/badge/Vuln-red?style=for-the-badge&logo=shield&label=DOC)](doc/vulnerability/doc.md)
 
 ### Agents
 > **Documentation of Agents** : 
 
-[![Agents Badge](https://img.shields.io/badge/Agent-green?style=for-the-badge&logo=robot)](doc/agents/install.md)
+[![Agents Badge](https://img.shields.io/badge/Agent-green?style=for-the-badge&logo=shield&label=DOC)](doc/agents/install.md)
 
 ### HTTPS Monitor
 > **Documentation of HTTPS Monitor** : 
 
-[![Shield Badge](https://img.shields.io/badge/Security-blue?style=for-the-badge&logo=shield)](doc/https_monitor/doc.md)
+[![Shield Badge](https://img.shields.io/badge/Security-blue?style=for-the-badge&logo=shield&label=DOC)](doc/https_monitor/doc.md)
+
+### Version Checker
+> **Documentation of Version Checker** : 
+
+[![Version Checker](https://img.shields.io/badge/Version_Checker-orange?style=for-the-badge&logo=shield&label=DOC)](doc/versions/doc.md)
 
 ### API
 > **Documentation of API** :
 
-[![API Badge](https://img.shields.io/badge/API-orange?style=for-the-badge&logo=code)](docs/api/doc.md)
+[![API Badge](https://img.shields.io/badge/API-orange?style=for-the-badge&logo=shield&label=DOC)](docs/api/doc.md)
 
 ## Prerequisites
 

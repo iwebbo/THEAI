@@ -20,6 +20,8 @@ import Overview from './pages/Overview';
 import HttpsMonitor from './components/https_monitor/HttpsMonitor';
 import HttpsTargetForm from './components/https_monitor/HttpsTargetForm';
 import HttpsTargetDetail from './components/https_monitor/HttpsTargetDetail';
+import VersionCheckerPage from './pages/VersionCheckerPage';
+import VersionTargetFormPage from './pages/VersionTargetFormPage';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -267,6 +269,39 @@ function App() {
             <ProtectedRoute>
               <Layout user={user} onLogout={handleLogout}>
                 <HttpsTargetDetail />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/version-checker"
+          element={
+            <ProtectedRoute>
+              <Layout user={user} onLogout={handleLogout}>
+                <VersionCheckerPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/version-checker/new"
+          element={
+            <ProtectedRoute>
+              <Layout user={user} onLogout={handleLogout}>
+                <VersionTargetFormPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/version-checker/edit/:id"
+          element={
+            <ProtectedRoute>
+              <Layout user={user} onLogout={handleLogout}>
+                <VersionTargetFormPage />
               </Layout>
             </ProtectedRoute>
           }
