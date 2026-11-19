@@ -11,6 +11,8 @@ from datetime import datetime, timezone
 from core.database import SessionLocal
 from models.http_synthetic_target import HttpSyntheticTarget
 from services import http_synthetic_target_service as svc
+from core.config import settings
+from services.history import purge_http_history
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +46,8 @@ async def check_http_targets_periodically(tick_seconds: int = TICK_SECONDS):
             n = await run_due_targets(db)
             if n:
                 logger.info("HTTP synthetic : %s cible(s) checkée(s)", n)
+            purge_http_history(db, settings.CHECK_HISTORY_RETENTION_DAYS_HTTP)
+            db.commit()
         except Exception as e:
             logger.error("HTTP synthetic processor error: %s", e)
             db.rollback()

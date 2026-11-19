@@ -1,38 +1,25 @@
 # THEAI Changelog
 
-## Version v1.1.29 - [15/11/2026]
+## Version v1.1.30 - [18/11/2026]
 
-Adds a new Version Checker feature that enables users to check for available software updates through local registry checks and upstream source verification.
+This pull request fixes issues with the local wiki version checker (v3) and adds database purge retention configuration for HTTP Synthetic monitoring.
 
 ---
 
 ### New Features & Enhancements
 
-#### Version Checker API
-Implements backend REST endpoint with models, schemas, and service layer for version checking functionality.
+#### Local wiki version checker v3
+Updates the local wiki version checker to support version 3 with improved functionality.
 
-*   **REST Endpoint:** New /version_checker route in app/api/routes/version_checker.py
-*   **Data Models:** VersionChecker model defines request/response structure
-*   **Schemas:** Pydantic schemas validate version check inputs and outputs
+*   **checker_local.py:** Enhanced version checking logic for local wiki
+*   **config.py:** Updated configuration settings
 
-#### Version Checker Services
-Creates comprehensive service layer for different version checking strategies including local, upstream, registry, and crypto verification.
+#### HTTP Synthetic monitor scheduler retention
+Adds database purge retention period configuration to the HTTP synthetic monitoring scheduler.
 
-*   **Local Check:** checker_local.py checks installed version against configured target
-*   **Upstream Check:** checker_upstream.py fetches latest versions from official sources
-*   **Registry Check:** checker_registry.py queries package registries for available versions
-*   **Crypto Verification:** checker_crypto.py validates version signatures and integrity
+*   **http_synthetic_scheduler.py:** Implements db purge retention setting
+*   **values.yaml:** Exposes retention configuration in charts
 
-#### Version Checker Scheduler
-Adds background task scheduler to automatically check for updates at configured intervals.
+**Fixes & Bug Resolutions**
 
-*   **Scheduled Tasks:** version_checker_scheduler.py runs periodic update checks
-*   **Config Support:** checker_config.py stores scheduling preferences and settings
-
-#### Version Checker UI
-Adds frontend pages for viewing version information and configuring update targets.
-
-*   **Version Page:** VersionCheckerPage.js displays current vs available versions
-*   **Target Form:** VersionTargetFormPage.js lets users configure update destinations
-
----
+*   **Local wiki version checker v3:** Fixes issues with the local wiki version checker for version 3

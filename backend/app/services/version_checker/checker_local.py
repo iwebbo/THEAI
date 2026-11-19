@@ -11,7 +11,8 @@ Endpoints utilisés (tous en lecture seule) :
     Grafana     GET /api/health                  -> {"version": ...}
                 (repli : /api/frontend/settings -> buildInfo.version)
     ArgoCD      GET /api/version                 -> {"Version": ...} (public)
-    Wiki.js     POST /graphql  system.info.currentVersion (clé API requise)
+    Wiki.js     GET /_api/system/info            -> version (Wiki.js 3.x, REST ; clé API facultative)
+                (repli 2.x : POST /graphql system.info.currentVersion, clé API requise)
     Gitea       GET /api/v1/version              -> {"version": ...}
     OpenSearch  GET /                            -> {"version": {"number": ...}}
     MinIO       GET /minio/v2/metrics/cluster    -> minio_software_version_info{version=...}
@@ -116,9 +117,28 @@ async def argocd(client: httpx.AsyncClient, cfg: AppConfig) -> str:
     return _dig(_json(resp), "Version")
 
 
-async def wikijs(client: httpx.AsyncClient, cfg: AppConfig) -> str:
-    if not cfg.token:
-        raise VersionError("VC_WIKIJS_TOKEN requis (clé API avec droit manage:system)")
+_WIKI_VERSION_KEYS = ("version", "currentVersion", "appVersion")
+_WIKI_WRAPPER_KEYS = ("data", "info", "system")
+
+
+def _wiki_find_version(data: Any) -> str:
+    """Cherche la version de l'application dans la réponse de /_api/system/info.
+
+    Clés acceptées au niveau racine ou dans un conteneur (data / info / system). Aucune
+    recherche récursive : la réponse peut contenir d'autres versions (base de données, Node...)."""
+    levels = [data] if isinstance(data, dict) else []
+    if isinstance(data, dict):
+        levels += [data[k] for k in _WIKI_WRAPPER_KEYS if isinstance(data.get(k), dict)]
+    for level in levels:
+        for key in _WIKI_VERSION_KEYS:
+            value = level.get(key)
+            if isinstance(value, str) and value.strip():
+                return value.strip()
+    keys = ", ".join(sorted(data)) if isinstance(data, dict) else type(data).__name__
+    raise VersionError(f"champ de version absent de /_api/system/info (clés : {keys})")
+
+
+async def _wikijs_v2(client: httpx.AsyncClient, cfg: AppConfig) -> str:
     query = {"query": "{ system { info { currentVersion } } }"}
     resp = _ok(await client.post(cfg.url + "/graphql", json=query,
                                  headers={"Authorization": f"Bearer {cfg.token}"}))
@@ -127,6 +147,20 @@ async def wikijs(client: httpx.AsyncClient, cfg: AppConfig) -> str:
         msg = data["errors"][0].get("message", "erreur GraphQL") if isinstance(data["errors"][0], dict) else "erreur GraphQL"
         raise VersionError(f"GraphQL : {msg}")
     return _dig(data, "data", "system", "info", "currentVersion")
+
+
+async def wikijs(client: httpx.AsyncClient, cfg: AppConfig) -> str:
+    # Wiki.js 3.x : API REST sous /_api (GraphQL supprimé). La clé API est envoyée si fournie.
+    headers = {"Accept": "application/json"}
+    if cfg.token:
+        headers["Authorization"] = f"Bearer {cfg.token}"
+    resp = await _get(client, cfg, "/_api/system/info", headers=headers)
+    if resp.status_code == 404:
+        # Pas d'API REST : instance Wiki.js 2.x (GraphQL, clé API obligatoire)
+        if not cfg.token:
+            raise VersionError("/_api/system/info introuvable (Wiki.js 2.x ?) : token requis pour GraphQL")
+        return await _wikijs_v2(client, cfg)
+    return _wiki_find_version(_json(_ok(resp)))
 
 
 async def gitea(client: httpx.AsyncClient, cfg: AppConfig) -> str:

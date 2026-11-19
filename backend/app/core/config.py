@@ -22,6 +22,7 @@ class Settings(BaseSettings):
 
     # Historique des checks (alimente Grafana) - retention en jours
     CHECK_HISTORY_RETENTION_DAYS: int = int(os.getenv("CHECK_HISTORY_RETENTION_DAYS", "30"))
+    CHECK_HISTORY_RETENTION_DAYS_HTTP: int = int(os.getenv("CHECK_HISTORY_RETENTION_DAYS_HTTP", "30"))
 
     # CORS origins
     BACKEND_CORS_ORIGINS: list[str] = ["*"]
